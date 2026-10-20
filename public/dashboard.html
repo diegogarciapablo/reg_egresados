@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi ficha - Registro de Egresados</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar" id="topbar"></header>
+
+  <main class="container">
+    <div class="page-header flex-between">
+      <div>
+        <h1>Mi ficha</h1>
+        <p class="muted">Completa tu informacion para que aparezca en el directorio.</p>
+      </div>
+      <div id="visibilityBox"></div>
+    </div>
+
+    <div id="generalAlert"></div>
+
+    <section class="card">
+      <div class="section-title"><h2>Informacion general</h2></div>
+      <div class="profile-photo-editor">
+        <div class="profile-photo-frame">
+          <img id="profilePhoto" alt="Foto de perfil" hidden />
+          <div id="profilePhotoPlaceholder" class="profile-photo-placeholder">Sin foto</div>
+          <button id="photoSelectBtn" class="photo-edit-button" type="button" aria-label="Subir foto de perfil" title="Subir foto de perfil">Subir foto</button>
+        </div>
+        <div class="profile-photo-actions">
+          <p class="hint">JPEG, PNG o WebP. Maximo 5 MB.</p>
+          <button id="photoRemoveBtn" class="photo-remove-button" type="button" hidden>Quitar foto</button>
+        </div>
+        <input id="photoFileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden />
+      </div>
+      <form id="profileForm">
+        <div class="form-group">
+          <label for="firstName">Nombres</label>
+          <input type="text" id="firstName" />
+        </div>
+        <div class="form-group">
+          <label for="lastName">Apellidos</label>
+          <input type="text" id="lastName" />
+        </div>
+        <div class="form-group">
+          <label for="currentRole">Cargo actual</label>
+          <input type="text" id="currentRole" placeholder="Ej: Analista de sistemas" />
+        </div>
+        <div class="form-group">
+          <label for="professionalSummary">Resumen profesional</label>
+          <textarea id="professionalSummary" maxlength="1000"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="githubUrl">GitHub</label>
+          <input type="url" id="githubUrl" placeholder="https://github.com/usuario" />
+        </div>
+        <div class="form-group">
+          <label for="linkedinUrl">LinkedIn</label>
+          <input type="url" id="linkedinUrl" placeholder="https://linkedin.com/in/usuario" />
+        </div>
+        <div class="form-group">
+          <label for="portfolioUrl">Portafolio</label>
+          <input type="url" id="portfolioUrl" placeholder="https://miportafolio.com" />
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar informacion</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="section-title"><h2>Tecnologias</h2></div>
+      <p class="hint">Selecciona las tecnologias que dominas.</p>
+      <div id="technologiesChips" class="chip-group"></div>
+      <button id="saveTechnologiesBtn" class="btn btn-secondary" style="margin-top:12px;">Guardar tecnologias</button>
+    </section>
+
+    <section class="card">
+      <div class="section-title"><h2>Habilidades blandas</h2></div>
+      <div id="softSkillsChips" class="chip-group"></div>
+      <button id="saveSoftSkillsBtn" class="btn btn-secondary" style="margin-top:12px;">Guardar habilidades</button>
+    </section>
+
+    <section class="card">
+      <div class="section-title flex-between">
+        <h2>Experiencia</h2>
+        <button id="addExperienceBtn" class="btn btn-secondary" type="button">Agregar experiencia</button>
+      </div>
+      <div id="experiencesList"></div>
+      <button id="saveExperiencesBtn" class="btn btn-primary" style="margin-top:12px;">Guardar experiencia</button>
+    </section>
+
+    <section class="card">
+      <div class="section-title flex-between">
+        <h2>Proyectos</h2>
+        <button id="addProjectBtn" class="btn btn-secondary" type="button">Agregar proyecto</button>
+      </div>
+      <div id="projectsList"></div>
+      <button id="saveProjectsBtn" class="btn btn-primary" style="margin-top:12px;">Guardar proyectos</button>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

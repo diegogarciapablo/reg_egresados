@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administracion - Registro de Egresados</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar" id="topbar"></header>
+
+  <main class="container admin-page">
+    <div class="page-header flex-between">
+      <div>
+        <h1>Administracion</h1>
+        <p id="entityTitle" class="muted">Registros</p>
+      </div>
+    </div>
+
+    <div id="adminAlert"></div>
+
+    <section class="card admin-table-card">
+      <div class="admin-table-toolbar">
+        <h2 id="tableTitle">Registros</h2>
+        <label class="admin-search-label">
+          <span>Buscar</span>
+          <input id="entitySearch" type="search" placeholder="Buscar en todos los campos" autocomplete="off" />
+        </label>
+      </div>
+      <div class="admin-table-scroll">
+        <table class="admin-table">
+          <thead><tr id="entityTableHead"></tr></thead>
+          <tbody id="entityTableBody"></tbody>
+        </table>
+      </div>
+      <p id="emptyState" class="empty-state" hidden></p>
+    </section>
+  </main>
+
+  <div id="editDialog" class="admin-dialog" hidden>
+    <section class="admin-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="editDialogTitle">
+      <div class="flex-between admin-dialog-heading">
+        <h2 id="editDialogTitle">Editar registro</h2>
+        <button id="closeEditDialog" class="admin-icon-button" type="button" aria-label="Cerrar">X</button>
+      </div>
+      <form id="editForm">
+        <div id="editFields" class="admin-form-fields"></div>
+        <div class="admin-dialog-actions">
+          <button id="cancelEdit" class="btn btn-secondary" type="button">Cancelar</button>
+          <button id="saveEdit" class="btn btn-primary" type="submit">Guardar cambios</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

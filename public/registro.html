@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crear cuenta - Registro de Egresados</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar" id="topbar"></header>
+
+  <main class="container" style="max-width: 460px;">
+    <div class="card">
+      <h1>Crear cuenta de egresado</h1>
+      <div id="alertBox"></div>
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="firstName">Nombres</label>
+          <input type="text" id="firstName" required />
+        </div>
+        <div class="form-group">
+          <label for="lastName">Apellidos</label>
+          <input type="text" id="lastName" required />
+        </div>
+        <div class="form-group">
+          <label for="graduationYear">Ano de egreso</label>
+          <input type="number" id="graduationYear" min="1950" max="2100" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Correo electronico</label>
+          <input type="email" id="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Contrasena</label>
+          <input type="password" id="password" minlength="8" required />
+          <div class="hint">Minimo 8 caracteres.</div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Crear cuenta</button>
+      </form>
+      <p class="hint" style="margin-top:14px;">
+        ¿Ya tienes cuenta? <a href="/login.html">Inicia sesion</a>
+      </p>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/registro.js"></script>
+</body>
+</html>

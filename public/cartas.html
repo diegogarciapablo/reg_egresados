@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cartas de presentacion - Registro de Egresados</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .letter-editor-container {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      align-items: start;
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 860px) {
+      .letter-editor-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .letter-form-panel {
+      min-width: 0;
+      max-height: calc(100vh - 150px);
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .letter-preview-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      max-height: calc(100vh - 150px);
+      overflow-y: auto;
+      position: sticky;
+      top: 16px;
+    }
+
+    .letter-preview {
+      font-family: "Georgia", "Times New Roman", serif;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      line-height: 1.6;
+      color: var(--text);
+      font-size: 0.95rem;
+      min-height: 400px;
+      padding: 20px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .saved-letters-title {
+      margin-top: 32px;
+      font-size: 1.05rem;
+    }
+
+    .preview-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    .form-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-columns .form-group {
+      margin-bottom: 0;
+    }
+
+    .form-columns.full {
+      grid-template-columns: 1fr;
+    }
+
+    @media (max-width: 560px) {
+      .form-columns {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 20px;
+      margin-bottom: 14px;
+      color: var(--primary-dark);
+      border-bottom: 2px solid var(--secondary);
+      padding-bottom: 8px;
+    }
+
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .chip {
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .chip:hover {
+      border-color: var(--secondary);
+      background: var(--secondary);
+      color: white;
+    }
+
+    .chip.selected {
+      background: var(--secondary);
+      color: white;
+      border-color: var(--secondary);
+    }
+
+    .counter {
+      display: inline-block;
+      background: var(--warning);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .hint {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 28px;
+      max-width: 500px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .btn-cancel {
+      background: var(--panel-soft);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .btn-cancel:hover {
+      background: var(--border);
+    }
+
+    @page {
+      size: A4;
+      margin: 25mm;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+      .container {
+        padding: 0;
+        max-width: none;
+      }
+      .page-header, .saved-letters-title, #lettersList, #alertBox, header, .letter-form-panel,
+      .preview-actions, .modal-overlay {
+        display: none !important;
+      }
+      .letter-editor-container {
+        display: block;
+        margin: 0;
+      }
+      .letter-preview-panel {
+        position: static;
+        padding: 0;
+        max-height: none;
+        overflow: visible;
+        border: none;
+        background: white;
+        box-shadow: none;
+      }
+      .letter-preview {
+        border: none;
+        padding: 0;
+        margin: 0;
+        min-height: 0;
+        box-shadow: none;
+        color: #000;
+      }
+      .letter-preview-panel > h2 {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar" id="topbar"></header>
+
+  <main class="container">
+    <div class="page-header flex-between">
+      <div>
+        <h1>Cartas de presentacion</h1>
+        <p class="muted">Crea y edita tus cartas para postular a distintas empresas.</p>
+      </div>
+      <button id="newLetterBtn" class="btn btn-primary">Nueva carta</button>
+    </div>
+
+    <div id="alertBox"></div>
+
+    <div id="editorSection" style="display:none;">
+      <div class="letter-editor-container">
+        <div class="letter-form-panel">
+          <section class="card">
+            <h2>Completa tus datos</h2>
+            <form id="letterForm">
+              <div class="form-columns">
+                <div class="form-group">
+                  <label for="fullName">Nombre completo *</label>
+                  <input type="text" id="fullName" required />
+                </div>
+                <div class="form-group">
+                  <label for="phone">Telefono</label>
+                  <input type="text" id="phone" />
+                </div>
+              </div>
+
+              <div class="form-columns">
+                <div class="form-group">
+                  <label for="cityCountry">Ciudad, pais</label>
+                  <input type="text" id="cityCountry" />
+                </div>
+                <div class="form-group">
+                  <label for="letterEmail">Correo de contacto</label>
+                  <input type="email" id="letterEmail" />
+                </div>
+              </div>
+
+              <div class="section-title">Ciudad y fecha de envio</div>
+              <div class="form-columns">
+                <div class="form-group">
+                  <label for="sendingCity">Ciudad de envio</label>
+                  <input type="text" id="sendingCity" />
+                </div>
+                <div class="form-group">
+                  <label for="sendingDate">Fecha</label>
+                  <input type="date" id="sendingDate" />
+                </div>
+              </div>
+
+              <div class="section-title">Datos del reclutador</div>
+              <div class="form-columns">
+                <div class="form-group">
+                  <label for="recruiterName">Nombre (opcional)</label>
+                  <input type="text" id="recruiterName" />
+                </div>
+                <div class="form-group">
+                  <label for="recruiterRole">Cargo (opcional)</label>
+                  <input type="text" id="recruiterRole" />
+                </div>
+              </div>
+
+              <div class="form-columns full">
+                <div class="form-group">
+                  <label for="companyName">Empresa destino *</label>
+                  <input type="text" id="companyName" required />
+                </div>
+              </div>
+
+              <div class="section-title">Puesto y busqueda</div>
+              <div class="form-columns">
+                <div class="form-group">
+                  <label for="targetPosition">Puesto al que aplicas *</label>
+                  <input type="text" id="targetPosition" required />
+                </div>
+                <div class="form-group">
+                  <label for="jobSource">¿Dónde viste la vacante?</label>
+                  <input type="text" id="jobSource" />
+                </div>
+              </div>
+
+              <div class="section-title">Formacion academica</div>
+              <div class="form-columns">
+                <div class="form-group">
+                  <label for="career">Carrera</label>
+                  <input type="text" id="career" />
+                </div>
+                <div class="form-group">
+                  <label for="university">Universidad</label>
+                  <input type="text" id="university" />
+                </div>
+                <div class="form-group">
+                  <label for="specialty">Especialidad</label>
+                  <input type="text" id="specialty" />
+                </div>
+              </div>
+
+              <div class="section-title">Experiencia y motivacion</div>
+              <div class="form-group">
+                <label for="relevantExperience">Experiencia relevante / Proyecto</label>
+                <textarea id="relevantExperience" rows="2"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="motivation">¿Qué te motiva de esta empresa?</label>
+                <textarea id="motivation" rows="2"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="valueProposition">¿Qué valor puedes aportar?</label>
+                <textarea id="valueProposition" rows="2"></textarea>
+              </div>
+
+              <button id="saveLetterBtn" type="submit" class="btn btn-primary" style="width: 100%; margin-top: 16px;">Guardar carta</button>
+            </form>
+          </section>
+
+          <section class="card" style="margin-top:16px;">
+            <h2>Tecnologias y habilidades <span class="counter">Máx: 5</span></h2>
+            <p class="hint">Máximo 2 por categoría, máximo 5 en total</p>
+
+            <p class="hint" style="margin-top:12px; font-weight: 600;">Tecnologias</p>
+            <div id="letterTechChips" class="chip-group"></div>
+
+            <p class="hint" style="margin-top:12px; font-weight: 600;">Habilidades blandas</p>
+            <div id="letterSkillChips" class="chip-group"></div>
+
+          </section>
+        </div>
+
+        <div class="letter-preview-panel">
+          <h2 style="margin-top: 0;">Vista previa</h2>
+          <div id="letterPreview" class="letter-preview"></div>
+          <div class="preview-actions">
+            <button id="printBtn" class="btn btn-primary">Imprimir / Guardar PDF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="saved-letters-title">Mis cartas guardadas</h2>
+    <div id="lettersList" class="card-grid"></div>
+  </main>
+
+  <div id="printModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3>Antes de imprimir</h3>
+      <p>En la ventana de impresión, abre <strong>"Más ajustes"</strong> y desactiva la opción <strong>"Encabezados y pies de página"</strong>. Así la carta saldrá limpia.</p>
+      <div class="modal-buttons">
+        <button id="cancelPrintBtn" class="btn-cancel">Cancelar</button>
+        <button id="confirmPrintBtn" class="btn btn-primary">Continuar e imprimir</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/cartas.js"></script>
+</body>
+</html>

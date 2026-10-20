@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: egresados_app
+    env_file: .env
+    environment:
+      DB_HOST: postgres_db
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src/multimedia:/usr/src/app/src/multimedia
+    networks:
+      - red_externa
+    restart: unless-stopped
+
+networks:
+  red_externa:
+    external: true
