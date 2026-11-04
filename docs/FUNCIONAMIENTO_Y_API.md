@@ -24,6 +24,27 @@ sequenceDiagram
   Start->>Server: Levanta Express en http://localhost:3000
 ```
 
+### Comandos Útiles de Docker y Poblado de Datos
+
+```bash
+# 1. Preparar variables de entorno
+cp .env.example .env
+
+# 2. Construir y levantar todos los servicios (DB + pgAdmin + App)
+docker compose up --build -d
+
+# 3. Ver logs de inicialización (migraciones + seed + servidor)
+docker compose logs -f app
+
+# 4. Ejecutar migraciones o semillas manualmente si se requiere
+docker exec -it egresados_app npm run migrate
+docker exec -it egresados_app npm run seed
+
+# 5. Reiniciar base de datos desde cero (borra volumen y vuelve a sembrar al subir)
+docker compose down -v
+docker compose up --build -d
+```
+
 ---
 
 ## 2. Sistema de Roles y Permisos
