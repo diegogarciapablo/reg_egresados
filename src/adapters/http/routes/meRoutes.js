@@ -8,7 +8,10 @@ import {
   visibilitySchema,
   technologiesSelectionSchema,
   softSkillsSelectionSchema,
+  projectsSelectionSchema,
+  experiencesSelectionSchema,
   coverLetterSchema,
+  coverLetterSelectionsSchema,
 } from "../../../shared/validation/schemas.js";
 
 const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -48,17 +51,17 @@ export function meRoutes({ profileController, coverLetterController }) {
   router.delete("/profile/photo", profileController.deletePhoto);
   router.put("/profile/technologies", validateBody(technologiesSelectionSchema), profileController.putTechnologies);
   router.put("/profile/soft-skills", validateBody(softSkillsSelectionSchema), profileController.putSoftSkills);
-  router.put("/profile/projects", profileController.putProjects);
-  router.put("/profile/experiences", profileController.putExperiences);
+  router.put("/profile/projects", validateBody(projectsSelectionSchema), profileController.putProjects);
+  router.put("/profile/experiences", validateBody(experiencesSelectionSchema), profileController.putExperiences);
   router.patch("/profile/visibility", validateBody(visibilitySchema), profileController.patchVisibility);
 
   router.get("/cover-letters", coverLetterController.list);
   router.post("/cover-letters", validateBody(coverLetterSchema), coverLetterController.create);
   router.get("/cover-letters/:id", coverLetterController.getOne);
   router.patch("/cover-letters/:id", validateBody(coverLetterSchema), coverLetterController.patch);
-  router.put("/cover-letters/:id/technologies", coverLetterController.putTechnologies);
-  router.put("/cover-letters/:id/soft-skills", coverLetterController.putSoftSkills);
-  router.put("/cover-letters/:id/selections", coverLetterController.putSelections);
+  router.put("/cover-letters/:id/technologies", validateBody(technologiesSelectionSchema), coverLetterController.putTechnologies);
+  router.put("/cover-letters/:id/soft-skills", validateBody(softSkillsSelectionSchema), coverLetterController.putSoftSkills);
+  router.put("/cover-letters/:id/selections", validateBody(coverLetterSelectionsSchema), coverLetterController.putSelections);
   router.post("/cover-letters/:id/print", coverLetterController.print);
 
   return router;

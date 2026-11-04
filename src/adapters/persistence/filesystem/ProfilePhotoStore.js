@@ -2,6 +2,7 @@ import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { PhotoStore } from "../../../domain/graduate/photoStore.js";
 import { AppError } from "../../../shared/errors/AppError.js";
 
 const storageRoot = path.resolve(
@@ -34,7 +35,7 @@ function isStoredPhoto(filename) {
   return /^photo-[0-9a-f-]+\.(jpg|png|webp)$/i.test(filename);
 }
 
-export class ProfilePhotoStore {
+export class ProfilePhotoStore extends PhotoStore {
   async save(graduateId, file) {
     const extension = detectPhotoFormat(file);
     const profileDirectory = path.join(storageRoot, graduateId);
@@ -48,7 +49,7 @@ export class ProfilePhotoStore {
     await Promise.all(oldFiles.map((entry) => rm(path.join(profileDirectory, entry), { force: true })));
 
     return {
-      url: `/api/me/profile/photo/${graduateId}`,
+      url: `/api/graduates/photo/${graduateId}`,
       contentType: photoFormats[extension].contentType,
     };
   }

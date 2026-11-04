@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Administracion - Registro de Egresados</title>
+  <title>Gestion - Registro de Egresados</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -12,16 +12,20 @@
   <main class="container admin-page">
     <div class="page-header flex-between">
       <div>
-        <h1>Administracion</h1>
-        <p id="entityTitle" class="muted">Registros</p>
+        <h1>Panel de Gestion</h1>
+        <p id="entityTitle" class="muted">Administracion de usuarios, tecnologias, habilidades y registros</p>
       </div>
+      <div id="entityTabs" class="chip-group" aria-label="Secciones de gestion"></div>
     </div>
 
     <div id="adminAlert"></div>
 
     <section class="card admin-table-card">
       <div class="admin-table-toolbar">
-        <h2 id="tableTitle">Registros</h2>
+        <div class="admin-toolbar-heading">
+          <h2 id="tableTitle">Registros</h2>
+          <button id="createEntityBtn" class="btn btn-primary" type="button" hidden>+ Agregar</button>
+        </div>
         <label class="admin-search-label">
           <span>Buscar</span>
           <input id="entitySearch" type="search" placeholder="Buscar en todos los campos" autocomplete="off" />

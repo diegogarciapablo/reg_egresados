@@ -6,6 +6,7 @@ export function makeGetPublicProfile({ graduateRepository }) {
     if (!graduate || graduate.visibility === "private") {
       throw new NotFoundError("Ficha no encontrada");
     }
-    return graduate;
+    const details = await graduateRepository.getFullProfile(graduate.id);
+    return { ...graduate, ...details };
   };
 }

@@ -29,4 +29,24 @@ export class GraduateRepository {
   async update(_id, _changes) {
     throw new Error("No implementado");
   }
+
+  async setTechnologies(_graduateId, _technologyIds) {
+    throw new Error("No implementado");
+  }
+
+  async setSoftSkills(_graduateId, _softSkillIds) {
+    throw new Error("No implementado");
+  }
+
+  async setProjects(_graduateId, _projects) {
+    throw new Error("No implementado");
+  }
+
+  async setExperiences(_graduateId, _experiences) {
+    throw new Error("No implementado");
+  }
+
+  async getFullProfile(_graduateId) {
+    throw new Error("No implementado");
+  }
 }

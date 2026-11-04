@@ -86,6 +86,7 @@ const api = {
   admin: {
     entities: () => request("/admin/entities"),
     listEntity: (entity, q = "") => request(`/admin/entities/${encodeURIComponent(entity)}`, { params: { q } }),
+    createEntity: (entity, data) => request(`/admin/entities/${encodeURIComponent(entity)}`, { method: "POST", body: { data } }),
     updateEntity: (entity, id, changes) => request(`/admin/entities/${encodeURIComponent(entity)}/${encodeURIComponent(id)}`, { method: "PATCH", body: { changes } }),
     setEntityActive: (entity, id, isActive) => request(`/admin/entities/${encodeURIComponent(entity)}/${encodeURIComponent(id)}/active`, { method: "PATCH", body: { isActive } }),
   },

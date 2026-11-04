@@ -5,20 +5,56 @@ function section(title, contentNode) {
   return wrap;
 }
 
+function safeExternalLink(url, text) {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+    return el("a", {
+      href: parsed.href,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      text,
+    });
+  } catch {
+    return null;
+  }
+}
+
 function buildProfileView(graduate) {
   const container = document.getElementById("profileContainer");
   container.innerHTML = "";
 
-  const header = el("div", { class: "card page-header" });
-  header.appendChild(el("h1", { text: `${graduate.firstName} ${graduate.lastName}` }));
-  if (graduate.currentRole) header.appendChild(el("p", { text: graduate.currentRole }));
-  header.appendChild(el("p", { class: "muted", text: `Egresado ${graduate.graduationYear} - Codigo ${graduate.registrationCode}` }));
+  const header = el("div", { class: "card page-header profile-public-header" });
+  if (graduate.photoUrl) {
+    header.appendChild(
+      el("img", {
+        class: "profile-public-avatar",
+        src: graduate.photoUrl,
+        alt: `Foto de ${graduate.firstName} ${graduate.lastName}`,
+      })
+    );
+  } else {
+    const initials = `${graduate.firstName?.[0] || ""}${graduate.lastName?.[0] || ""}`.toUpperCase();
+    header.appendChild(
+      el("div", { class: "profile-public-avatar graduate-avatar-placeholder", text: initials || "?" })
+    );
+  }
+
+  const headerInfo = el("div", { class: "profile-public-info" });
+  headerInfo.appendChild(el("h1", { text: `${graduate.firstName} ${graduate.lastName}` }));
+  if (graduate.currentRole) headerInfo.appendChild(el("p", { text: graduate.currentRole }));
+  headerInfo.appendChild(el("p", { class: "muted", text: `Egresado ${graduate.graduationYear} - Codigo ${graduate.registrationCode}` }));
 
   const links = el("div", { class: "tag-list" });
-  if (graduate.githubUrl) links.appendChild(el("a", { href: graduate.githubUrl, target: "_blank", text: "GitHub" }));
-  if (graduate.linkedinUrl) links.appendChild(el("a", { href: graduate.linkedinUrl, target: "_blank", text: "LinkedIn" }));
-  if (graduate.portfolioUrl) links.appendChild(el("a", { href: graduate.portfolioUrl, target: "_blank", text: "Portafolio" }));
-  header.appendChild(links);
+  const ghLink = safeExternalLink(graduate.githubUrl, "GitHub");
+  const liLink = safeExternalLink(graduate.linkedinUrl, "LinkedIn");
+  const pfLink = safeExternalLink(graduate.portfolioUrl, "Portafolio");
+  if (ghLink) links.appendChild(ghLink);
+  if (liLink) links.appendChild(liLink);
+  if (pfLink) links.appendChild(pfLink);
+  headerInfo.appendChild(links);
+  header.appendChild(headerInfo);
   container.appendChild(header);
 
   if (graduate.professionalSummary) {
@@ -56,7 +92,8 @@ function buildProfileView(graduate) {
       const card = el("div", { class: "graduate-card" });
       card.appendChild(el("h3", { text: project.title }));
       if (project.description) card.appendChild(el("p", { text: project.description }));
-      if (project.url) card.appendChild(el("a", { href: project.url, target: "_blank", text: "Ver proyecto" }));
+      const projLink = safeExternalLink(project.url, "Ver proyecto");
+      if (projLink) card.appendChild(projLink);
       grid.appendChild(card);
     }
     container.appendChild(section("Proyectos", grid));

@@ -21,9 +21,19 @@ import { makeCatalogQueries } from "./adapters/persistence/postgres/queries/cata
 // Casos de uso (aplicacion)
 import { makeRegisterUser } from "./application/auth/registerUser.js";
 import { makeLoginUser } from "./application/auth/loginUser.js";
+import { makeGetCurrentUser } from "./application/auth/getCurrentUser.js";
 import { makeGetDirectory } from "./application/graduate/getDirectory.js";
 import { makeGetPublicProfile } from "./application/graduate/getPublicProfile.js";
-import { makeUpdateGraduateProfile, makeUpdateVisibility } from "./application/graduate/updateGraduateProfile.js";
+import {
+  makeGetMyProfile,
+  makeUpdateGraduateProfile,
+  makeUpdateVisibility,
+} from "./application/graduate/updateGraduateProfile.js";
+import {
+  makeUploadProfilePhoto,
+  makeGetProfilePhoto,
+  makeDeleteProfilePhoto,
+} from "./application/graduate/manageProfilePhoto.js";
 import {
   makeUpdateGraduateTechnologies,
   makeUpdateGraduateSoftSkills,
@@ -38,7 +48,15 @@ import {
   makeUpdateCoverLetter,
   makeSetCoverLetterSelections,
 } from "./application/coverLetter/manageCoverLetters.js";
-import { makeListAllGraduates, makeUpdateGraduateStatus } from "./application/admin/adminUseCases.js";
+import {
+  makeListAllGraduates,
+  makeUpdateGraduateStatus,
+  makeListAdminEntityDefinitions,
+  makeListAdminEntityRows,
+  makeCreateAdminEntity,
+  makeUpdateAdminEntity,
+  makeSetAdminEntityActive,
+} from "./application/admin/adminUseCases.js";
 
 // HTTP (adaptador de entrada)
 import { makeAuthController } from "./adapters/http/controllers/authController.js";
@@ -72,10 +90,15 @@ export function createApp() {
   // --- Casos de uso ---
   const registerUser = makeRegisterUser({ userRepository, graduateRepository, withTransaction });
   const loginUser = makeLoginUser({ userRepository });
+  const getCurrentUser = makeGetCurrentUser({ userRepository });
   const getDirectory = makeGetDirectory({ graduateRepository });
   const getPublicProfile = makeGetPublicProfile({ graduateRepository });
+  const getMyProfile = makeGetMyProfile({ graduateRepository });
   const updateGraduateProfile = makeUpdateGraduateProfile({ graduateRepository });
   const updateVisibility = makeUpdateVisibility({ graduateRepository });
+  const uploadProfilePhoto = makeUploadProfilePhoto({ graduateRepository, profilePhotoStore });
+  const getProfilePhoto = makeGetProfilePhoto({ graduateRepository, profilePhotoStore });
+  const deleteProfilePhoto = makeDeleteProfilePhoto({ graduateRepository, profilePhotoStore });
   const updateGraduateTechnologies = makeUpdateGraduateTechnologies({ graduateRepository });
   const updateGraduateSoftSkills = makeUpdateGraduateSoftSkills({ graduateRepository });
   const updateGraduateProjects = makeUpdateGraduateProjects({ graduateRepository });
@@ -89,15 +112,27 @@ export function createApp() {
   const setCoverLetterSelections = makeSetCoverLetterSelections({ coverLetterRepository, graduateRepository });
   const listAllGraduates = makeListAllGraduates({ graduateRepository });
   const updateGraduateStatus = makeUpdateGraduateStatus({ graduateRepository });
+  const listAdminEntityDefinitions = makeListAdminEntityDefinitions();
+  const listAdminEntityRows = makeListAdminEntityRows({ adminEntityRepository });
+  const createAdminEntity = makeCreateAdminEntity({ adminEntityRepository });
+  const updateAdminEntity = makeUpdateAdminEntity({ adminEntityRepository });
+  const setAdminEntityActive = makeSetAdminEntityActive({ adminEntityRepository });
 
   // --- Controladores ---
-  const authController = makeAuthController({ registerUser, loginUser, userRepository });
-  const directoryController = makeDirectoryController({ getDirectory, getPublicProfile, graduateRepository, catalogQueries });
+  const authController = makeAuthController({ registerUser, loginUser, getCurrentUser });
+  const directoryController = makeDirectoryController({
+    getDirectory,
+    getPublicProfile,
+    getProfilePhoto,
+    catalogQueries,
+  });
   const profileController = makeProfileController({
-    graduateRepository,
-    profilePhotoStore,
+    getMyProfile,
     updateGraduateProfile,
     updateVisibility,
+    uploadProfilePhoto,
+    getProfilePhoto,
+    deleteProfilePhoto,
     updateGraduateTechnologies,
     updateGraduateSoftSkills,
     updateGraduateProjects,
@@ -115,13 +150,32 @@ export function createApp() {
     listAllGraduates,
     moderateRecommendation,
     updateGraduateStatus,
-    adminEntityRepository,
+    listAdminEntityDefinitions,
+    listAdminEntityRows,
+    createAdminEntity,
+    updateAdminEntity,
+    setAdminEntityActive,
   });
 
   // --- Middlewares globales ---
-  app.use(helmet());
-  app.use(cors());
-  app.use(express.json());
+  app.set("trust proxy", 1);
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          imgSrc: ["'self'", "data:", "https:"],
+        },
+      },
+    })
+  );
+  app.use(
+    cors({
+      origin: env.corsOrigin ? env.corsOrigin.split(",").map((o) => o.trim()) : false,
+      credentials: true,
+    })
+  );
+  app.use(express.json({ limit: "50kb" }));
   app.use(
     cookieSession({
       name: "session",
@@ -135,7 +189,12 @@ export function createApp() {
   app.use(makeLoadUser(userRepository));
 
   const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
+  const registerLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10 });
+  const recommendationLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 15 });
+
   app.use("/api/auth/login", loginLimiter);
+  app.use("/api/auth/register", registerLimiter);
+  app.use("/api/graduates/:id/recommendations", recommendationLimiter);
 
   // --- Rutas API ---
   app.use("/api/auth", authRoutes(authController));

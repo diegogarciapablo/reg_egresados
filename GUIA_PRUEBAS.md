@@ -48,7 +48,14 @@ tabla relacionada. Si encuentra al menos un registro funcional, omite toda la
 carga. La base usa un volumen Docker, por lo que los datos sobreviven al
 reinicio o recreacion del contenedor.
 
-Para iniciar sesion con cualquiera de los usuarios semilla:
+Para iniciar sesion con el usuario **administrador**:
+
+```
+Correo: admin@example.test
+Clave: Prueba123!
+```
+
+Para iniciar sesion con cualquiera de los usuarios semilla (**usuario estandar**):
 
 ```
 Correo: ana.mendez@example.test

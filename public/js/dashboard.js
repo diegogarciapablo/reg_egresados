@@ -29,8 +29,12 @@ function renderProfilePhoto(photoUrl) {
   selectButton.setAttribute("aria-label", hasPhoto ? "Cambiar foto de perfil" : "Subir foto de perfil");
   selectButton.title = hasPhoto ? "Cambiar foto de perfil" : "Subir foto de perfil";
   removeButton.hidden = !hasPhoto;
-  if (hasPhoto) image.src = `${photoUrl}?v=${Date.now()}`;
-  else image.removeAttribute("src");
+  if (hasPhoto) {
+    const separator = photoUrl.includes("?") ? "&" : "?";
+    image.src = photoUrl.startsWith("/api/") ? `${photoUrl}${separator}v=${Date.now()}` : photoUrl;
+  } else {
+    image.removeAttribute("src");
+  }
 }
 
 function renderVisibilityToggle(graduate) {

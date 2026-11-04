@@ -1,5 +1,16 @@
 import { ForbiddenError, NotFoundError } from "../../shared/errors/AppError.js";
 
+export function makeGetMyProfile({ graduateRepository }) {
+  return async function getMyProfile({ userId }) {
+    const graduate = await graduateRepository.findByUserId(userId);
+    if (!graduate) {
+      throw new NotFoundError("No tienes ficha asociada");
+    }
+    const details = await graduateRepository.getFullProfile(graduate.id);
+    return { ...graduate, ...details };
+  };
+}
+
 export function makeUpdateGraduateProfile({ graduateRepository }) {
   return async function updateGraduateProfile({ userId, changes }) {
     const graduate = await graduateRepository.findByUserId(userId);

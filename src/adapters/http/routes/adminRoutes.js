@@ -1,5 +1,10 @@
 import { Router } from "express";
 import { requireAuth, requireAdmin } from "../middleware/auth.js";
+import {
+  validateBody,
+  moderateRecommendationSchema,
+  visibilitySchema,
+} from "../../../shared/validation/schemas.js";
 
 export function adminRoutes(adminController) {
   const router = Router();
@@ -8,11 +13,12 @@ export function adminRoutes(adminController) {
 
   router.get("/entities", adminController.listEntityDefinitions);
   router.get("/entities/:entity", adminController.listEntityRows);
+  router.post("/entities/:entity", adminController.createEntity);
   router.patch("/entities/:entity/:id/active", adminController.setEntityActive);
   router.patch("/entities/:entity/:id", adminController.updateEntity);
   router.get("/graduates", adminController.listGraduates);
-  router.patch("/recommendations/:id", adminController.moderateRecommendation);
-  router.patch("/graduates/:id/status", adminController.updateGraduateStatus);
+  router.patch("/recommendations/:id", validateBody(moderateRecommendationSchema), adminController.moderateRecommendation);
+  router.patch("/graduates/:id/status", validateBody(visibilitySchema), adminController.updateGraduateStatus);
 
   return router;
 }

@@ -1,16 +1,35 @@
 import { z } from "zod";
 
+const httpUrlSchema = z
+  .string()
+  .url("Debe ser una URL valida")
+  .refine((val) => {
+    try {
+      const parsed = new URL(val);
+      return parsed.protocol === "http:" || parsed.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }, "La URL debe usar el protocolo http:// o https://");
+
+const isoDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de fecha invalido (YYYY-MM-DD)");
+
 export const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8, "La contrasena debe tener al menos 8 caracteres"),
+  email: z.string().email().max(254),
+  password: z
+    .string()
+    .min(8, "La contrasena debe tener al menos 8 caracteres")
+    .max(72, "La contrasena no puede superar los 72 caracteres"),
   firstName: z.string().min(1).max(100),
   lastName: z.string().min(1).max(150),
   graduationYear: z.number().int().min(1950).max(2100),
 });
 
 export const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
+  email: z.string().email().max(254),
+  password: z.string().min(1).max(72),
 });
 
 export const profileUpdateSchema = z.object({
@@ -18,10 +37,10 @@ export const profileUpdateSchema = z.object({
   lastName: z.string().min(1).max(150).optional(),
   currentRole: z.string().max(150).nullable().optional(),
   professionalSummary: z.string().max(1000).nullable().optional(),
-  photoUrl: z.string().url().nullable().optional(),
-  githubUrl: z.string().url().nullable().optional(),
-  linkedinUrl: z.string().url().nullable().optional(),
-  portfolioUrl: z.string().url().nullable().optional(),
+  photoUrl: httpUrlSchema.nullable().optional(),
+  githubUrl: httpUrlSchema.nullable().optional(),
+  linkedinUrl: httpUrlSchema.nullable().optional(),
+  portfolioUrl: httpUrlSchema.nullable().optional(),
 });
 
 export const visibilitySchema = z.object({
@@ -36,22 +55,35 @@ export const softSkillsSelectionSchema = z.object({
   softSkillIds: z.array(z.string().uuid()).max(10),
 });
 
+export const coverLetterSelectionsSchema = z.object({
+  technologyIds: z.array(z.string().uuid()).max(10).default([]),
+  softSkillIds: z.array(z.string().uuid()).max(10).default([]),
+});
+
 export const projectSchema = z.object({
   title: z.string().min(1).max(150),
   description: z.string().max(2000).nullable().optional(),
-  url: z.string().url().nullable().optional(),
-  repositoryUrl: z.string().url().nullable().optional(),
+  url: httpUrlSchema.nullable().optional(),
+  repositoryUrl: httpUrlSchema.nullable().optional(),
   displayOrder: z.number().int().min(0).optional(),
+});
+
+export const projectsSelectionSchema = z.object({
+  projects: z.array(projectSchema).max(20),
 });
 
 export const experienceSchema = z.object({
   position: z.string().min(1).max(150),
   organization: z.string().min(1).max(150),
-  startDate: z.string().nullable().optional(),
-  endDate: z.string().nullable().optional(),
+  startDate: isoDateSchema.nullable().optional(),
+  endDate: isoDateSchema.nullable().optional(),
   isCurrent: z.boolean().optional(),
   description: z.string().max(2000).nullable().optional(),
   displayOrder: z.number().int().min(0).optional(),
+});
+
+export const experiencesSelectionSchema = z.object({
+  experiences: z.array(experienceSchema).max(20),
 });
 
 export const recommendationSchema = z.object({
@@ -60,13 +92,17 @@ export const recommendationSchema = z.object({
   message: z.string().min(1).max(1500),
 });
 
+export const moderateRecommendationSchema = z.object({
+  status: z.enum(["pending", "published", "rejected"]),
+});
+
 export const coverLetterSchema = z.object({
   fullName: z.string().min(1).max(200),
   cityCountry: z.string().max(150).nullable().optional(),
   phone: z.string().max(40).nullable().optional(),
-  email: z.string().email().nullable().optional(),
+  email: z.string().email().max(254).nullable().optional(),
   sendingCity: z.string().max(100).nullable().optional(),
-  sendingDate: z.string().nullable().optional(),
+  sendingDate: isoDateSchema.nullable().optional(),
   recruiterName: z.string().max(150).nullable().optional(),
   recruiterRole: z.string().max(150).nullable().optional(),
   companyName: z.string().min(1).max(150),
@@ -81,9 +117,9 @@ export const coverLetterSchema = z.object({
 });
 
 export const directoryQuerySchema = z.object({
-  q: z.string().optional(),
-  technology: z.string().optional(),
-  year: z.coerce.number().int().optional(),
+  q: z.string().max(100).optional(),
+  technology: z.string().max(80).optional(),
+  year: z.coerce.number().int().min(1950).max(2100).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(12),
 });

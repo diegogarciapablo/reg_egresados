@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import { randomInt } from "node:crypto";
 import { ConflictError } from "../../shared/errors/AppError.js";
 
 const SALT_ROUNDS = 12;
@@ -19,7 +20,7 @@ export function makeRegisterUser({ userRepository, graduateRepository, withTrans
     }
 
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-    const registrationCode = buildRegistrationCode(graduationYear);
+    const registrationCode = await generateUniqueRegistrationCode(graduateRepository, graduationYear);
 
     return withTransaction(async (client) => {
       const user = await userRepository.create(
@@ -42,7 +43,12 @@ export function makeRegisterUser({ userRepository, graduateRepository, withTrans
   };
 }
 
-function buildRegistrationCode(graduationYear) {
-  const random = Math.floor(Math.random() * 900 + 100); // 3 digitos
-  return `EGR-${graduationYear}-${random}`;
+async function generateUniqueRegistrationCode(graduateRepository, graduationYear) {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const random = randomInt(1000, 10000); // 4 digitos criptograficamente seguros
+    const code = `EGR-${graduationYear}-${random}`;
+    const existing = await graduateRepository.findByRegistrationCode(code);
+    if (!existing) return code;
+  }
+  throw new ConflictError("No se pudo generar un codigo de registro unico. Intenta de nuevo.");
 }

@@ -15,11 +15,30 @@ async function loadTechnologiesFilter() {
 
 function graduateCard(graduate) {
   const card = el("div", { class: "graduate-card" });
-  card.appendChild(el("h3", { text: `${graduate.firstName} ${graduate.lastName}` }));
-  if (graduate.currentRole) {
-    card.appendChild(el("div", { class: "role", text: graduate.currentRole }));
+
+  const headerRow = el("div", { class: "graduate-card-header" });
+  if (graduate.photoUrl) {
+    headerRow.appendChild(
+      el("img", {
+        class: "graduate-avatar",
+        src: graduate.photoUrl,
+        alt: `Foto de ${graduate.firstName} ${graduate.lastName}`,
+        loading: "lazy",
+      })
+    );
+  } else {
+    const initials = `${graduate.firstName?.[0] || ""}${graduate.lastName?.[0] || ""}`.toUpperCase();
+    headerRow.appendChild(el("div", { class: "graduate-avatar graduate-avatar-placeholder", text: initials || "?" }));
   }
-  card.appendChild(el("div", { class: "muted", text: `Egresado ${graduate.graduationYear}` }));
+
+  const meta = el("div", { class: "graduate-card-meta" });
+  meta.appendChild(el("h3", { text: `${graduate.firstName} ${graduate.lastName}` }));
+  if (graduate.currentRole) {
+    meta.appendChild(el("div", { class: "role", text: graduate.currentRole }));
+  }
+  meta.appendChild(el("div", { class: "muted", text: `Egresado ${graduate.graduationYear}` }));
+  headerRow.appendChild(meta);
+  card.appendChild(headerRow);
 
   if (graduate.professionalSummary) {
     const summary = graduate.professionalSummary.length > 140

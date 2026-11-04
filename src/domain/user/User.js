@@ -21,6 +21,12 @@ export class User {
 
   toSafeObject() {
     // Nunca exponer el password_hash fuera del dominio.
-    return { id: this.id, email: this.email, role: this.role, isActive: this.isActive };
+    // El rol solo es visible cuando el usuario es administrador.
+    return {
+      id: this.id,
+      email: this.email,
+      isActive: this.isActive,
+      ...(this.isAdmin() ? { role: this.role } : {}),
+    };
   }
 }

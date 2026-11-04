@@ -2,18 +2,27 @@ import bcrypt from "bcrypt";
 import { pool } from "../src/config/database.js";
 
 const demoPassword = "Prueba123!";
+const adminSeed = {
+  email: "admin@example.test",
+  firstName: "Administrador",
+  lastName: "Sistema",
+  registrationCode: "EG-ADMIN-001",
+  graduationYear: 2020,
+  currentRole: "Administrador del directorio",
+  photoUrl: "https://randomuser.me/api/portraits/men/11.jpg",
+};
 
 const graduateSeeds = [
-  ["ana.mendez@example.test", "Ana", "Mendez", "EG-2026-001", 2021, "Analista de datos"],
-  ["bruno.rojas@example.test", "Bruno", "Rojas", "EG-2026-002", 2020, "Desarrollador backend"],
-  ["camila.vega@example.test", "Camila", "Vega", "EG-2026-003", 2022, "Analista de sistemas"],
-  ["diego.salazar@example.test", "Diego", "Salazar", "EG-2026-004", 2019, "Consultor de tecnologia"],
-  ["elena.paz@example.test", "Elena", "Paz", "EG-2026-005", 2023, "Desarrolladora frontend"],
-  ["felipe.arias@example.test", "Felipe", "Arias", "EG-2026-006", 2021, "Ingeniero de software"],
-  ["gabriela.lima@example.test", "Gabriela", "Lima", "EG-2026-007", 2020, "Especialista en inteligencia de negocios"],
-  ["hector.molina@example.test", "Hector", "Molina", "EG-2026-008", 2018, "Administrador de bases de datos"],
-  ["ines.castro@example.test", "Ines", "Castro", "EG-2026-009", 2024, "Desarrolladora full stack"],
-  ["jorge.navarro@example.test", "Jorge", "Navarro", "EG-2026-010", 2022, "Lider de proyectos"],
+  ["ana.mendez@example.test", "Ana", "Mendez", "EG-2026-001", 2021, "Analista de datos", "https://randomuser.me/api/portraits/women/44.jpg"],
+  ["bruno.rojas@example.test", "Bruno", "Rojas", "EG-2026-002", 2020, "Desarrollador backend", "https://randomuser.me/api/portraits/men/32.jpg"],
+  ["camila.vega@example.test", "Camila", "Vega", "EG-2026-003", 2022, "Analista de sistemas", "https://randomuser.me/api/portraits/women/68.jpg"],
+  ["diego.salazar@example.test", "Diego", "Salazar", "EG-2026-004", 2019, "Consultor de tecnologia", "https://randomuser.me/api/portraits/men/46.jpg"],
+  ["elena.paz@example.test", "Elena", "Paz", "EG-2026-005", 2023, "Desarrolladora frontend", "https://randomuser.me/api/portraits/women/24.jpg"],
+  ["felipe.arias@example.test", "Felipe", "Arias", "EG-2026-006", 2021, "Ingeniero de software", "https://randomuser.me/api/portraits/men/22.jpg"],
+  ["gabriela.lima@example.test", "Gabriela", "Lima", "EG-2026-007", 2020, "Especialista en inteligencia de negocios", "https://randomuser.me/api/portraits/women/65.jpg"],
+  ["hector.molina@example.test", "Hector", "Molina", "EG-2026-008", 2018, "Administrador de bases de datos", "https://randomuser.me/api/portraits/men/75.jpg"],
+  ["ines.castro@example.test", "Ines", "Castro", "EG-2026-009", 2024, "Desarrolladora full stack", "https://randomuser.me/api/portraits/women/90.jpg"],
+  ["jorge.navarro@example.test", "Jorge", "Navarro", "EG-2026-010", 2022, "Lider de proyectos", "https://randomuser.me/api/portraits/men/86.jpg"],
 ];
 
 const projectSeeds = [
@@ -62,28 +71,77 @@ const softSkillSlugs = [
   "trabajo-en-equipo",
 ];
 
+async function ensureAdminUser(client) {
+  const existingAdmin = await client.query(
+    "SELECT id FROM users WHERE email = $1",
+    [adminSeed.email],
+  );
+  let adminUserId;
+  if (existingAdmin.rowCount === 0) {
+    const passwordHash = await bcrypt.hash(demoPassword, 10);
+    const created = await client.query(
+      "INSERT INTO users (email, password_hash, role, is_active) VALUES ($1, $2, 'admin', TRUE) RETURNING id",
+      [adminSeed.email, passwordHash],
+    );
+    adminUserId = created.rows[0].id;
+    console.log(`Usuario administrador creado: ${adminSeed.email} / ${demoPassword}`);
+  } else {
+    adminUserId = existingAdmin.rows[0].id;
+    await client.query(
+      "UPDATE users SET role = 'admin', is_active = TRUE WHERE id = $1",
+      [adminUserId],
+    );
+  }
+
+  await client.query(
+    `INSERT INTO graduates
+      (user_id, registration_code, first_name, last_name, "current_role", graduation_year, professional_summary, photo_url, visibility)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'private')
+     ON CONFLICT (user_id) DO UPDATE SET photo_url = COALESCE(graduates.photo_url, EXCLUDED.photo_url)`,
+    [
+      adminUserId,
+      adminSeed.registrationCode,
+      adminSeed.firstName,
+      adminSeed.lastName,
+      adminSeed.currentRole,
+      adminSeed.graduationYear,
+      "Cuenta administrativa del sistema de registro de egresados.",
+      adminSeed.photoUrl,
+    ],
+  );
+}
+
+async function ensureSeedAvatars(client) {
+  for (const [, , , registrationCode, , , photoUrl] of graduateSeeds) {
+    await client.query(
+      `UPDATE graduates
+       SET photo_url = $1, updated_at = NOW()
+       WHERE registration_code = $2 AND (photo_url IS NULL OR photo_url = '')`,
+      [photoUrl, registrationCode],
+    );
+  }
+}
+
 async function runSeed() {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     await client.query("SELECT pg_advisory_xact_lock(716204, 1)");
+    await ensureAdminUser(client);
 
     const existingData = await client.query(`
       SELECT EXISTS (
-        SELECT 1 FROM users
-        UNION ALL SELECT 1 FROM graduates
-        UNION ALL SELECT 1 FROM graduate_technologies
+        SELECT 1 FROM graduate_technologies
         UNION ALL SELECT 1 FROM graduate_soft_skills
         UNION ALL SELECT 1 FROM projects
         UNION ALL SELECT 1 FROM experiences
         UNION ALL SELECT 1 FROM recommendations
         UNION ALL SELECT 1 FROM cover_letters
-        UNION ALL SELECT 1 FROM cover_letter_technologies
-        UNION ALL SELECT 1 FROM cover_letter_soft_skills
       ) AS has_data
     `);
 
     if (existingData.rows[0].has_data) {
+      await ensureSeedAvatars(client);
       console.log("La base ya contiene datos; se omiten las semillas.");
       await client.query("COMMIT");
       return;
@@ -91,16 +149,17 @@ async function runSeed() {
 
     const passwordHash = await bcrypt.hash(demoPassword, 10);
     const graduates = [];
-    for (const [email, firstName, lastName, registrationCode, graduationYear, currentRole] of graduateSeeds) {
+    for (const [email, firstName, lastName, registrationCode, graduationYear, currentRole, photoUrl] of graduateSeeds) {
       const user = await client.query(
-        "INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id",
+        "INSERT INTO users (email, password_hash) VALUES ($1, $2) ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email RETURNING id",
         [email, passwordHash],
       );
       const graduate = await client.query(
         `INSERT INTO graduates
           (user_id, registration_code, first_name, last_name, "current_role", graduation_year,
-           professional_summary, visibility)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'public')
+           professional_summary, photo_url, visibility)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'public')
+         ON CONFLICT (user_id) DO UPDATE SET photo_url = COALESCE(graduates.photo_url, EXCLUDED.photo_url)
          RETURNING id`,
         [
           user.rows[0].id,
@@ -110,6 +169,7 @@ async function runSeed() {
           currentRole,
           graduationYear,
           `${firstName} es profesional egresado con interes en tecnologia y mejora continua.`,
+          photoUrl,
         ],
       );
       graduates.push(graduate.rows[0].id);

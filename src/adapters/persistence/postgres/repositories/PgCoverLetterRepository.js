@@ -1,5 +1,5 @@
 import { CoverLetterRepository } from "../../../../domain/coverLetter/coverLetterRepository.js";
-import { withTransaction } from "../../../../config/database.js";
+import { CoverLetter } from "../../../../domain/coverLetter/CoverLetter.js";
 
 const FIELD_MAP = {
   fullName: "full_name",
@@ -22,7 +22,7 @@ const FIELD_MAP = {
   status: "status",
 };
 
-function toCamel(row) {
+function toCoverLetter(row) {
   if (!row) return null;
   const result = {
     id: row.id,
@@ -33,13 +33,28 @@ function toCamel(row) {
   for (const [camel, snake] of Object.entries(FIELD_MAP)) {
     result[camel] = row[snake];
   }
-  return result;
+  return new CoverLetter(result);
 }
 
 export class PgCoverLetterRepository extends CoverLetterRepository {
   constructor(pool) {
     super();
     this.pool = pool;
+  }
+
+  async _withTransaction(callback) {
+    const client = await this.pool.connect();
+    try {
+      await client.query("BEGIN");
+      const result = await callback(client);
+      await client.query("COMMIT");
+      return result;
+    } catch (err) {
+      await client.query("ROLLBACK");
+      throw err;
+    } finally {
+      client.release();
+    }
   }
 
   async listByGraduate(graduateId) {
@@ -58,7 +73,7 @@ export class PgCoverLetterRepository extends CoverLetterRepository {
        ORDER BY cl.updated_at DESC`,
       [graduateId]
     );
-    return rows.map(toCamel);
+    return rows.map(toCoverLetter);
   }
 
   async findById(id) {
@@ -76,7 +91,7 @@ export class PgCoverLetterRepository extends CoverLetterRepository {
        WHERE cl.id = $1`,
       [id]
     );
-    return toCamel(rows[0]);
+    return toCoverLetter(rows[0]);
   }
 
   async create(data) {
@@ -97,7 +112,7 @@ export class PgCoverLetterRepository extends CoverLetterRepository {
       `INSERT INTO cover_letters (${columns.join(", ")}) VALUES (${placeholders.join(", ")}) RETURNING *`,
       values
     );
-    return toCamel(rows[0]);
+    return toCoverLetter(rows[0]);
   }
 
   async update(id, changes) {
@@ -123,11 +138,11 @@ export class PgCoverLetterRepository extends CoverLetterRepository {
       `UPDATE cover_letters SET ${setClauses.join(", ")} WHERE id = $${index} RETURNING *`,
       values
     );
-    return toCamel(rows[0]);
+    return toCoverLetter(rows[0]);
   }
 
   async setSelections(coverLetterId, { technologyIds = [], softSkillIds = [] }) {
-    return withTransaction(async (client) => {
+    return this._withTransaction(async (client) => {
       await client.query("DELETE FROM cover_letter_technologies WHERE cover_letter_id = $1", [coverLetterId]);
       await client.query("DELETE FROM cover_letter_soft_skills WHERE cover_letter_id = $1", [coverLetterId]);
 

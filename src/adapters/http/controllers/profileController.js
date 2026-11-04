@@ -1,10 +1,10 @@
-import { AppError } from "../../../shared/errors/AppError.js";
-
 export function makeProfileController({
-  graduateRepository,
-  profilePhotoStore,
+  getMyProfile,
   updateGraduateProfile,
   updateVisibility,
+  uploadProfilePhoto,
+  getProfilePhoto,
+  deleteProfilePhoto,
   updateGraduateTechnologies,
   updateGraduateSoftSkills,
   updateGraduateProjects,
@@ -13,10 +13,8 @@ export function makeProfileController({
   return {
     async getMyProfile(req, res, next) {
       try {
-        const graduate = await graduateRepository.findByUserId(req.session.userId);
-        if (!graduate) return res.status(404).json({ error: "No tienes ficha asociada" });
-        const details = await graduateRepository.getFullProfile(graduate.id);
-        res.json({ ...graduate, ...details });
+        const profile = await getMyProfile({ userId: req.session.userId });
+        res.json(profile);
       } catch (err) {
         next(err);
       }
@@ -42,13 +40,8 @@ export function makeProfileController({
 
     async uploadPhoto(req, res, next) {
       try {
-        if (!req.file) throw new AppError("Selecciona una foto para subir.");
-        const graduate = await graduateRepository.findByUserId(req.session.userId);
-        if (!graduate) return res.status(404).json({ error: "No tienes ficha asociada" });
-
-        const photo = await profilePhotoStore.save(graduate.id, req.file);
-        const updated = await graduateRepository.update(graduate.id, { photoUrl: photo.url });
-        res.json({ photoUrl: updated.photoUrl });
+        const result = await uploadProfilePhoto({ userId: req.session.userId, file: req.file });
+        res.json(result);
       } catch (err) {
         next(err);
       }
@@ -56,16 +49,10 @@ export function makeProfileController({
 
     async getPhoto(req, res, next) {
       try {
-        const graduate = await graduateRepository.findByUserId(req.session.userId);
-        if (!graduate || graduate.id !== req.params.graduateId) {
-          return res.status(404).json({ error: "Foto no encontrada" });
-        }
-        if (graduate.photoUrl !== `/api/me/profile/photo/${graduate.id}`) {
-          return res.status(404).json({ error: "Foto no encontrada" });
-        }
-
-        const photo = await profilePhotoStore.read(graduate.id);
-        if (!photo) return res.status(404).json({ error: "Foto no encontrada" });
+        const photo = await getProfilePhoto({
+          userId: req.session.userId,
+          graduateId: req.params.graduateId,
+        });
         res.set("Cache-Control", "private, no-store");
         res.type(photo.contentType).send(photo.buffer);
       } catch (err) {
@@ -75,11 +62,8 @@ export function makeProfileController({
 
     async deletePhoto(req, res, next) {
       try {
-        const graduate = await graduateRepository.findByUserId(req.session.userId);
-        if (!graduate) return res.status(404).json({ error: "No tienes ficha asociada" });
-        await graduateRepository.update(graduate.id, { photoUrl: null });
-        await profilePhotoStore.remove(graduate.id);
-        res.json({ photoUrl: null });
+        const result = await deleteProfilePhoto({ userId: req.session.userId });
+        res.json(result);
       } catch (err) {
         next(err);
       }
@@ -105,7 +89,7 @@ export function makeProfileController({
 
     async putProjects(req, res, next) {
       try {
-        const result = await updateGraduateProjects({ userId: req.session.userId, projects: req.body.projects ?? [] });
+        const result = await updateGraduateProjects({ userId: req.session.userId, projects: req.validatedBody.projects });
         res.json(result);
       } catch (err) {
         next(err);
@@ -114,7 +98,7 @@ export function makeProfileController({
 
     async putExperiences(req, res, next) {
       try {
-        const result = await updateGraduateExperiences({ userId: req.session.userId, experiences: req.body.experiences ?? [] });
+        const result = await updateGraduateExperiences({ userId: req.session.userId, experiences: req.validatedBody.experiences });
         res.json(result);
       } catch (err) {
         next(err);

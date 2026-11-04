@@ -57,17 +57,17 @@ async function renderTopbar(activeUser) {
     nav.appendChild(el("a", { href: "/cartas.html", text: "Cartas de presentacion" }));
     if (user.role === "admin") {
       const adminLinks = [
-        ["users", "Usuarios"],
-        ["graduates", "Perfiles"],
+        ["users", "Usuarios y roles"],
         ["technologies", "Tecnologias"],
         ["soft_skills", "Habilidades blandas"],
+        ["graduates", "Perfiles"],
         ["projects", "Proyectos"],
         ["experiences", "Experiencias"],
         ["recommendations", "Recomendaciones"],
         ["cover_letters", "Cartas de presentacion"],
       ];
       const menu = el("details", { class: "admin-nav-menu" }, [
-        el("summary", { text: "Administracion" }),
+        el("summary", { text: "Gestion" }),
         el("div", { class: "admin-nav-dropdown" }, adminLinks.map(([entity, label]) =>
           el("a", { href: `/admin.html?entity=${entity}`, text: label })
         )),

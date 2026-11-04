@@ -1,6 +1,5 @@
 import { GraduateRepository } from "../../../../domain/graduate/graduateRepository.js";
 import { Graduate } from "../../../../domain/graduate/Graduate.js";
-import { withTransaction } from "../../../../config/database.js";
 
 function toGraduate(row) {
   if (!row) return null;
@@ -39,6 +38,21 @@ export class PgGraduateRepository extends GraduateRepository {
   constructor(pool) {
     super();
     this.pool = pool;
+  }
+
+  async _withTransaction(callback) {
+    const client = await this.pool.connect();
+    try {
+      await client.query("BEGIN");
+      const result = await callback(client);
+      await client.query("COMMIT");
+      return result;
+    } catch (err) {
+      await client.query("ROLLBACK");
+      throw err;
+    } finally {
+      client.release();
+    }
   }
 
   async findById(id) {
@@ -188,7 +202,7 @@ export class PgGraduateRepository extends GraduateRepository {
   }
 
   async setTechnologies(graduateId, technologyIds) {
-    return withTransaction(async (client) => {
+    return this._withTransaction(async (client) => {
       await client.query("DELETE FROM graduate_technologies WHERE graduate_id = $1", [graduateId]);
       let order = 0;
       for (const technologyId of technologyIds) {
@@ -204,7 +218,7 @@ export class PgGraduateRepository extends GraduateRepository {
   }
 
   async setSoftSkills(graduateId, softSkillIds) {
-    return withTransaction(async (client) => {
+    return this._withTransaction(async (client) => {
       await client.query("DELETE FROM graduate_soft_skills WHERE graduate_id = $1", [graduateId]);
       let order = 0;
       for (const softSkillId of softSkillIds) {
@@ -220,7 +234,7 @@ export class PgGraduateRepository extends GraduateRepository {
   }
 
   async setProjects(graduateId, projects) {
-    return withTransaction(async (client) => {
+    return this._withTransaction(async (client) => {
       await client.query("DELETE FROM projects WHERE graduate_id = $1", [graduateId]);
       let order = 0;
       for (const project of projects) {
@@ -236,7 +250,7 @@ export class PgGraduateRepository extends GraduateRepository {
   }
 
   async setExperiences(graduateId, experiences) {
-    return withTransaction(async (client) => {
+    return this._withTransaction(async (client) => {
       await client.query("DELETE FROM experiences WHERE graduate_id = $1", [graduateId]);
       let order = 0;
       for (const exp of experiences) {

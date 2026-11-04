@@ -1,22 +1,68 @@
 let entityDefinitions = [];
 let activeDefinition = null;
 let editingRow = null;
+let dialogMode = "edit"; // "edit" | "create"
 let searchTimer = null;
 let requestVersion = 0;
 
-function formatCellValue(value, type) {
+function slugifyClient(text) {
+  return String(text || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function formatCellValue(value, column) {
   if (value === null || value === undefined || value === "") return "-";
-  if (type === "date") return String(value).slice(0, 10);
-  if (type === "datetime") {
+  if (column.optionLabels && column.optionLabels[value]) {
+    return column.optionLabels[value];
+  }
+  if (column.type === "date") return String(value).slice(0, 10);
+  if (column.type === "datetime") {
     const date = new Date(value);
     return Number.isNaN(date.valueOf()) ? String(value) : date.toLocaleString("es-BO");
   }
-  if (type === "boolean") return value ? "Si" : "No";
+  if (column.type === "boolean") return value ? "Si" : "No";
   return String(value);
+}
+
+function renderCellContent(row, column) {
+  const value = row[column.key];
+  if (activeDefinition.key === "users" && column.key === "role") {
+    const isAdmin = value === "admin";
+    return el("span", {
+      class: `badge ${isAdmin ? "badge-public" : "badge-private"}`,
+      text: formatCellValue(value, column),
+    });
+  }
+  return formatCellValue(value, column);
 }
 
 function entityFromUrl() {
   return new URLSearchParams(window.location.search).get("entity");
+}
+
+function renderEntityTabs() {
+  const tabsContainer = document.getElementById("entityTabs");
+  if (!tabsContainer) return;
+  tabsContainer.replaceChildren();
+
+  for (const def of entityDefinitions) {
+    const isSelected = activeDefinition && activeDefinition.key === def.key;
+    const chip = el("button", {
+      type: "button",
+      class: `chip ${isSelected ? "selected" : ""}`,
+      text: def.label,
+    });
+    chip.addEventListener("click", () => {
+      clearAlert(document.getElementById("adminAlert"));
+      selectEntity(def.key);
+    });
+    tabsContainer.appendChild(chip);
+  }
 }
 
 function selectEntity(entity) {
@@ -27,9 +73,19 @@ function selectEntity(entity) {
   const url = new URL(window.location.href);
   url.searchParams.set("entity", activeDefinition.key);
   window.history.replaceState({}, "", url);
-  document.getElementById("entityTitle").textContent = activeDefinition.label;
+  document.getElementById("entityTitle").textContent = `Seccion actual: ${activeDefinition.label}`;
   document.getElementById("tableTitle").textContent = activeDefinition.label;
   document.getElementById("entitySearch").value = "";
+
+  const createBtn = document.getElementById("createEntityBtn");
+  if (activeDefinition.creatable) {
+    createBtn.hidden = false;
+    createBtn.textContent = `+ Agregar ${activeDefinition.singularLabel || "registro"}`;
+  } else {
+    createBtn.hidden = true;
+  }
+
+  renderEntityTabs();
   loadEntityRows();
 }
 
@@ -43,7 +99,7 @@ function renderTable(rows) {
   for (const column of activeDefinition.columns) {
     head.appendChild(el("th", { scope: "col", text: column.label }));
   }
-  head.appendChild(el("th", { scope: "col", class: "admin-actions-heading", text: "Acciones" }));
+  head.appendChild(el("th", { scope: "col", class: "admin-actions-heading", text: "Estado / Acciones" }));
 
   emptyState.hidden = rows.length > 0;
   emptyState.textContent = rows.length ? "" : "No se encontraron registros.";
@@ -51,7 +107,8 @@ function renderTable(rows) {
   for (const row of rows) {
     const tableRow = el("tr", { class: row.is_active ? "" : "admin-inactive-row" });
     for (const column of activeDefinition.columns) {
-      tableRow.appendChild(el("td", { text: formatCellValue(row[column.key], column.type) }));
+      const cellContent = renderCellContent(row, column);
+      tableRow.appendChild(el("td", {}, [cellContent]));
     }
 
     const actionCell = el("td", { class: "admin-actions-cell" });
@@ -62,10 +119,26 @@ function renderTable(rows) {
       role: "switch",
       "aria-checked": String(Boolean(row.is_active)),
       "aria-label": `${row.is_active ? "Deshabilitar" : "Habilitar"} registro de ${activeDefinition.label}`,
-      title: row.is_active ? "Deshabilitar registro" : "Habilitar registro",
+      title: row.is_active ? "Activo (clic para desactivar)" : "Inactivo (clic para activar)",
     });
     switchButton.appendChild(el("span", { class: "admin-switch-thumb" }));
     switchButton.addEventListener("click", () => toggleEntityRow(row, switchButton));
+
+    actions.appendChild(switchButton);
+
+    if (activeDefinition.key === "users") {
+      const isAdmin = row.role === "admin";
+      const roleButton = el("button", {
+        type: "button",
+        class: "btn btn-secondary admin-edit-button",
+        text: isAdmin ? "Pasar a estandar" : "Hacer admin",
+        title: isAdmin
+          ? "Cambiar rol a usuario estandar"
+          : "Asignar como administrador",
+      });
+      roleButton.addEventListener("click", () => toggleUserRole(row, roleButton));
+      actions.appendChild(roleButton);
+    }
 
     const editButton = el("button", {
       type: "button",
@@ -73,7 +146,8 @@ function renderTable(rows) {
       text: "Editar",
     });
     editButton.addEventListener("click", () => openEditDialog(row));
-    actions.append(switchButton, editButton);
+    actions.appendChild(editButton);
+
     actionCell.appendChild(actions);
     tableRow.appendChild(actionCell);
     body.appendChild(tableRow);
@@ -113,6 +187,27 @@ async function toggleEntityRow(row, button) {
   }
 }
 
+async function toggleUserRole(row, button) {
+  const nextRole = row.role === "admin" ? "graduate" : "admin";
+  button.disabled = true;
+  clearAlert(document.getElementById("adminAlert"));
+  try {
+    await api.admin.updateEntity("users", row.id, { role: nextRole });
+    showAlert(
+      document.getElementById("adminAlert"),
+      nextRole === "admin"
+        ? `Se asigno el rol de Administrador a ${row.email}.`
+        : `${row.email} ahora tiene rol de Usuario estandar.`,
+      "success",
+    );
+    await loadEntityRows();
+  } catch (error) {
+    showAlert(document.getElementById("adminAlert"), error.message || "No se pudo cambiar el rol del usuario.");
+  } finally {
+    button.disabled = false;
+  }
+}
+
 function createEditControl(field, value) {
   const control = field.type === "boolean"
     ? el("input", { id: `edit-${field.key}`, name: field.key, type: "checkbox" })
@@ -124,7 +219,10 @@ function createEditControl(field, value) {
 
   if (field.type === "select") {
     if (field.nullable) control.appendChild(el("option", { value: "", text: "-" }));
-    for (const option of field.options || []) control.appendChild(el("option", { value: option, text: option }));
+    for (const option of field.options || []) {
+      const label = (field.optionLabels && field.optionLabels[option]) || option;
+      control.appendChild(el("option", { value: option, text: label }));
+    }
   }
 
   if (field.type === "boolean") control.checked = Boolean(value);
@@ -133,11 +231,49 @@ function createEditControl(field, value) {
   return control;
 }
 
+function openCreateDialog() {
+  if (!activeDefinition || !activeDefinition.creatable) return;
+  dialogMode = "create";
+  editingRow = null;
+  const formFields = document.getElementById("editFields");
+  formFields.replaceChildren();
+  document.getElementById("editDialogTitle").textContent = `Agregar ${activeDefinition.singularLabel || activeDefinition.label.toLowerCase()}`;
+  document.getElementById("saveEdit").textContent = "Crear registro";
+
+  for (const field of activeDefinition.fields) {
+    const control = createEditControl(field, "");
+    const label = el("label", { class: "admin-form-field", for: control.id }, [
+      el("span", { text: field.label }),
+      control,
+    ]);
+    formFields.appendChild(label);
+  }
+
+  const nameInput = document.getElementById("edit-name");
+  const slugInput = document.getElementById("edit-slug");
+  if (nameInput && slugInput) {
+    let manualSlug = false;
+    slugInput.addEventListener("input", () => {
+      manualSlug = slugInput.value.trim().length > 0;
+    });
+    nameInput.addEventListener("input", () => {
+      if (!manualSlug) {
+        slugInput.value = slugifyClient(nameInput.value);
+      }
+    });
+  }
+
+  document.getElementById("editDialog").hidden = false;
+  document.getElementById("editFields").querySelector("input, select, textarea")?.focus();
+}
+
 function openEditDialog(row) {
+  dialogMode = "edit";
   editingRow = row;
   const formFields = document.getElementById("editFields");
   formFields.replaceChildren();
-  document.getElementById("editDialogTitle").textContent = `Editar ${activeDefinition.label.toLowerCase()}`;
+  document.getElementById("editDialogTitle").textContent = `Editar ${activeDefinition.singularLabel || activeDefinition.label.toLowerCase()}`;
+  document.getElementById("saveEdit").textContent = "Guardar cambios";
 
   for (const field of activeDefinition.fields) {
     const control = createEditControl(field, row[field.key]);
@@ -179,6 +315,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   selectEntity(entityFromUrl());
+  document.getElementById("createEntityBtn").addEventListener("click", openCreateDialog);
   document.getElementById("entitySearch").addEventListener("input", () => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(loadEntityRows, 180);
@@ -186,24 +323,34 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("editForm").addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (!editingRow) return;
-    const changes = {};
+    if (dialogMode === "edit" && !editingRow) return;
+
+    const payload = {};
     for (const field of activeDefinition.fields) {
       const control = document.getElementById(`edit-${field.key}`);
-      if (field.type === "boolean") changes[field.key] = control.checked;
-      else if (field.type === "number") changes[field.key] = control.value === "" ? null : Number(control.value);
-      else changes[field.key] = control.value === "" && field.nullable ? null : control.value;
+      if (field.type === "boolean") payload[field.key] = control.checked;
+      else if (field.type === "number") payload[field.key] = control.value === "" ? null : Number(control.value);
+      else payload[field.key] = control.value === "" && field.nullable ? null : control.value;
     }
 
     const saveButton = document.getElementById("saveEdit");
     saveButton.disabled = true;
     try {
-      await api.admin.updateEntity(activeDefinition.key, editingRow.id, changes);
-      closeEditDialog();
-      showAlert(document.getElementById("adminAlert"), "Registro actualizado.", "success");
+      if (dialogMode === "create") {
+        await api.admin.createEntity(activeDefinition.key, payload);
+        closeEditDialog();
+        showAlert(document.getElementById("adminAlert"), "Registro agregado correctamente.", "success");
+      } else {
+        await api.admin.updateEntity(activeDefinition.key, editingRow.id, payload);
+        closeEditDialog();
+        showAlert(document.getElementById("adminAlert"), "Registro actualizado.", "success");
+      }
       await loadEntityRows();
     } catch (error) {
-      showAlert(document.getElementById("adminAlert"), error.message || "No se pudo actualizar el registro.");
+      showAlert(
+        document.getElementById("adminAlert"),
+        error.message || (dialogMode === "create" ? "No se pudo agregar el registro." : "No se pudo actualizar el registro."),
+      );
     } finally {
       saveButton.disabled = false;
     }

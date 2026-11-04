@@ -51,7 +51,7 @@ export function makeCoverLetterController({
         const result = await setCoverLetterSelections({
           userId: req.session.userId,
           coverLetterId: req.params.id,
-          technologyIds: req.body.technologyIds ?? [],
+          technologyIds: req.validatedBody.technologyIds,
         });
         res.json(result);
       } catch (err) {
@@ -64,7 +64,7 @@ export function makeCoverLetterController({
         const result = await setCoverLetterSelections({
           userId: req.session.userId,
           coverLetterId: req.params.id,
-          softSkillIds: req.body.softSkillIds ?? [],
+          softSkillIds: req.validatedBody.softSkillIds,
         });
         res.json(result);
       } catch (err) {
@@ -77,8 +77,8 @@ export function makeCoverLetterController({
         const result = await setCoverLetterSelections({
           userId: req.session.userId,
           coverLetterId: req.params.id,
-          technologyIds: req.body.technologyIds ?? [],
-          softSkillIds: req.body.softSkillIds ?? [],
+          technologyIds: req.validatedBody.technologyIds,
+          softSkillIds: req.validatedBody.softSkillIds,
         });
         res.json(result);
       } catch (err) {

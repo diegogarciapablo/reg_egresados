@@ -1,4 +1,4 @@
-export function makeAuthController({ registerUser, loginUser, userRepository }) {
+export function makeAuthController({ registerUser, loginUser, getCurrentUser }) {
   return {
     async register(req, res, next) {
       try {
@@ -27,11 +27,8 @@ export function makeAuthController({ registerUser, loginUser, userRepository }) 
 
     async me(req, res, next) {
       try {
-        if (!req.session || !req.session.userId) {
-          return res.json({ user: null });
-        }
-        const user = await userRepository.findById(req.session.userId);
-        res.json({ user: user ? user.toSafeObject() : null });
+        const user = await getCurrentUser({ userId: req.session?.userId });
+        res.json({ user });
       } catch (err) {
         next(err);
       }

@@ -2,12 +2,16 @@ export function makeAdminController({
   listAllGraduates,
   moderateRecommendation,
   updateGraduateStatus,
-  adminEntityRepository,
+  listAdminEntityDefinitions,
+  listAdminEntityRows,
+  createAdminEntity,
+  updateAdminEntity,
+  setAdminEntityActive,
 }) {
   return {
     async listEntityDefinitions(req, res, next) {
       try {
-        res.json(adminEntityRepository.definitions());
+        res.json(listAdminEntityDefinitions());
       } catch (err) {
         next(err);
       }
@@ -15,8 +19,23 @@ export function makeAdminController({
 
     async listEntityRows(req, res, next) {
       try {
-        const items = await adminEntityRepository.list(req.params.entity, req.query.q || "");
+        const items = await listAdminEntityRows({
+          entity: req.params.entity,
+          search: req.query.q || "",
+        });
         res.json(items);
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async createEntity(req, res, next) {
+      try {
+        const created = await createAdminEntity({
+          entity: req.params.entity,
+          data: req.body.data ?? req.body,
+        });
+        res.status(201).json(created);
       } catch (err) {
         next(err);
       }
@@ -24,11 +43,11 @@ export function makeAdminController({
 
     async updateEntity(req, res, next) {
       try {
-        const result = await adminEntityRepository.update(
-          req.params.entity,
-          req.params.id,
-          req.body.changes,
-        );
+        const result = await updateAdminEntity({
+          entity: req.params.entity,
+          id: req.params.id,
+          changes: req.body.changes,
+        });
         res.json(result);
       } catch (err) {
         next(err);
@@ -37,12 +56,12 @@ export function makeAdminController({
 
     async setEntityActive(req, res, next) {
       try {
-        const result = await adminEntityRepository.setActive(
-          req.params.entity,
-          req.params.id,
-          req.body.isActive,
-          req.session.userId,
-        );
+        const result = await setAdminEntityActive({
+          entity: req.params.entity,
+          id: req.params.id,
+          isActive: req.body.isActive,
+          actorId: req.session.userId,
+        });
         res.json(result);
       } catch (err) {
         next(err);
@@ -63,7 +82,7 @@ export function makeAdminController({
 
     async moderateRecommendation(req, res, next) {
       try {
-        const recommendation = await moderateRecommendation({ id: req.params.id, status: req.body.status });
+        const recommendation = await moderateRecommendation({ id: req.params.id, status: req.validatedBody.status });
         res.json(recommendation);
       } catch (err) {
         next(err);
@@ -74,7 +93,7 @@ export function makeAdminController({
       try {
         const graduate = await updateGraduateStatus({
           graduateId: req.params.id,
-          visibility: req.body.visibility,
+          visibility: req.validatedBody.visibility,
         });
         res.json(graduate);
       } catch (err) {

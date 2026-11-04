@@ -1,7 +1,20 @@
-export function makeDirectoryController({ getDirectory, getPublicProfile, graduateRepository, catalogQueries }) {
+export function makeDirectoryController({ getDirectory, getPublicProfile, getProfilePhoto, catalogQueries }) {
   return {
     async health(req, res) {
       res.json({ status: "ok" });
+    },
+
+    async getPhoto(req, res, next) {
+      try {
+        const photo = await getProfilePhoto({
+          userId: req.session?.userId,
+          graduateId: req.params.graduateId,
+        });
+        res.set("Cache-Control", "private, no-store");
+        res.type(photo.contentType).send(photo.buffer);
+      } catch (err) {
+        next(err);
+      }
     },
 
     async list(req, res, next) {
@@ -15,9 +28,8 @@ export function makeDirectoryController({ getDirectory, getPublicProfile, gradua
 
     async getByCode(req, res, next) {
       try {
-        const graduate = await getPublicProfile(req.params.registrationCode);
-        const details = await graduateRepository.getFullProfile(graduate.id);
-        res.json({ ...graduate, ...details });
+        const profile = await getPublicProfile(req.params.registrationCode);
+        res.json(profile);
       } catch (err) {
         next(err);
       }
