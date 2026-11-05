@@ -42,7 +42,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./src/multimedia:/usr/src/app/src/multimedia
+      - ./backend/multimedia:/usr/src/app/backend/multimedia
     depends_on:
       - db
     networks:

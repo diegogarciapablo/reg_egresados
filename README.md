@@ -63,17 +63,19 @@ Deberia responder: `{"status":"ok"}`
 ## 7. Estructura del proyecto
 
 ```
-src/
-  domain/        <- entidades y reglas de negocio puras (sin Express ni pg)
-  application/    <- casos de uso (orquestan domain + repositorios)
-  adapters/
-    http/         <- rutas, controladores, middleware (Express)
-    persistence/  <- repositorios concretos con PostgreSQL
-  config/         <- env y conexion a base de datos
-  shared/         <- errores y validaciones (zod) compartidas
-migrations/       <- SQL versionado, se aplica con npm run migrate
-scripts/          <- migrate.js
-public/           <- (pendiente) frontend estatico
+backend/
+  src/
+    domain/        <- entidades y reglas de negocio puras (sin Express ni pg)
+    application/   <- casos de uso (orquestan domain + repositorios)
+    adapters/
+      http/        <- rutas, controladores, middleware (Express)
+      persistence/ <- repositorios concretos con PostgreSQL y archivos
+    config/        <- env y conexion a base de datos
+    shared/        <- errores y validaciones (zod) compartidas
+  migrations/      <- SQL versionado, se aplica con npm run migrate
+  scripts/         <- start.js, migrate.js y seed.js
+frontend/          <- vistas HTML, estilos CSS y modulos JS del cliente
+docs/              <- documentacion tecnica, arquitectura y modelo E-R
 ```
 
 ## 8. Docker (opcional, para dockerizar tambien el backend)

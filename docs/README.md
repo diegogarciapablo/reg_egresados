@@ -24,7 +24,7 @@ El sistema se encuentra **100 % operativo y contenedorizado**, compuesto por:
 
 | Componente | Tecnología | Estado / Puerto | Descripción |
 | :--- | :--- | :--- | :--- |
-| **Aplicación (`egresados_app`)** | Node.js 20 + Express 4 + Vanilla JS | Activo (`:3000`) | Servidor HTTP que expone la API REST (`/api/*`) y sirve el frontend estático (`public/`). |
+| **Aplicación (`egresados_app`)** | Node.js 20 + Express 4 + Vanilla JS | Activo (`:3000`) | Servidor HTTP que expone la API REST (`backend/` en `/api/*`) y sirve el frontend estático (`frontend/`). |
 | **Base de Datos (`egresados_db`)** | PostgreSQL 16 | Activo (`:5432`) | Base de datos relacional `egresados_db` con soporte UUID (`pgcrypto`) y volumen persistente. |
 | **Cliente BD (`egresados_pgadmin`)** | pgAdmin 4 | Activo (`:5050`) | Interfaz web para inspección y administración de PostgreSQL. |
 
@@ -63,9 +63,9 @@ Esto levanta automáticamente:
 3. **`egresados_app`** (Aplicación web y API en `http://localhost:3000`).
 
 ### 3. Poblado de la Base de Datos (Automático y Manual)
-Al iniciar `egresados_app`, el script [`scripts/start.js`](../scripts/start.js) ejecuta **automáticamente**:
-1. **Migraciones (`scripts/migrate.js`):** Crea las tablas (`001_initial_schema.sql`), carga los catálogos iniciales (`002_seed_catalogs.sql`) y habilita el estado lógico (`003_admin_entity_management.sql`).
-2. **Semillas (`scripts/seed.js`):**
+Al iniciar `egresados_app`, el script [`backend/scripts/start.js`](../backend/scripts/start.js) ejecuta **automáticamente**:
+1. **Migraciones (`backend/scripts/migrate.js`):** Crea las tablas (`001_initial_schema.sql`), carga los catálogos iniciales (`002_seed_catalogs.sql`), habilita el estado lógico (`003_admin_entity_management.sql`) y crea la tabla de certificados (`004_certificates.sql`).
+2. **Semillas (`backend/scripts/seed.js`):**
    - Crea y garantiza siempre el usuario **Administrador** (`admin@example.test` / `Prueba123!`).
    - Si la base está vacía, inserta **10 egresados de prueba** (`ana.mendez@example.test`, `bruno.rojas@example.test`, etc., todos con clave `Prueba123!`), sus imágenes de avatar y 6 registros por cada tabla relacionada (proyectos, experiencias, recomendaciones y cartas de presentación).
 

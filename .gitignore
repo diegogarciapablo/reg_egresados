@@ -2,5 +2,5 @@ node_modules/
 .env
 *.log
 .DS_Store
-src/multimedia/*
-!src/multimedia/.gitkeep
+backend/multimedia/*
+!backend/multimedia/.gitkeep
