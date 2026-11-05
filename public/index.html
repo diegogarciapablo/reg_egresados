@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Directorio de Egresados - Ingenieria Comercial UAJMS</title>
+  <title>Directorio de Egresados - Ingenieria Informatica UAJMS</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -12,7 +12,7 @@
   <main class="container">
     <div class="page-header">
       <h1>Directorio de egresados</h1>
-      <p class="muted">Explora las fichas profesionales de egresados de Ingenieria Comercial, UAJMS - Sede Yacuiba.</p>
+      <p class="muted">Explora las fichas profesionales de egresados de Ingenieria Informatica, UAJMS.</p>
     </div>
 
     <form id="filtersForm" class="card filters-bar">
@@ -27,8 +27,12 @@
         </select>
       </div>
       <div class="form-group">
-        <label for="year">Ano de egreso</label>
-        <input type="number" id="year" name="year" placeholder="2023" min="1950" max="2100" />
+        <label for="yearFrom">Ano de egreso (desde)</label>
+        <input type="number" id="yearFrom" name="yearFrom" placeholder="Ej: 2018" min="1950" max="2100" />
+      </div>
+      <div class="form-group">
+        <label for="yearTo">Ano de egreso (hasta)</label>
+        <input type="number" id="yearTo" name="yearTo" placeholder="Ej: 2024" min="1950" max="2100" />
       </div>
       <button type="submit" class="btn btn-primary">Filtrar</button>
     </form>

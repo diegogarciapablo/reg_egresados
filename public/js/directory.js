@@ -73,10 +73,22 @@ async function loadDirectory(page = 1) {
 
   const form = document.getElementById("filtersForm");
   const formData = new FormData(form);
+  const yearFrom = formData.get("yearFrom") || undefined;
+  const yearTo = formData.get("yearTo") || undefined;
+
+  if (yearFrom && yearTo && Number(yearFrom) > Number(yearTo)) {
+    grid.innerHTML = "";
+    pagination.innerHTML = "";
+    info.textContent = "";
+    showAlert(grid, "El ano 'desde' no puede ser mayor que el ano 'hasta'.");
+    return;
+  }
+
   const params = {
     q: formData.get("q") || undefined,
     technology: formData.get("technology") || undefined,
-    year: formData.get("year") || undefined,
+    yearFrom,
+    yearTo,
     page,
     limit: LIMIT,
   };

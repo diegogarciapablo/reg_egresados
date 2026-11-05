@@ -63,6 +63,7 @@ async function renderTopbar(activeUser) {
         ["graduates", "Perfiles"],
         ["projects", "Proyectos"],
         ["experiences", "Experiencias"],
+        ["certificates", "Certificados"],
         ["recommendations", "Recomendaciones"],
         ["cover_letters", "Cartas de presentacion"],
       ];

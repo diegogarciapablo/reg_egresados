@@ -29,8 +29,11 @@
           <button id="photoSelectBtn" class="photo-edit-button" type="button" aria-label="Subir foto de perfil" title="Subir foto de perfil">Subir foto</button>
         </div>
         <div class="profile-photo-actions">
-          <p class="hint">JPEG, PNG o WebP. Maximo 5 MB.</p>
-          <button id="photoRemoveBtn" class="photo-remove-button" type="button" hidden>Quitar foto</button>
+          <p class="hint">JPEG, PNG o WebP. Maximo 5 MB. Podras centrar y ajustar el encuadre antes de guardar.</p>
+          <div class="profile-photo-buttons">
+            <button id="photoFrameExistingBtn" class="btn btn-secondary admin-edit-button" type="button" hidden>Encuadrar foto</button>
+            <button id="photoRemoveBtn" class="photo-remove-button" type="button" hidden>Quitar foto</button>
+          </div>
         </div>
         <input id="photoFileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden />
       </div>
@@ -69,13 +72,14 @@
 
     <section class="card">
       <div class="section-title"><h2>Tecnologias</h2></div>
-      <p class="hint">Selecciona las tecnologias que dominas.</p>
+      <p class="hint">Selecciona todas las tecnologias que dominas.</p>
       <div id="technologiesChips" class="chip-group"></div>
       <button id="saveTechnologiesBtn" class="btn btn-secondary" style="margin-top:12px;">Guardar tecnologias</button>
     </section>
 
     <section class="card">
       <div class="section-title"><h2>Habilidades blandas</h2></div>
+      <p class="hint">Selecciona todas las habilidades blandas que te representan.</p>
       <div id="softSkillsChips" class="chip-group"></div>
       <button id="saveSoftSkillsBtn" class="btn btn-secondary" style="margin-top:12px;">Guardar habilidades</button>
     </section>
@@ -97,7 +101,41 @@
       <div id="projectsList"></div>
       <button id="saveProjectsBtn" class="btn btn-primary" style="margin-top:12px;">Guardar proyectos</button>
     </section>
+
+    <section class="card">
+      <div class="section-title">
+        <h2>Certificados</h2>
+      </div>
+      <p class="hint">Lista tus certificaciones o cursos y adjunta el certificado digital (PDF, JPEG, PNG o WebP, max. 10 MB).</p>
+      <div id="certificatesList"></div>
+      <div class="certificates-actions">
+        <button id="addCertificateBtn" class="btn btn-secondary" type="button">+ Agregar nuevo certificado</button>
+        <button id="saveCertificatesBtn" class="btn btn-primary" type="button">Guardar certificados</button>
+      </div>
+    </section>
   </main>
+
+  <div id="photoCropDialog" class="admin-dialog" hidden>
+    <section class="admin-dialog-panel photo-crop-panel" role="dialog" aria-modal="true" aria-labelledby="photoCropTitle">
+      <div class="flex-between admin-dialog-heading">
+        <h2 id="photoCropTitle">Encuadrar foto de perfil</h2>
+        <button id="closeCropDialogBtn" class="admin-icon-button" type="button" aria-label="Cerrar">X</button>
+      </div>
+      <p class="hint" style="margin-top:0; margin-bottom:12px;">Arrastra la imagen para centrarla y ajusta el zoom.</p>
+      <div class="photo-crop-stage">
+        <canvas id="photoCropCanvas" width="320" height="320"></canvas>
+      </div>
+      <div class="photo-crop-controls">
+        <label for="photoZoomRange">Zoom</label>
+        <input id="photoZoomRange" type="range" min="1" max="3" step="0.02" value="1" />
+        <button id="photoCenterResetBtn" class="btn btn-secondary admin-edit-button" type="button">Centrar</button>
+      </div>
+      <div class="admin-dialog-actions">
+        <button id="cancelCropBtn" class="btn btn-secondary" type="button">Cancelar</button>
+        <button id="saveCropBtn" class="btn btn-primary" type="button">Guardar foto</button>
+      </div>
+    </section>
+  </div>
 
   <script src="/js/api.js"></script>
   <script src="/js/ui.js"></script>

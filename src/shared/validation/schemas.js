@@ -48,16 +48,16 @@ export const visibilitySchema = z.object({
 });
 
 export const technologiesSelectionSchema = z.object({
-  technologyIds: z.array(z.string().uuid()).max(10),
+  technologyIds: z.array(z.string().uuid()).max(100),
 });
 
 export const softSkillsSelectionSchema = z.object({
-  softSkillIds: z.array(z.string().uuid()).max(10),
+  softSkillIds: z.array(z.string().uuid()).max(100),
 });
 
 export const coverLetterSelectionsSchema = z.object({
-  technologyIds: z.array(z.string().uuid()).max(10).default([]),
-  softSkillIds: z.array(z.string().uuid()).max(10).default([]),
+  technologyIds: z.array(z.string().uuid()).max(5).default([]),
+  softSkillIds: z.array(z.string().uuid()).max(5).default([]),
 });
 
 export const projectSchema = z.object({
@@ -84,6 +84,32 @@ export const experienceSchema = z.object({
 
 export const experiencesSelectionSchema = z.object({
   experiences: z.array(experienceSchema).max(20),
+});
+
+const certificateFileUrlSchema = z.string().refine((val) => {
+  if (/^\/api\/graduates\/certificates\/[0-9a-f-]+\/cert-[0-9a-f-]+\.(pdf|jpg|png|webp)$/i.test(val)) {
+    return true;
+  }
+  try {
+    const parsed = new URL(val);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}, "URL de certificado digital invalida");
+
+export const certificateSchema = z.object({
+  title: z.string().min(1, "El nombre del certificado es obligatorio").max(150),
+  issuer: z.string().max(150).nullable().optional(),
+  issueDate: isoDateSchema.nullable().optional(),
+  credentialUrl: httpUrlSchema.nullable().optional(),
+  fileUrl: certificateFileUrlSchema.nullable().optional(),
+  fileName: z.string().max(255).nullable().optional(),
+  displayOrder: z.number().int().min(0).optional(),
+});
+
+export const certificatesSelectionSchema = z.object({
+  certificates: z.array(certificateSchema).max(30),
 });
 
 export const recommendationSchema = z.object({
@@ -116,13 +142,20 @@ export const coverLetterSchema = z.object({
   valueProposition: z.string().max(2000).nullable().optional(),
 });
 
-export const directoryQuerySchema = z.object({
-  q: z.string().max(100).optional(),
-  technology: z.string().max(80).optional(),
-  year: z.coerce.number().int().min(1950).max(2100).optional(),
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(50).default(12),
-});
+export const directoryQuerySchema = z
+  .object({
+    q: z.string().max(100).optional(),
+    technology: z.string().max(80).optional(),
+    year: z.coerce.number().int().min(1950).max(2100).optional(),
+    yearFrom: z.coerce.number().int().min(1950).max(2100).optional(),
+    yearTo: z.coerce.number().int().min(1950).max(2100).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(50).default(12),
+  })
+  .refine(
+    (data) => data.yearFrom === undefined || data.yearTo === undefined || data.yearFrom <= data.yearTo,
+    { message: "El ano inicial (desde) no puede ser mayor al ano final (hasta)" }
+  );
 
 /**
  * Middleware de Express que valida req.body contra un schema de zod

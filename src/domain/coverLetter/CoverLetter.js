@@ -4,20 +4,13 @@ export const COVER_LETTER_STATUS = Object.freeze({
 });
 
 export const MAX_SELECTIONS_TOTAL = 5;
-export const MAX_SELECTIONS_PER_CATEGORY = 2;
+export const MAX_SELECTIONS_PER_CATEGORY = 5;
 
 /**
  * Valida que la combinacion de tecnologias + habilidades blandas elegidas
- * para una carta respete las reglas de negocio: maximo 5 en total y
- * maximo 2 por categoria (tecnologias y habilidades blandas por separado).
+ * para una carta respete las reglas de negocio: maximo 5 en total.
  */
 export function assertSelectionLimits({ technologyIds = [], softSkillIds = [] }) {
-  if (technologyIds.length > MAX_SELECTIONS_PER_CATEGORY) {
-    throw new Error(`Maximo ${MAX_SELECTIONS_PER_CATEGORY} tecnologias por carta`);
-  }
-  if (softSkillIds.length > MAX_SELECTIONS_PER_CATEGORY) {
-    throw new Error(`Maximo ${MAX_SELECTIONS_PER_CATEGORY} habilidades blandas por carta`);
-  }
   if (technologyIds.length + softSkillIds.length > MAX_SELECTIONS_TOTAL) {
     throw new Error(`Maximo ${MAX_SELECTIONS_TOTAL} selecciones en total por carta`);
   }

@@ -1,6 +1,6 @@
 # Modelo Entidad-Relación (Base de Datos)
 
-La base de datos PostgreSQL (`egresados_db`) utiliza la extensión `pgcrypto` para generar identificadores primarios `UUID` (`gen_random_uuid()`) y está compuesta por **8 entidades principales**, **4 tablas intermedias N:M** y **1 tabla de control de migraciones**.
+La base de datos PostgreSQL (`egresados_db`) utiliza la extensión `pgcrypto` para generar identificadores primarios `UUID` (`gen_random_uuid()`) y está compuesta por **9 entidades principales**, **4 tablas intermedias N:M** y **1 tabla de control de migraciones**.
 
 ---
 
@@ -15,6 +15,7 @@ erDiagram
   soft_skills ||--o{ graduate_soft_skills : "asociada a"
   graduates ||--o{ projects : "1:N desarrolla"
   graduates ||--o{ experiences : "1:N registra"
+  graduates ||--o{ certificates : "1:N obtiene"
   graduates ||--o{ recommendations : "1:N recibe"
   graduates ||--o{ cover_letters : "1:N redacta"
   cover_letters ||--o{ cover_letter_technologies : "destaca"
@@ -105,6 +106,21 @@ erDiagram
     boolean is_active "DEFAULT true"
   }
 
+  certificates {
+    uuid id PK
+    uuid graduate_id FK "ON DELETE CASCADE"
+    varchar title
+    varchar issuer
+    date issue_date
+    text credential_url
+    text file_url
+    varchar file_name
+    smallint display_order "DEFAULT 0"
+    boolean is_active "DEFAULT true"
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
   recommendations {
     uuid id PK
     uuid graduate_id FK "ON DELETE CASCADE"
@@ -181,6 +197,7 @@ erDiagram
 | **`graduate_soft_skills`** | `(graduate_id, soft_skill_id)` | `graduate_id` → `graduates(id)` (`CASCADE`), `soft_skill_id` → `soft_skills(id)` (`RESTRICT`) | Evita habilidades duplicadas por egresado. |
 | **`projects`** | `id` (UUID) | `graduate_id` → `graduates(id)` (`ON DELETE CASCADE`) | Ordenado por `(graduate_id, display_order)`. |
 | **`experiences`** | `id` (UUID) | `graduate_id` → `graduates(id)` (`ON DELETE CASCADE`) | `end_date IS NULL OR start_date IS NULL OR end_date >= start_date`. |
+| **`certificates`** | `id` (UUID) | `graduate_id` → `graduates(id)` (`ON DELETE CASCADE`) | Almacena metadatos del certificado y ruta del archivo digital (`file_url`, `file_name`). |
 | **`recommendations`** | `id` (UUID) | `graduate_id` → `graduates(id)` (`ON DELETE CASCADE`) | `status IN ('pending', 'published', 'rejected')`. |
 | **`cover_letters`** | `id` (UUID) | `graduate_id` → `graduates(id)` (`ON DELETE CASCADE`) | `status IN ('draft', 'archived')`. |
 | **`cover_letter_technologies`** | `(cover_letter_id, technology_id)` | `cover_letter_id` → `cover_letters(id)` (`CASCADE`), `technology_id` → `technologies(id)` (`RESTRICT`) | Máximo 2 tecnologías por carta validado en dominio. |

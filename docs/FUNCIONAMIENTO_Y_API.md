@@ -91,9 +91,10 @@ El sistema maneja dos roles en la tabla `users` (`user_role ENUM ('graduate', 'a
 | Método | Ruta | Descripción |
 | :--- | :--- | :--- |
 | `GET` | `/api/health` | Verificación de estado del servidor (`{"status":"ok"}`). |
-| `GET` | `/api/graduates` | Lista paginada de egresados con `visibility = 'public'`. Parámetros: `q`, `technology`, `year`, `page`, `limit`. |
+| `GET` | `/api/graduates` | Lista paginada de egresados con `visibility = 'public'`. Parámetros: `q`, `technology`, `yearFrom`, `yearTo`, `page`, `limit`. |
 | `GET` | `/api/graduates/:registrationCode` | Obtiene la ficha pública o `link_only` completa por código de registro. |
 | `GET` | `/api/graduates/photo/:graduateId` | Sirve la imagen de perfil subida en disco si el perfil no es privado (o si pertenece al usuario en sesión). |
+| `GET` | `/api/graduates/certificates/:graduateId/:filename` | Sirve el archivo digital de un certificado (PDF o imagen) si el perfil no es privado (o si pertenece al usuario en sesión). |
 | `POST` | `/api/graduates/:id/recommendations` | Envía una recomendación para el egresado (se crea con `status = 'pending'`). |
 | `GET` | `/api/catalogs/technologies` | Lista las tecnologías activas del catálogo. |
 | `GET` | `/api/catalogs/soft-skills` | Lista las habilidades blandas activas del catálogo. |
@@ -118,6 +119,8 @@ El sistema maneja dos roles en la tabla `users` (`user_role ENUM ('graduate', 'a
 | `PUT` | `/api/me/profile/soft-skills` | Reemplaza las habilidades blandas asociadas al perfil (`softSkillIds`). |
 | `PUT` | `/api/me/profile/projects` | Reemplaza la lista de proyectos del egresado. |
 | `PUT` | `/api/me/profile/experiences` | Reemplaza la lista de experiencias laborales del egresado. |
+| `POST` | `/api/me/profile/certificates/file` | Sube un certificado digital (`multipart/form-data`, campo `certificate`, PDF/JPEG/PNG/WebP, máx. 10 MB) y devuelve `{ fileUrl, fileName }`. |
+| `PUT` | `/api/me/profile/certificates` | Reemplaza la lista de certificados del egresado. |
 | `GET` | `/api/me/cover-letters` | Lista las cartas de presentación activas del egresado. |
 | `POST` | `/api/me/cover-letters` | Crea una nueva carta de presentación. |
 | `GET` | `/api/me/cover-letters/:id` | Obtiene el detalle de una carta propia. |

@@ -120,6 +120,11 @@ async function ensureSeedAvatars(client) {
       [photoUrl, registrationCode],
     );
   }
+  await client.query(
+    `UPDATE cover_letters
+     SET career = 'Ingenieria Informatica', updated_at = NOW()
+     WHERE career = 'Ingenieria Comercial'`,
+  );
 }
 
 async function runSeed() {
@@ -231,7 +236,7 @@ async function runSeed() {
         `INSERT INTO cover_letters
           (graduate_id, full_name, email, sending_city, company_name, target_position,
            career, university, relevant_experience, motivation, value_proposition)
-         VALUES ($1, $2, $3, 'Tarija', $4, $5, 'Ingenieria Comercial',
+         VALUES ($1, $2, $3, 'Tarija', $4, $5, 'Ingenieria Informatica',
                  'Universidad Autonoma Juan Misael Saracho', $6, $7, $8)
          RETURNING id`,
         [

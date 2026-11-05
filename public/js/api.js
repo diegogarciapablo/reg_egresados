@@ -73,6 +73,8 @@ const api = {
     setSoftSkills: (softSkillIds) => request("/me/profile/soft-skills", { method: "PUT", body: { softSkillIds } }),
     setProjects: (projects) => request("/me/profile/projects", { method: "PUT", body: { projects } }),
     setExperiences: (experiences) => request("/me/profile/experiences", { method: "PUT", body: { experiences } }),
+    uploadCertificateFile: (formData) => request("/me/profile/certificates/file", { method: "POST", body: formData }),
+    setCertificates: (certificates) => request("/me/profile/certificates", { method: "PUT", body: { certificates } }),
   },
   coverLetters: {
     list: () => request("/me/cover-letters"),

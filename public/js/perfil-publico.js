@@ -99,6 +99,36 @@ function buildProfileView(graduate) {
     container.appendChild(section("Proyectos", grid));
   }
 
+  if (graduate.certificates && graduate.certificates.length) {
+    const list = el("div");
+    for (const cert of graduate.certificates) {
+      const item = el("div", { class: "card", style: "margin-bottom:10px;" });
+      item.appendChild(el("strong", { text: cert.title }));
+      const meta = [cert.issuer, cert.issue_date ? String(cert.issue_date).slice(0, 10) : null]
+        .filter(Boolean)
+        .join(" · ");
+      if (meta) item.appendChild(el("div", { class: "muted", text: meta }));
+
+      const certLinks = el("div", { class: "tag-list", style: "margin-top:8px;" });
+      if (cert.file_url && cert.file_url.startsWith("/api/graduates/certificates/")) {
+        certLinks.appendChild(
+          el("a", {
+            href: cert.file_url,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            text: cert.file_name ? `Ver certificado digital (${cert.file_name})` : "Ver certificado digital",
+          })
+        );
+      }
+      const extLink = safeExternalLink(cert.credential_url, "Ver credencial externa");
+      if (extLink) certLinks.appendChild(extLink);
+      if (certLinks.children.length > 0) item.appendChild(certLinks);
+
+      list.appendChild(item);
+    }
+    container.appendChild(section("Certificados", list));
+  }
+
   const recommendations = el("div");
   if (graduate.recommendations && graduate.recommendations.length) {
     for (const rec of graduate.recommendations) {

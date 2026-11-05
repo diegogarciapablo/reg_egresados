@@ -110,10 +110,6 @@ function renderLetterChips() {
         const total = selectedSet.size + otherSet.size;
 
         if (!selectedSet.has(item.id)) {
-          if (selectedSet.size >= MAX_POR_CATEGORIA) {
-            showAlert(document.getElementById("alertBox"), `Máximo ${MAX_POR_CATEGORIA} por categoría.`);
-            return;
-          }
           if (total >= MAX_TOTAL) {
             showAlert(document.getElementById("alertBox"), `Máximo ${MAX_TOTAL} selecciones en total.`);
             return;
@@ -230,9 +226,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     profileDefaults = {
       fullName: [graduate.firstName, graduate.lastName].filter(Boolean).join(" "),
       email: user.email || "",
+      career: "Ingenieria Informatica",
+      university: "Universidad Autonoma Juan Misael Saracho",
     };
   } catch {
-    profileDefaults = { fullName: "", email: user.email || "" };
+    profileDefaults = {
+      fullName: "",
+      email: user.email || "",
+      career: "Ingenieria Informatica",
+      university: "Universidad Autonoma Juan Misael Saracho",
+    };
   }
 
   const letters = await loadLetters();

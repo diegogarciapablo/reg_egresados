@@ -1,7 +1,7 @@
 {
   "name": "registro-egresados",
   "version": "1.0.0",
-  "description": "Directorio de egresados UAJMS - Ingenieria Comercial",
+  "description": "Directorio de egresados UAJMS - Ingenieria Informatica",
   "type": "module",
   "main": "src/server.js",
   "scripts": {

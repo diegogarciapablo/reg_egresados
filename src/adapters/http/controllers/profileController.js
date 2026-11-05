@@ -9,6 +9,8 @@ export function makeProfileController({
   updateGraduateSoftSkills,
   updateGraduateProjects,
   updateGraduateExperiences,
+  updateGraduateCertificates,
+  uploadCertificateFile,
 }) {
   return {
     async getMyProfile(req, res, next) {
@@ -99,6 +101,24 @@ export function makeProfileController({
     async putExperiences(req, res, next) {
       try {
         const result = await updateGraduateExperiences({ userId: req.session.userId, experiences: req.validatedBody.experiences });
+        res.json(result);
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async uploadCertificateFile(req, res, next) {
+      try {
+        const result = await uploadCertificateFile({ userId: req.session.userId, file: req.file });
+        res.status(201).json(result);
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async putCertificates(req, res, next) {
+      try {
+        const result = await updateGraduateCertificates({ userId: req.session.userId, certificates: req.validatedBody.certificates });
         res.json(result);
       } catch (err) {
         next(err);

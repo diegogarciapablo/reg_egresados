@@ -1,6 +1,6 @@
 # Documentación del Proyecto — Registro de Egresados (UAJMS)
 
-Bienvenido a la documentación técnica oficial del sistema **Directorio y Registro de Egresados de Ingeniería Comercial (UAJMS)**.
+Bienvenido a la documentación técnica oficial del sistema **Directorio y Registro de Egresados de Ingeniería Informática (UAJMS)**.
 
 ## Índice de Documentación
 

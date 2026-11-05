@@ -119,7 +119,17 @@ export class PgGraduateRepository extends GraduateRepository {
    * Busqueda del directorio con filtros y paginacion.
    * ILIKE + joins parametrizados, tal como recomienda el MVP.
    */
-  async searchDirectory({ q, technology, graduationYear, page = 1, limit = 12, visibility, includeInactive = false }) {
+  async searchDirectory({
+    q,
+    technology,
+    graduationYear,
+    yearFrom,
+    yearTo,
+    page = 1,
+    limit = 12,
+    visibility,
+    includeInactive = false,
+  }) {
     const conditions = [];
     const values = [];
     let index = 1;
@@ -140,6 +150,18 @@ export class PgGraduateRepository extends GraduateRepository {
     if (graduationYear) {
       conditions.push(`g.graduation_year = $${index}`);
       values.push(graduationYear);
+      index += 1;
+    }
+
+    if (yearFrom) {
+      conditions.push(`g.graduation_year >= $${index}`);
+      values.push(yearFrom);
+      index += 1;
+    }
+
+    if (yearTo) {
+      conditions.push(`g.graduation_year <= $${index}`);
+      values.push(yearTo);
       index += 1;
     }
 
@@ -274,8 +296,33 @@ export class PgGraduateRepository extends GraduateRepository {
     });
   }
 
+  async setCertificates(graduateId, certificates) {
+    return this._withTransaction(async (client) => {
+      await client.query("DELETE FROM certificates WHERE graduate_id = $1", [graduateId]);
+      let order = 0;
+      for (const cert of certificates) {
+        await client.query(
+          `INSERT INTO certificates (graduate_id, title, issuer, issue_date, credential_url, file_url, file_name, display_order)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [
+            graduateId,
+            cert.title,
+            cert.issuer ?? null,
+            cert.issueDate ?? null,
+            cert.credentialUrl ?? null,
+            cert.fileUrl ?? null,
+            cert.fileName ?? null,
+            order,
+          ]
+        );
+        order += 1;
+      }
+      return certificates;
+    });
+  }
+
   async getFullProfile(graduateId) {
-    const [technologies, softSkills, projects, experiences, recommendations] = await Promise.all([
+    const [technologies, softSkills, projects, experiences, certificates, recommendations] = await Promise.all([
       this.pool.query(
         `SELECT t.id, t.name, t.slug FROM graduate_technologies gt
          JOIN technologies t ON t.id = gt.technology_id
@@ -297,6 +344,10 @@ export class PgGraduateRepository extends GraduateRepository {
         [graduateId]
       ),
       this.pool.query(
+        `SELECT * FROM certificates WHERE graduate_id = $1 AND is_active = TRUE ORDER BY display_order`,
+        [graduateId]
+      ),
+      this.pool.query(
         `SELECT * FROM recommendations WHERE graduate_id = $1 AND status = 'published' AND is_active = TRUE ORDER BY created_at DESC`,
         [graduateId]
       ),
@@ -307,6 +358,7 @@ export class PgGraduateRepository extends GraduateRepository {
       softSkills: softSkills.rows,
       projects: projects.rows,
       experiences: experiences.rows,
+      certificates: certificates.rows,
       recommendations: recommendations.rows,
     };
   }

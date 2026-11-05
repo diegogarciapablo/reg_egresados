@@ -10,6 +10,7 @@ import {
   softSkillsSelectionSchema,
   projectsSelectionSchema,
   experiencesSelectionSchema,
+  certificatesSelectionSchema,
   coverLetterSchema,
   coverLetterSelectionsSchema,
 } from "../../../shared/validation/schemas.js";
@@ -39,6 +40,31 @@ function uploadProfilePhoto(req, res, next) {
   });
 }
 
+const allowedCertificateTypes = new Set(["application/pdf", "image/jpeg", "image/png", "image/webp"]);
+const parseCertificateFile = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+  fileFilter(req, file, callback) {
+    if (!allowedCertificateTypes.has(file.mimetype)) {
+      return callback(new AppError("El certificado debe ser PDF, JPEG, PNG o WebP."));
+    }
+    callback(null, true);
+  },
+}).single("certificate");
+
+function uploadCertificateFile(req, res, next) {
+  parseCertificateFile(req, res, (error) => {
+    if (!error) return next();
+    if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") {
+      return next(new AppError("El certificado digital no puede superar los 10 MB."));
+    }
+    if (error instanceof multer.MulterError) {
+      return next(new AppError("Solo se permite subir un archivo por solicitud."));
+    }
+    next(error);
+  });
+}
+
 export function meRoutes({ profileController, coverLetterController }) {
   const router = Router();
 
@@ -53,6 +79,8 @@ export function meRoutes({ profileController, coverLetterController }) {
   router.put("/profile/soft-skills", validateBody(softSkillsSelectionSchema), profileController.putSoftSkills);
   router.put("/profile/projects", validateBody(projectsSelectionSchema), profileController.putProjects);
   router.put("/profile/experiences", validateBody(experiencesSelectionSchema), profileController.putExperiences);
+  router.post("/profile/certificates/file", uploadCertificateFile, profileController.uploadCertificateFile);
+  router.put("/profile/certificates", validateBody(certificatesSelectionSchema), profileController.putCertificates);
   router.patch("/profile/visibility", validateBody(visibilitySchema), profileController.patchVisibility);
 
   router.get("/cover-letters", coverLetterController.list);

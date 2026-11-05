@@ -46,6 +46,10 @@ export class GraduateRepository {
     throw new Error("No implementado");
   }
 
+  async setCertificates(_graduateId, _certificates) {
+    throw new Error("No implementado");
+  }
+
   async getFullProfile(_graduateId) {
     throw new Error("No implementado");
   }

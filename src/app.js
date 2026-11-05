@@ -16,6 +16,7 @@ import { PgRecommendationRepository } from "./adapters/persistence/postgres/repo
 import { PgCoverLetterRepository } from "./adapters/persistence/postgres/repositories/PgCoverLetterRepository.js";
 import { PgAdminEntityRepository } from "./adapters/persistence/postgres/repositories/PgAdminEntityRepository.js";
 import { ProfilePhotoStore } from "./adapters/persistence/filesystem/ProfilePhotoStore.js";
+import { CertificateFileStore } from "./adapters/persistence/filesystem/CertificateFileStore.js";
 import { makeCatalogQueries } from "./adapters/persistence/postgres/queries/catalogQueries.js";
 
 // Casos de uso (aplicacion)
@@ -39,6 +40,9 @@ import {
   makeUpdateGraduateSoftSkills,
   makeUpdateGraduateProjects,
   makeUpdateGraduateExperiences,
+  makeUpdateGraduateCertificates,
+  makeUploadCertificateFile,
+  makeGetCertificateFile,
 } from "./application/graduate/updateGraduateLists.js";
 import { makeCreateRecommendation, makeModerateRecommendation } from "./application/recommendation/manageRecommendations.js";
 import {
@@ -85,6 +89,7 @@ export function createApp() {
   const coverLetterRepository = new PgCoverLetterRepository(pool);
   const adminEntityRepository = new PgAdminEntityRepository(pool);
   const profilePhotoStore = new ProfilePhotoStore();
+  const certificateFileStore = new CertificateFileStore();
   const catalogQueries = makeCatalogQueries(pool);
 
   // --- Casos de uso ---
@@ -103,6 +108,9 @@ export function createApp() {
   const updateGraduateSoftSkills = makeUpdateGraduateSoftSkills({ graduateRepository });
   const updateGraduateProjects = makeUpdateGraduateProjects({ graduateRepository });
   const updateGraduateExperiences = makeUpdateGraduateExperiences({ graduateRepository });
+  const updateGraduateCertificates = makeUpdateGraduateCertificates({ graduateRepository });
+  const uploadCertificateFile = makeUploadCertificateFile({ graduateRepository, certificateFileStore });
+  const getCertificateFile = makeGetCertificateFile({ graduateRepository, certificateFileStore });
   const createRecommendation = makeCreateRecommendation({ recommendationRepository, graduateRepository });
   const moderateRecommendation = makeModerateRecommendation({ recommendationRepository });
   const createCoverLetter = makeCreateCoverLetter({ coverLetterRepository, graduateRepository });
@@ -124,6 +132,7 @@ export function createApp() {
     getDirectory,
     getPublicProfile,
     getProfilePhoto,
+    getCertificateFile,
     catalogQueries,
   });
   const profileController = makeProfileController({
@@ -137,6 +146,8 @@ export function createApp() {
     updateGraduateSoftSkills,
     updateGraduateProjects,
     updateGraduateExperiences,
+    updateGraduateCertificates,
+    uploadCertificateFile,
   });
   const recommendationController = makeRecommendationController({ createRecommendation, moderateRecommendation });
   const coverLetterController = makeCoverLetterController({
@@ -164,7 +175,7 @@ export function createApp() {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          imgSrc: ["'self'", "data:", "https:"],
+          imgSrc: ["'self'", "data:", "blob:", "https:"],
         },
       },
     })
