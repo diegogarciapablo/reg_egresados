@@ -42,6 +42,8 @@ export const profileUpdateSchema = z.object({
   githubUrl: httpUrlSchema.nullable().optional(),
   linkedinUrl: httpUrlSchema.nullable().optional(),
   portfolioUrl: httpUrlSchema.nullable().optional(),
+  technologyIds: z.array(z.string().uuid()).max(100).optional(),
+  softSkillIds: z.array(z.string().uuid()).max(100).optional(),
 });
 
 export const visibilitySchema = z.object({

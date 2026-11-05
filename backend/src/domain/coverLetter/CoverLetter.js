@@ -1,3 +1,5 @@
+import { AppError } from "../../shared/errors/AppError.js";
+
 export const COVER_LETTER_STATUS = Object.freeze({
   DRAFT: "draft",
   ARCHIVED: "archived",
@@ -12,7 +14,7 @@ export const MAX_SELECTIONS_PER_CATEGORY = 5;
  */
 export function assertSelectionLimits({ technologyIds = [], softSkillIds = [] }) {
   if (technologyIds.length + softSkillIds.length > MAX_SELECTIONS_TOTAL) {
-    throw new Error(`Maximo ${MAX_SELECTIONS_TOTAL} selecciones en total por carta`);
+    throw new AppError(`Maximo ${MAX_SELECTIONS_TOTAL} selecciones en total por carta`);
   }
 }
 
@@ -27,7 +29,7 @@ export class CoverLetter {
     ...rest
   }) {
     if (!fullName || !companyName || !targetPosition) {
-      throw new Error("La carta necesita nombre, empresa y puesto objetivo");
+      throw new AppError("La carta necesita nombre, empresa y puesto objetivo");
     }
     this.id = id;
     this.graduateId = graduateId;

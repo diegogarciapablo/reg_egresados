@@ -1,3 +1,5 @@
+import { AppError } from "../../shared/errors/AppError.js";
+
 export const VISIBILITY = Object.freeze({
   PUBLIC: "public",
   LINK_ONLY: "link_only",
@@ -25,10 +27,10 @@ export class Graduate {
     visibility = VISIBILITY.PRIVATE,
   }) {
     if (!firstName || !lastName) {
-      throw new Error("El egresado debe tener nombre y apellido");
+      throw new AppError("El egresado debe tener nombre y apellido");
     }
     if (!graduationYear || graduationYear < 1950 || graduationYear > 2100) {
-      throw new Error("Ano de egreso invalido");
+      throw new AppError("Ano de egreso invalido");
     }
 
     this.id = id;

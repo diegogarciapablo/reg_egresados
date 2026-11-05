@@ -1,3 +1,5 @@
+import { AppError } from "../../shared/errors/AppError.js";
+
 export const ROLE = Object.freeze({
   GRADUATE: "graduate",
   ADMIN: "admin",
@@ -6,7 +8,7 @@ export const ROLE = Object.freeze({
 export class User {
   constructor({ id, email, passwordHash, role = ROLE.GRADUATE, isActive = true }) {
     if (!email || !email.includes("@")) {
-      throw new Error("Email invalido");
+      throw new AppError("Email invalido");
     }
     this.id = id;
     this.email = email.toLowerCase();

@@ -17,7 +17,15 @@ export function makeUpdateGraduateProfile({ graduateRepository }) {
     if (!graduate) {
       throw new NotFoundError("El usuario no tiene una ficha asociada");
     }
-    return graduateRepository.update(graduate.id, changes);
+    const { technologyIds, softSkillIds, ...profileChanges } = changes || {};
+    const updated = await graduateRepository.update(graduate.id, profileChanges);
+    if (Array.isArray(technologyIds)) {
+      await graduateRepository.setTechnologies(graduate.id, technologyIds);
+    }
+    if (Array.isArray(softSkillIds)) {
+      await graduateRepository.setSoftSkills(graduate.id, softSkillIds);
+    }
+    return updated;
   };
 }
 

@@ -655,6 +655,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         githubUrl: document.getElementById("githubUrl").value || null,
         linkedinUrl: document.getElementById("linkedinUrl").value || null,
         portfolioUrl: document.getElementById("portfolioUrl").value || null,
+        technologyIds: [...selectedTechnologies],
+        softSkillIds: [...selectedSoftSkills],
       });
       showAlert(generalAlert, "Informacion guardada.", "success");
     } catch (err) {

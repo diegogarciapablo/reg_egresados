@@ -102,7 +102,7 @@ export class PgCoverLetterRepository extends CoverLetterRepository {
 
     for (const [camel, snake] of Object.entries(FIELD_MAP)) {
       if (data[camel] === undefined) continue;
-      columns.push(snake);
+      columns.push(`"${snake}"`);
       placeholders.push(`$${index}`);
       values.push(data[camel]);
       index += 1;
@@ -122,7 +122,7 @@ export class PgCoverLetterRepository extends CoverLetterRepository {
 
     for (const [camel, snake] of Object.entries(FIELD_MAP)) {
       if (changes[camel] === undefined) continue;
-      setClauses.push(`${snake} = $${index}`);
+      setClauses.push(`"${snake}" = $${index}`);
       values.push(changes[camel]);
       index += 1;
     }
@@ -151,7 +151,9 @@ export class PgCoverLetterRepository extends CoverLetterRepository {
       let order = 0;
       for (const technologyId of uniqueTechIds) {
         await client.query(
-          `INSERT INTO cover_letter_technologies (cover_letter_id, technology_id, display_order) VALUES ($1, $2, $3)`,
+          `INSERT INTO cover_letter_technologies (cover_letter_id, technology_id, display_order)
+           SELECT $1, id, $3 FROM technologies WHERE id = $2
+           ON CONFLICT (cover_letter_id, technology_id) DO UPDATE SET display_order = EXCLUDED.display_order`,
           [coverLetterId, technologyId, order]
         );
         order += 1;
@@ -160,7 +162,9 @@ export class PgCoverLetterRepository extends CoverLetterRepository {
       order = 0;
       for (const softSkillId of uniqueSkillIds) {
         await client.query(
-          `INSERT INTO cover_letter_soft_skills (cover_letter_id, soft_skill_id, display_order) VALUES ($1, $2, $3)`,
+          `INSERT INTO cover_letter_soft_skills (cover_letter_id, soft_skill_id, display_order)
+           SELECT $1, id, $3 FROM soft_skills WHERE id = $2
+           ON CONFLICT (cover_letter_id, soft_skill_id) DO UPDATE SET display_order = EXCLUDED.display_order`,
           [coverLetterId, softSkillId, order]
         );
         order += 1;

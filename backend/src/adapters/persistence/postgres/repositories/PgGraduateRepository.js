@@ -100,7 +100,7 @@ export class PgGraduateRepository extends GraduateRepository {
     for (const [key, value] of Object.entries(changes)) {
       const column = UPDATABLE_FIELDS[key];
       if (!column) continue;
-      setClauses.push(`${column} = $${index}`);
+      setClauses.push(`"${column}" = $${index}`);
       values.push(value);
       index += 1;
     }
@@ -242,7 +242,8 @@ export class PgGraduateRepository extends GraduateRepository {
       for (const technologyId of uniqueIds) {
         await client.query(
           `INSERT INTO graduate_technologies (graduate_id, technology_id, display_order)
-           VALUES ($1, $2, $3)`,
+           SELECT $1, id, $3 FROM technologies WHERE id = $2
+           ON CONFLICT (graduate_id, technology_id) DO UPDATE SET display_order = EXCLUDED.display_order`,
           [graduateId, technologyId, order]
         );
         order += 1;
@@ -259,7 +260,8 @@ export class PgGraduateRepository extends GraduateRepository {
       for (const softSkillId of uniqueIds) {
         await client.query(
           `INSERT INTO graduate_soft_skills (graduate_id, soft_skill_id, display_order)
-           VALUES ($1, $2, $3)`,
+           SELECT $1, id, $3 FROM soft_skills WHERE id = $2
+           ON CONFLICT (graduate_id, soft_skill_id) DO UPDATE SET display_order = EXCLUDED.display_order`,
           [graduateId, softSkillId, order]
         );
         order += 1;

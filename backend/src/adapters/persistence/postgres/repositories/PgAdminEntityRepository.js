@@ -61,7 +61,7 @@ export class PgAdminEntityRepository extends AdminEntityRepository {
 
   async create(entity, normalizedFields) {
     const config = getEntityConfig(entity);
-    const columnNames = normalizedFields.map(({ field }) => field.key);
+    const columnNames = normalizedFields.map(({ field }) => `"${field.key}"`);
     const placeholders = normalizedFields.map((_, index) => `$${index + 1}`);
     const values = normalizedFields.map(({ value }) => value);
 
@@ -86,7 +86,7 @@ export class PgAdminEntityRepository extends AdminEntityRepository {
 
   async update(entity, id, normalizedChanges) {
     const config = getEntityConfig(entity);
-    const setClauses = normalizedChanges.map(({ field }, index) => `${field.key} = $${index + 1}`);
+    const setClauses = normalizedChanges.map(({ field }, index) => `"${field.key}" = $${index + 1}`);
     const values = normalizedChanges.map(({ value }) => value);
     if (config.updatesTimestamp) setClauses.push("updated_at = NOW()");
     values.push(id);
