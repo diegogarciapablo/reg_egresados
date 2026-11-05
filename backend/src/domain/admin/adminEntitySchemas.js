@@ -133,6 +133,18 @@ export const adminEntities = {
       { key: "account_email", label: "Cuenta", sql: "u.email", type: "text", editable: false },
       { key: "position", label: "Puesto", sql: "e.position", type: "text", required: true, maxLength: 150 },
       { key: "organization", label: "Organizacion", sql: "e.organization", type: "text", required: true, maxLength: 150 },
+      {
+        key: "date_format",
+        label: "Formato fecha",
+        sql: "e.date_format",
+        type: "select",
+        required: true,
+        options: ["day", "month"],
+        optionLabels: {
+          day: "Dia/Mes/Ano",
+          month: "Mes/Ano",
+        },
+      },
       { key: "start_date", label: "Inicio", sql: "e.start_date", type: "date", nullable: true },
       { key: "end_date", label: "Fin", sql: "e.end_date", type: "date", nullable: true },
       { key: "is_current", label: "Actual", sql: "e.is_current", type: "boolean", required: true },

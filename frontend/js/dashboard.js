@@ -339,13 +339,120 @@ function renderChips(container, items, selectedSet) {
   }
 }
 
+const EXPERIENCE_MONTHS = [
+  { value: "01", label: "01 - Enero" },
+  { value: "02", label: "02 - Febrero" },
+  { value: "03", label: "03 - Marzo" },
+  { value: "04", label: "04 - Abril" },
+  { value: "05", label: "05 - Mayo" },
+  { value: "06", label: "06 - Junio" },
+  { value: "07", label: "07 - Julio" },
+  { value: "08", label: "08 - Agosto" },
+  { value: "09", label: "09 - Septiembre" },
+  { value: "10", label: "10 - Octubre" },
+  { value: "11", label: "11 - Noviembre" },
+  { value: "12", label: "12 - Diciembre" },
+];
+
+function createMonthYearControl(initialIsoDate = "") {
+  const monthSelect = el("select", { "aria-label": "Mes" }, [
+    el("option", { value: "", text: "Mes..." }),
+    ...EXPERIENCE_MONTHS.map((m) => el("option", { value: m.value, text: m.label })),
+  ]);
+
+  const currentYear = Math.max(new Date().getFullYear(), 2026);
+  const yearOptions = [el("option", { value: "", text: "Ano..." })];
+  for (let year = currentYear; year >= 1980; year -= 1) {
+    yearOptions.push(el("option", { value: String(year), text: String(year) }));
+  }
+  const yearSelect = el("select", { "aria-label": "Ano" }, yearOptions);
+
+  if (initialIsoDate && initialIsoDate.length >= 7) {
+    yearSelect.value = initialIsoDate.slice(0, 4);
+    monthSelect.value = initialIsoDate.slice(5, 7);
+  }
+
+  const wrapper = el("div", { class: "month-year-picker" }, [monthSelect, yearSelect]);
+
+  return {
+    wrapper,
+    monthSelect,
+    yearSelect,
+    setFromIso(isoDate) {
+      if (isoDate && isoDate.length >= 7) {
+        yearSelect.value = isoDate.slice(0, 4);
+        monthSelect.value = isoDate.slice(5, 7);
+      } else {
+        yearSelect.value = "";
+        monthSelect.value = "";
+      }
+    },
+    getIsoDate() {
+      if (!yearSelect.value || !monthSelect.value) return null;
+      return `${yearSelect.value}-${monthSelect.value}-01`;
+    },
+    isIncomplete() {
+      return Boolean(yearSelect.value) !== Boolean(monthSelect.value);
+    },
+  };
+}
+
 function experienceRow(exp = {}) {
   const row = el("div", { class: "card", style: "margin-bottom:10px;" });
 
+  const initialFormat = exp.date_format === "month" || exp.dateFormat === "month" ? "month" : "day";
+  const initialStart = exp.start_date ? String(exp.start_date).slice(0, 10) : exp.startDate ? String(exp.startDate).slice(0, 10) : "";
+  const initialEnd = exp.end_date ? String(exp.end_date).slice(0, 10) : exp.endDate ? String(exp.endDate).slice(0, 10) : "";
+
   const positionInput = el("input", { type: "text", placeholder: "Puesto", value: exp.position || "" });
   const orgInput = el("input", { type: "text", placeholder: "Organizacion", value: exp.organization || "" });
-  const startInput = el("input", { type: "date", value: exp.start_date ? exp.start_date.slice(0, 10) : "" });
-  const endInput = el("input", { type: "date", value: exp.end_date ? exp.end_date.slice(0, 10) : "" });
+
+  const formatSelect = el("select", {}, [
+    el("option", { value: "day", text: "Dia / Mes / Ano" }),
+    el("option", { value: "month", text: "Mes / Ano" }),
+  ]);
+  formatSelect.value = initialFormat;
+
+  const startDateInput = el("input", { type: "date", value: initialStart });
+  const endDateInput = el("input", { type: "date", value: initialEnd });
+
+  const startMonthYear = createMonthYearControl(initialStart);
+  const endMonthYear = createMonthYearControl(initialEnd);
+
+  function syncVisibility(mode, syncValues = false) {
+    if (mode === "month") {
+      if (syncValues) {
+        if (startDateInput.value) startMonthYear.setFromIso(startDateInput.value);
+        if (endDateInput.value) endMonthYear.setFromIso(endDateInput.value);
+      }
+      startDateInput.hidden = true;
+      endDateInput.hidden = true;
+      startMonthYear.wrapper.hidden = false;
+      endMonthYear.wrapper.hidden = false;
+    } else {
+      if (syncValues) {
+        const startIso = startMonthYear.getIsoDate();
+        if (startIso && (!startDateInput.value || startDateInput.value.slice(0, 7) !== startIso.slice(0, 7))) {
+          startDateInput.value = startIso;
+        }
+        const endIso = endMonthYear.getIsoDate();
+        if (endIso && (!endDateInput.value || endDateInput.value.slice(0, 7) !== endIso.slice(0, 7))) {
+          endDateInput.value = endIso;
+        }
+      }
+      startDateInput.hidden = false;
+      endDateInput.hidden = false;
+      startMonthYear.wrapper.hidden = true;
+      endMonthYear.wrapper.hidden = true;
+    }
+  }
+
+  syncVisibility(initialFormat, false);
+
+  formatSelect.addEventListener("change", () => {
+    syncVisibility(formatSelect.value, true);
+  });
+
   const descInput = el("textarea", { placeholder: "Descripcion" });
   descInput.value = exp.description || "";
 
@@ -354,19 +461,42 @@ function experienceRow(exp = {}) {
 
   row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Puesto" }), positionInput]));
   row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Organizacion" }), orgInput]));
-  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Inicio" }), startInput]));
-  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Fin (vacio si es actual)" }), endInput]));
+  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Formato de fecha" }), formatSelect]));
+  row.appendChild(
+    el("div", { class: "form-group" }, [
+      el("label", { text: "Inicio" }),
+      startDateInput,
+      startMonthYear.wrapper,
+    ])
+  );
+  row.appendChild(
+    el("div", { class: "form-group" }, [
+      el("label", { text: "Fin (vacio si es actual)" }),
+      endDateInput,
+      endMonthYear.wrapper,
+    ])
+  );
   row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Descripcion" }), descInput]));
   row.appendChild(removeBtn);
 
-  row._getData = () => ({
-    position: positionInput.value,
-    organization: orgInput.value,
-    startDate: startInput.value || null,
-    endDate: endInput.value || null,
-    isCurrent: !endInput.value,
-    description: descInput.value || null,
-  });
+  row._getData = () => {
+    const mode = formatSelect.value === "month" ? "month" : "day";
+    const startDate = mode === "month" ? startMonthYear.getIsoDate() : startDateInput.value || null;
+    const endDate = mode === "month" ? endMonthYear.getIsoDate() : endDateInput.value || null;
+    const incompleteDate =
+      mode === "month" && (startMonthYear.isIncomplete() || endMonthYear.isIncomplete());
+
+    return {
+      position: positionInput.value.trim(),
+      organization: orgInput.value.trim(),
+      dateFormat: mode,
+      startDate,
+      endDate,
+      isCurrent: !endDate,
+      description: descInput.value.trim() || null,
+      _incompleteDate: incompleteDate,
+    };
+  };
 
   return row;
 }
@@ -692,7 +822,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     experiencesList.appendChild(experienceRow());
   });
   document.getElementById("saveExperiencesBtn").addEventListener("click", async () => {
-    const experiences = [...experiencesList.children].map((row) => row._getData());
+    clearAlert(generalAlert);
+    const rawRows = [...experiencesList.children].map((row) => row._getData());
+    const nonEmptyRows = rawRows.filter(
+      (exp) => exp.position || exp.organization || exp.startDate || exp.endDate || exp.description || exp._incompleteDate
+    );
+
+    for (const exp of nonEmptyRows) {
+      if (!exp.position || !exp.organization) {
+        showAlert(generalAlert, "En cada experiencia debes indicar tanto el puesto como la organizacion.");
+        return;
+      }
+      if (exp._incompleteDate) {
+        showAlert(generalAlert, "Si usas el formato Mes / Ano en experiencia, debes seleccionar tanto el mes como el ano.");
+        return;
+      }
+      if (exp.startDate && exp.endDate && exp.endDate < exp.startDate) {
+        showAlert(generalAlert, "La fecha de fin no puede ser anterior a la fecha de inicio en la experiencia.");
+        return;
+      }
+    }
+
+    const experiences = nonEmptyRows.map(({ _incompleteDate, ...rest }) => rest);
     try {
       await api.profile.setExperiences(experiences);
       showAlert(generalAlert, "Experiencia guardada.", "success");

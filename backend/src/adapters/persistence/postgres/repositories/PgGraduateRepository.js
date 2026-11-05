@@ -292,14 +292,15 @@ export class PgGraduateRepository extends GraduateRepository {
       let order = 0;
       for (const exp of experiences) {
         await client.query(
-          `INSERT INTO experiences (graduate_id, position, organization, start_date, end_date, is_current, description, display_order)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          `INSERT INTO experiences (graduate_id, position, organization, start_date, end_date, date_format, is_current, description, display_order)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
           [
             graduateId,
             exp.position,
             exp.organization,
             exp.startDate ?? null,
             exp.endDate ?? null,
+            exp.dateFormat === "month" ? "month" : "day",
             exp.isCurrent ?? false,
             exp.description ?? null,
             order,

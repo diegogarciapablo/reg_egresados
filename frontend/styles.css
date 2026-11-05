@@ -896,8 +896,22 @@ th {
   margin-top: 12px;
 }
 
+.month-year-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.month-year-picker[hidden] {
+  display: none;
+}
+
 @media (max-width: 680px) {
   .certificate-row-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .month-year-picker {
     grid-template-columns: 1fr;
   }
 }

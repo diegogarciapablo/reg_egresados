@@ -75,15 +75,26 @@ export const projectsSelectionSchema = z.object({
   projects: z.array(projectSchema).max(20),
 });
 
-export const experienceSchema = z.object({
-  position: z.string().min(1).max(150),
-  organization: z.string().min(1).max(150),
-  startDate: isoDateSchema.nullable().optional(),
-  endDate: isoDateSchema.nullable().optional(),
-  isCurrent: z.boolean().optional(),
-  description: z.string().max(2000).nullable().optional(),
-  displayOrder: z.number().int().min(0).optional(),
-});
+const experienceDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}(-\d{2})?$/, "Formato de fecha invalido (YYYY-MM-DD o YYYY-MM)")
+  .transform((val) => (val.length === 7 ? `${val}-01` : val));
+
+export const experienceSchema = z
+  .object({
+    position: z.string().min(1).max(150),
+    organization: z.string().min(1).max(150),
+    startDate: experienceDateSchema.nullable().optional(),
+    endDate: experienceDateSchema.nullable().optional(),
+    dateFormat: z.enum(["day", "month"]).optional().default("day"),
+    isCurrent: z.boolean().optional(),
+    description: z.string().max(2000).nullable().optional(),
+    displayOrder: z.number().int().min(0).optional(),
+  })
+  .refine(
+    (data) => !data.startDate || !data.endDate || data.endDate >= data.startDate,
+    { message: "La fecha de fin no puede ser anterior a la fecha de inicio" }
+  );
 
 export const experiencesSelectionSchema = z.object({
   experiences: z.array(experienceSchema).max(20),

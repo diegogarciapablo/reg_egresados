@@ -74,11 +74,24 @@ function buildProfileView(graduate) {
   }
 
   if (graduate.experiences && graduate.experiences.length) {
+    const formatExpDate = (rawDate, dateFormat) => {
+      if (!rawDate) return null;
+      const iso = String(rawDate).slice(0, 10);
+      const [year, month, day] = iso.split("-");
+      if (!year || !month) return iso;
+      if (dateFormat === "month") {
+        return `${month}/${year}`;
+      }
+      return day ? `${day}/${month}/${year}` : `${month}/${year}`;
+    };
+
     const list = el("div");
     for (const exp of graduate.experiences) {
       const item = el("div", { class: "card", style: "margin-bottom:10px;" });
       item.appendChild(el("strong", { text: `${exp.position} - ${exp.organization}` }));
-      const dates = [exp.start_date, exp.is_current ? "Actualidad" : exp.end_date].filter(Boolean).join(" a ");
+      const startFormatted = formatExpDate(exp.start_date, exp.date_format);
+      const endFormatted = exp.is_current ? "Actualidad" : formatExpDate(exp.end_date, exp.date_format);
+      const dates = [startFormatted, endFormatted].filter(Boolean).join(" a ");
       if (dates) item.appendChild(el("div", { class: "muted", text: dates }));
       if (exp.description) item.appendChild(el("p", { text: exp.description }));
       list.appendChild(item);
