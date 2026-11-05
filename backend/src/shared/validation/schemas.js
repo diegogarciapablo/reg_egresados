@@ -35,6 +35,7 @@ export const loginSchema = z.object({
 export const profileUpdateSchema = z.object({
   firstName: z.string().min(1).max(100).optional(),
   lastName: z.string().min(1).max(150).optional(),
+  graduationYear: z.number().int().min(1950).max(2100).optional(),
   currentRole: z.string().max(150).nullable().optional(),
   professionalSummary: z.string().max(1000).nullable().optional(),
   photoUrl: httpUrlSchema.nullable().optional(),

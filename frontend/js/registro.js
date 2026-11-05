@@ -1,5 +1,16 @@
+function populateGraduationYearSelect() {
+  const select = document.getElementById("graduationYear");
+  const currentYear = Math.max(new Date().getFullYear(), 2026);
+  const startYear = 1980;
+
+  for (let year = currentYear; year >= startYear; year -= 1) {
+    select.appendChild(el("option", { value: String(year), text: String(year) }));
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   await renderTopbar();
+  populateGraduationYearSelect();
 
   const form = document.getElementById("registerForm");
   const alertBox = document.getElementById("alertBox");

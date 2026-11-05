@@ -16,9 +16,25 @@ let cropState = {
   startY: 0,
 };
 
+function populateDashboardYearSelect(selectedYear) {
+  const select = document.getElementById("graduationYear");
+  if (!select) return;
+  select.innerHTML = "";
+  const currentYear = Math.max(new Date().getFullYear(), 2026);
+  const startYear = 1980;
+
+  for (let year = currentYear; year >= startYear; year -= 1) {
+    select.appendChild(el("option", { value: String(year), text: String(year) }));
+  }
+  if (selectedYear) {
+    select.value = String(selectedYear);
+  }
+}
+
 function fillProfileForm(graduate) {
   document.getElementById("firstName").value = graduate.firstName || "";
   document.getElementById("lastName").value = graduate.lastName || "";
+  populateDashboardYearSelect(graduate.graduationYear);
   document.getElementById("currentRole").value = graduate.currentRole || "";
   document.getElementById("professionalSummary").value = graduate.professionalSummary || "";
   document.getElementById("githubUrl").value = graduate.githubUrl || "";
@@ -633,6 +649,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       await api.profile.update({
         firstName: document.getElementById("firstName").value,
         lastName: document.getElementById("lastName").value,
+        graduationYear: Number(document.getElementById("graduationYear").value) || undefined,
         currentRole: document.getElementById("currentRole").value || null,
         professionalSummary: document.getElementById("professionalSummary").value || null,
         githubUrl: document.getElementById("githubUrl").value || null,

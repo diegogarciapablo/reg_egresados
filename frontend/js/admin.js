@@ -227,6 +227,17 @@ async function toggleUserRole(row, button) {
 }
 
 function createEditControl(field, value) {
+  if (field.key === "graduation_year") {
+    const select = el("select", { id: `edit-${field.key}`, name: field.key });
+    const currentYear = Math.max(new Date().getFullYear(), 2026);
+    for (let year = currentYear; year >= 1980; year -= 1) {
+      select.appendChild(el("option", { value: String(year), text: String(year) }));
+    }
+    if (value) select.value = String(value);
+    select.required = Boolean(field.required);
+    return select;
+  }
+
   const control = field.type === "boolean"
     ? el("input", { id: `edit-${field.key}`, name: field.key, type: "checkbox" })
     : field.type === "textarea"
