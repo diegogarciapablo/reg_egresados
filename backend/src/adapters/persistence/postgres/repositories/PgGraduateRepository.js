@@ -3,6 +3,12 @@ import { Graduate } from "../../../../domain/graduate/Graduate.js";
 
 function toGraduate(row) {
   if (!row) return null;
+  let parsedLinks = [];
+  if (row.professional_links) {
+    parsedLinks = typeof row.professional_links === "string"
+      ? JSON.parse(row.professional_links)
+      : row.professional_links;
+  }
   return new Graduate({
     id: row.id,
     userId: row.user_id,
@@ -13,6 +19,10 @@ function toGraduate(row) {
     graduationYear: row.graduation_year,
     professionalSummary: row.professional_summary,
     photoUrl: row.photo_url,
+    phone: row.phone,
+    personalEmail: row.personal_email,
+    institutionalEmail: row.institutional_email,
+    professionalLinks: Array.isArray(parsedLinks) ? parsedLinks : [],
     githubUrl: row.github_url,
     linkedinUrl: row.linkedin_url,
     portfolioUrl: row.portfolio_url,
@@ -28,6 +38,10 @@ const UPDATABLE_FIELDS = {
   graduationYear: "graduation_year",
   professionalSummary: "professional_summary",
   photoUrl: "photo_url",
+  phone: "phone",
+  personalEmail: "personal_email",
+  institutionalEmail: "institutional_email",
+  professionalLinks: "professional_links",
   githubUrl: "github_url",
   linkedinUrl: "linkedin_url",
   portfolioUrl: "portfolio_url",
@@ -101,7 +115,11 @@ export class PgGraduateRepository extends GraduateRepository {
       const column = UPDATABLE_FIELDS[key];
       if (!column) continue;
       setClauses.push(`"${column}" = $${index}`);
-      values.push(value);
+      if (column === "professional_links") {
+        values.push(JSON.stringify(value || []));
+      } else {
+        values.push(value);
+      }
       index += 1;
     }
 
@@ -221,7 +239,7 @@ export class PgGraduateRepository extends GraduateRepository {
     const { rows } = await this.pool.query(
       `SELECT g.* FROM graduates g
        ${whereClause}
-       ORDER BY g.last_name, g.first_name
+       ORDER BY g.graduation_year DESC, g.last_name ASC, g.first_name ASC
        LIMIT $${index} OFFSET $${index + 1}`,
       dataValues
     );
@@ -292,12 +310,13 @@ export class PgGraduateRepository extends GraduateRepository {
       let order = 0;
       for (const exp of experiences) {
         await client.query(
-          `INSERT INTO experiences (graduate_id, position, organization, start_date, end_date, date_format, is_current, description, display_order)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          `INSERT INTO experiences (graduate_id, position, organization, category, start_date, end_date, date_format, is_current, description, display_order)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             graduateId,
             exp.position,
             exp.organization,
+            exp.category || "work",
             exp.startDate ?? null,
             exp.endDate ?? null,
             exp.dateFormat === "month" ? "month" : "day",
@@ -318,11 +337,12 @@ export class PgGraduateRepository extends GraduateRepository {
       let order = 0;
       for (const cert of certificates) {
         await client.query(
-          `INSERT INTO certificates (graduate_id, title, issuer, issue_date, credential_url, file_url, file_name, display_order)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          `INSERT INTO certificates (graduate_id, title, formation_type, issuer, issue_date, credential_url, file_url, file_name, display_order)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
           [
             graduateId,
             cert.title,
+            cert.formationType || "courses",
             cert.issuer ?? null,
             cert.issueDate ?? null,
             cert.credentialUrl ?? null,
@@ -356,11 +376,24 @@ export class PgGraduateRepository extends GraduateRepository {
         [graduateId]
       ),
       this.pool.query(
-        `SELECT * FROM experiences WHERE graduate_id = $1 AND is_active = TRUE ORDER BY display_order`,
+        `SELECT * FROM experiences WHERE graduate_id = $1 AND is_active = TRUE
+         ORDER BY is_current DESC, COALESCE(end_date, start_date) DESC NULLS LAST, start_date DESC NULLS LAST, display_order ASC`,
         [graduateId]
       ),
       this.pool.query(
-        `SELECT * FROM certificates WHERE graduate_id = $1 AND is_active = TRUE ORDER BY display_order`,
+        `SELECT * FROM certificates WHERE graduate_id = $1 AND is_active = TRUE
+         ORDER BY
+           CASE formation_type
+             WHEN 'doctorate' THEN 1
+             WHEN 'master' THEN 2
+             WHEN 'specialty' THEN 3
+             WHEN 'diploma' THEN 4
+             WHEN 'bachelor' THEN 5
+             WHEN 'courses' THEN 6
+             ELSE 7
+           END ASC,
+           issue_date DESC NULLS LAST,
+           display_order ASC`,
         [graduateId]
       ),
       this.pool.query(

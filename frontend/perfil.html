@@ -13,8 +13,27 @@
     <p class="muted">Cargando ficha...</p>
   </main>
 
+  <div id="cvPreviewModal" class="cv-dialog" hidden>
+    <section class="cv-preview-panel" role="dialog" aria-modal="true" aria-labelledby="cvModalTitle">
+      <div class="cv-preview-header">
+        <h2 id="cvModalTitle">Currículum Vitae</h2>
+        <button id="closeCvModalBtn" class="admin-icon-button" type="button" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="cv-preview-toolbar">
+        <span class="hint" style="margin: 0;">Presiona imprimir y selecciona <strong>Guardar como PDF</strong> en tu navegador.</span>
+        <button id="printCvBtn" class="btn btn-primary" type="button" style="display: inline-flex; align-items: center; gap: 6px;">
+          🖨️ Imprimir / Guardar en PDF
+        </button>
+      </div>
+      <div class="cv-preview-scroll-area">
+        <div id="cvSheetContainer"></div>
+      </div>
+    </section>
+  </div>
+
   <script src="/js/api.js"></script>
   <script src="/js/ui.js"></script>
+  <script src="/js/cv-exporter.js"></script>
   <script src="/js/perfil-publico.js"></script>
 </body>
 </html>

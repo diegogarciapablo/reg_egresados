@@ -23,6 +23,7 @@ import { CertificateFileStore } from "./adapters/persistence/filesystem/Certific
 import { makeRegisterUser } from "./application/auth/registerUser.js";
 import { makeLoginUser } from "./application/auth/loginUser.js";
 import { makeGetCurrentUser } from "./application/auth/getCurrentUser.js";
+import { makeChangePassword } from "./application/auth/changePassword.js";
 import { makeListTechnologies, makeListSoftSkills } from "./application/catalog/getCatalogs.js";
 import { makeGetDirectory } from "./application/graduate/getDirectory.js";
 import { makeGetPublicProfile } from "./application/graduate/getPublicProfile.js";
@@ -97,6 +98,7 @@ export function createApp() {
   const registerUser = makeRegisterUser({ userRepository, graduateRepository, withTransaction });
   const loginUser = makeLoginUser({ userRepository });
   const getCurrentUser = makeGetCurrentUser({ userRepository });
+  const changePassword = makeChangePassword({ userRepository });
   const listTechnologies = makeListTechnologies({ catalogRepository });
   const listSoftSkills = makeListSoftSkills({ catalogRepository });
   const getDirectory = makeGetDirectory({ graduateRepository });
@@ -130,7 +132,7 @@ export function createApp() {
   const setAdminEntityActive = makeSetAdminEntityActive({ adminEntityRepository });
 
   // --- Controladores ---
-  const authController = makeAuthController({ registerUser, loginUser, getCurrentUser });
+  const authController = makeAuthController({ registerUser, loginUser, getCurrentUser, changePassword });
   const directoryController = makeDirectoryController({
     getDirectory,
     getPublicProfile,

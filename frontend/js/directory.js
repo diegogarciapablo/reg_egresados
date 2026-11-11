@@ -19,10 +19,37 @@ function populateYearFilters() {
   const currentYear = Math.max(new Date().getFullYear(), 2026);
   const startYear = 1980;
 
+  yearFromSelect.innerHTML = '<option value="">Todos</option>';
   for (let year = currentYear; year >= startYear; year -= 1) {
     yearFromSelect.appendChild(el("option", { value: String(year), text: String(year) }));
-    yearToSelect.appendChild(el("option", { value: String(year), text: String(year) }));
   }
+
+  function updateYearToOptions() {
+    const selectedFrom = yearFromSelect.value ? Number(yearFromSelect.value) : null;
+    const previousToValue = yearToSelect.value;
+
+    yearToSelect.innerHTML = '<option value="">Todos</option>';
+    for (let year = currentYear; year >= startYear; year -= 1) {
+      // Si hay un año "desde" seleccionado, no mostramos los años menores a ese año
+      if (selectedFrom !== null && year < selectedFrom) {
+        continue;
+      }
+      yearToSelect.appendChild(el("option", { value: String(year), text: String(year) }));
+    }
+
+    // Conservar el valor previo si sigue siendo válido (mayor o igual al desde)
+    if (previousToValue && (selectedFrom === null || Number(previousToValue) >= selectedFrom)) {
+      yearToSelect.value = previousToValue;
+    } else if (selectedFrom !== null && previousToValue && Number(previousToValue) < selectedFrom) {
+      yearToSelect.value = "";
+    }
+  }
+
+  updateYearToOptions();
+
+  yearFromSelect.addEventListener("change", () => {
+    updateYearToOptions();
+  });
 }
 
 function graduateCard(graduate) {

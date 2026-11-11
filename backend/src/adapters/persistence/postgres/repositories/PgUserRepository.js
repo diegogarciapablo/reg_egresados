@@ -41,4 +41,8 @@ export class PgUserRepository extends UserRepository {
   async updateLastLogin(id) {
     await this.pool.query("UPDATE users SET last_login_at = NOW() WHERE id = $1", [id]);
   }
+
+  async updatePassword(id, passwordHash) {
+    await this.pool.query("UPDATE users SET password_hash = $1 WHERE id = $2", [passwordHash, id]);
+  }
 }

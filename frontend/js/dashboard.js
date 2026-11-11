@@ -31,15 +31,78 @@ function populateDashboardYearSelect(selectedYear) {
   }
 }
 
-function fillProfileForm(graduate) {
+function socialLinkRow(link = {}) {
+  const row = el("div", { class: "card social-link-row", style: "margin-bottom:10px;" });
+
+  const typeSelect = el("select", { style: "max-width: 200px;" }, [
+    el("option", { value: "linkedin", text: "LinkedIn" }),
+    el("option", { value: "github", text: "GitHub" }),
+    el("option", { value: "portfolio", text: "Portafolio Personal" }),
+    el("option", { value: "gitlab", text: "GitLab" }),
+    el("option", { value: "kaggle", text: "Kaggle / Hugging Face" }),
+    el("option", { value: "leetcode", text: "LeetCode / HackerRank" }),
+    el("option", { value: "behance", text: "Behance / Dribbble" }),
+    el("option", { value: "other", text: "Otra red / Enlace" }),
+  ]);
+  typeSelect.value = link.type || "linkedin";
+
+  const urlInput = el("input", {
+    type: "url",
+    placeholder: "https://...",
+    value: link.url || "",
+    style: "flex: 1;",
+  });
+
+  const removeBtn = el("button", {
+    type: "button",
+    class: "btn btn-danger",
+    text: "Eliminar",
+    style: "padding: 6px 12px;",
+  });
+  removeBtn.addEventListener("click", () => row.remove());
+
+  const flexBox = el("div", { style: "display: flex; gap: 10px; align-items: center; flex-wrap: wrap;" }, [
+    typeSelect,
+    urlInput,
+    removeBtn,
+  ]);
+  row.appendChild(flexBox);
+
+  row._getData = () => {
+    const url = urlInput.value.trim();
+    if (!url) return null;
+    return {
+      type: typeSelect.value,
+      url,
+    };
+  };
+
+  return row;
+}
+
+function fillProfileForm(graduate, sessionUser = {}) {
   document.getElementById("firstName").value = graduate.firstName || "";
   document.getElementById("lastName").value = graduate.lastName || "";
   populateDashboardYearSelect(graduate.graduationYear);
   document.getElementById("currentRole").value = graduate.currentRole || "";
   document.getElementById("professionalSummary").value = graduate.professionalSummary || "";
-  document.getElementById("githubUrl").value = graduate.githubUrl || "";
-  document.getElementById("linkedinUrl").value = graduate.linkedinUrl || "";
-  document.getElementById("portfolioUrl").value = graduate.portfolioUrl || "";
+  document.getElementById("contactPhone").value = graduate.phone || "";
+  document.getElementById("personalEmail").value = graduate.personalEmail || sessionUser.email || "";
+  document.getElementById("institutionalEmail").value = graduate.institutionalEmail || "";
+
+  const socialContainer = document.getElementById("socialLinksList");
+  socialContainer.innerHTML = "";
+  const existingLinks = graduate.professionalLinks || [];
+  if (existingLinks.length > 0) {
+    for (const link of existingLinks) {
+      socialContainer.appendChild(socialLinkRow(link));
+    }
+  } else {
+    // Si tenía enlaces antiguos sueltos en columnas legacy
+    if (graduate.linkedinUrl) socialContainer.appendChild(socialLinkRow({ type: "linkedin", url: graduate.linkedinUrl }));
+    if (graduate.githubUrl) socialContainer.appendChild(socialLinkRow({ type: "github", url: graduate.githubUrl }));
+    if (graduate.portfolioUrl) socialContainer.appendChild(socialLinkRow({ type: "portfolio", url: graduate.portfolioUrl }));
+  }
 }
 
 function renderProfilePhoto(photoUrl) {
@@ -397,15 +460,23 @@ function createMonthYearControl(initialIsoDate = "") {
   };
 }
 
-function experienceRow(exp = {}) {
+function experienceRow(exp = {}, defaultCategory = "work") {
   const row = el("div", { class: "card", style: "margin-bottom:10px;" });
 
+  const currentCategory = exp.category || defaultCategory;
   const initialFormat = exp.date_format === "month" || exp.dateFormat === "month" ? "month" : "day";
   const initialStart = exp.start_date ? String(exp.start_date).slice(0, 10) : exp.startDate ? String(exp.startDate).slice(0, 10) : "";
   const initialEnd = exp.end_date ? String(exp.end_date).slice(0, 10) : exp.endDate ? String(exp.endDate).slice(0, 10) : "";
 
-  const positionInput = el("input", { type: "text", placeholder: "Puesto", value: exp.position || "" });
-  const orgInput = el("input", { type: "text", placeholder: "Organizacion", value: exp.organization || "" });
+  const categorySelect = el("select", {}, [
+    el("option", { value: "work", text: "Experiencia laboral" }),
+    el("option", { value: "academic", text: "Experiencia académica" }),
+    el("option", { value: "pre_graduate", text: "Experiencia pre-egreso (vida universitaria)" }),
+  ]);
+  categorySelect.value = currentCategory;
+
+  const positionInput = el("input", { type: "text", placeholder: "Puesto o Rol desempeñado", value: exp.position || "" });
+  const orgInput = el("input", { type: "text", placeholder: "Organización, Empresa o Institución", value: exp.organization || "" });
 
   const formatSelect = el("select", {}, [
     el("option", { value: "day", text: "Día / Mes / Año" }),
@@ -453,14 +524,15 @@ function experienceRow(exp = {}) {
     syncVisibility(formatSelect.value, true);
   });
 
-  const descInput = el("textarea", { placeholder: "Descripcion" });
+  const descInput = el("textarea", { placeholder: "Descripción de actividades, logros y responsabilidades..." });
   descInput.value = exp.description || "";
 
   const removeBtn = el("button", { type: "button", class: "btn btn-danger", text: "Eliminar" });
   removeBtn.addEventListener("click", () => row.remove());
 
-  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Puesto" }), positionInput]));
-  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Organizacion" }), orgInput]));
+  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Tipo de experiencia" }), categorySelect]));
+  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Puesto o Rol" }), positionInput]));
+  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Organización o Empresa" }), orgInput]));
   row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Formato de fecha" }), formatSelect]));
   row.appendChild(
     el("div", { class: "form-group" }, [
@@ -476,7 +548,7 @@ function experienceRow(exp = {}) {
       endMonthYear.wrapper,
     ])
   );
-  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Descripcion" }), descInput]));
+  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Descripción" }), descInput]));
   row.appendChild(removeBtn);
 
   row._getData = () => {
@@ -487,6 +559,7 @@ function experienceRow(exp = {}) {
       mode === "month" && (startMonthYear.isIncomplete() || endMonthYear.isIncomplete());
 
     return {
+      category: categorySelect.value,
       position: positionInput.value.trim(),
       organization: orgInput.value.trim(),
       dateFormat: mode,
@@ -535,14 +608,25 @@ function certificateRow(cert = {}, generalAlert) {
   let currentFileUrl = cert.file_url || cert.fileUrl || null;
   let currentFileName = cert.file_name || cert.fileName || null;
 
+  const formationSelect = el("select", {}, [
+    el("option", { value: "doctorate", text: "Doctorado" }),
+    el("option", { value: "master", text: "Maestría" }),
+    el("option", { value: "specialty", text: "Especialidad" }),
+    el("option", { value: "diploma", text: "Diplomado" }),
+    el("option", { value: "bachelor", text: "Licenciatura" }),
+    el("option", { value: "courses", text: "Cursos / Certificaciones" }),
+    el("option", { value: "other", text: "Otros" }),
+  ]);
+  formationSelect.value = cert.formation_type || cert.formationType || "courses";
+
   const titleInput = el("input", {
     type: "text",
-    placeholder: "Ej: AWS Certified Cloud Practitioner",
+    placeholder: "Ej: Licenciatura en Informática / Maestría en Software",
     value: cert.title || "",
   });
   const issuerInput = el("input", {
     type: "text",
-    placeholder: "Ej: Amazon Web Services / Coursera",
+    placeholder: "Ej: Universidad Autónoma Juan Misael Saracho / Coursera",
     value: cert.issuer || "",
   });
   const issueDateValue = cert.issue_date ? String(cert.issue_date).slice(0, 10) : cert.issueDate || "";
@@ -629,7 +713,7 @@ function certificateRow(cert = {}, generalAlert) {
       if (generalAlert) {
         showAlert(
           generalAlert,
-          "Archivo digital cargado. Recuerda hacer clic en 'Guardar certificados' al finalizar.",
+          "Archivo digital cargado. Recuerda hacer clic en 'Guardar formación académica' al finalizar.",
           "success"
         );
       }
@@ -647,16 +731,17 @@ function certificateRow(cert = {}, generalAlert) {
 
   row.appendChild(
     el("div", { class: "certificate-row-grid" }, [
-      el("div", { class: "form-group" }, [el("label", { text: "Nombre del certificado *" }), titleInput]),
-      el("div", { class: "form-group" }, [el("label", { text: "Institucion emisora" }), issuerInput]),
-      el("div", { class: "form-group" }, [el("label", { text: "Fecha de emision" }), issueDateInput]),
+      el("div", { class: "form-group" }, [el("label", { text: "Nivel / Categoría académica *" }), formationSelect]),
+      el("div", { class: "form-group" }, [el("label", { text: "Título, Grado o Certificado *" }), titleInput]),
+      el("div", { class: "form-group" }, [el("label", { text: "Institución emisora" }), issuerInput]),
+      el("div", { class: "form-group" }, [el("label", { text: "Fecha de emisión / obtención" }), issueDateInput]),
       el("div", { class: "form-group" }, [el("label", { text: "URL de credencial (opcional)" }), credentialUrlInput]),
     ])
   );
 
   row.appendChild(
     el("div", { class: "form-group certificate-upload-box" }, [
-      el("label", { text: "Certificado en digital (PDF o imagen)" }),
+      el("label", { text: "Certificado o Título en digital (PDF o imagen) - Opcional" }),
       el("div", { class: "certificate-upload-controls" }, [uploadBtn, fileStatus, fileInput]),
     ])
   );
@@ -664,6 +749,7 @@ function certificateRow(cert = {}, generalAlert) {
   row.appendChild(el("div", { class: "certificate-row-footer" }, [removeBtn]));
 
   row._getData = () => ({
+    formationType: formationSelect.value,
     title: titleInput.value.trim(),
     issuer: issuerInput.value.trim() || null,
     issueDate: issueDateInput.value || null,
@@ -690,7 +776,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  fillProfileForm(graduate);
+  fillProfileForm(graduate, user);
   renderProfilePhoto(graduate.photoUrl);
   renderVisibilityToggle(graduate);
   setupPhotoCropEvents(graduate, generalAlert);
@@ -771,10 +857,35 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderChips(document.getElementById("technologiesChips"), allTechnologies, selectedTechnologies);
   renderChips(document.getElementById("softSkillsChips"), allSoftSkills, selectedSoftSkills);
 
+  // --- Redes profesionales dinámicas ---
+  const addSocialBtn = document.getElementById("addSocialLinkBtn");
+  const socialList = document.getElementById("socialLinksList");
+  if (addSocialBtn && socialList) {
+    addSocialBtn.addEventListener("click", () => {
+      socialList.appendChild(socialLinkRow({ type: "linkedin", url: "" }));
+    });
+  }
+
   // --- Informacion general ---
   document.getElementById("profileForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     clearAlert(generalAlert);
+
+    const phone = document.getElementById("contactPhone").value.trim();
+    const personalEmail = document.getElementById("personalEmail").value.trim();
+    const institutionalEmail = document.getElementById("institutionalEmail").value.trim() || null;
+
+    if (!phone) {
+      showAlert(generalAlert, "El número de teléfono / WhatsApp es obligatorio.");
+      return;
+    }
+    if (!personalEmail) {
+      showAlert(generalAlert, "El correo personal / profesional es obligatorio.");
+      return;
+    }
+
+    const socialRows = [...socialList.children].map((row) => row._getData && row._getData()).filter(Boolean);
+
     try {
       await api.profile.update({
         firstName: document.getElementById("firstName").value,
@@ -782,15 +893,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         graduationYear: Number(document.getElementById("graduationYear").value) || undefined,
         currentRole: document.getElementById("currentRole").value || null,
         professionalSummary: document.getElementById("professionalSummary").value || null,
-        githubUrl: document.getElementById("githubUrl").value || null,
-        linkedinUrl: document.getElementById("linkedinUrl").value || null,
-        portfolioUrl: document.getElementById("portfolioUrl").value || null,
+        phone,
+        personalEmail,
+        institutionalEmail,
+        professionalLinks: socialRows,
         technologyIds: [...selectedTechnologies],
         softSkillIds: [...selectedSoftSkills],
       });
-      showAlert(generalAlert, "Informacion guardada.", "success");
+      showAlert(generalAlert, "Información general y canales de contacto guardados.", "success");
     } catch (err) {
-      showAlert(generalAlert, err.message || "No se pudo guardar la informacion.");
+      showAlert(generalAlert, err.message || "No se pudo guardar la información.");
     }
   });
 
@@ -813,24 +925,47 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // --- Experiencia ---
-  const experiencesList = document.getElementById("experiencesList");
+  // --- Experiencias (Laboral, Académica y Pre-egreso) ---
+  const workList = document.getElementById("experiencesWorkList");
+  const academicList = document.getElementById("experiencesAcademicList");
+  const preGraduateList = document.getElementById("experiencesPreGraduateList");
+
   for (const exp of graduate.experiences || []) {
-    experiencesList.appendChild(experienceRow(exp));
+    const cat = exp.category || "work";
+    if (cat === "academic") {
+      academicList.appendChild(experienceRow(exp, "academic"));
+    } else if (cat === "pre_graduate") {
+      preGraduateList.appendChild(experienceRow(exp, "pre_graduate"));
+    } else {
+      workList.appendChild(experienceRow(exp, "work"));
+    }
   }
-  document.getElementById("addExperienceBtn").addEventListener("click", () => {
-    experiencesList.appendChild(experienceRow());
+
+  document.getElementById("addWorkExpBtn").addEventListener("click", () => {
+    workList.appendChild(experienceRow({}, "work"));
   });
+  document.getElementById("addAcademicExpBtn").addEventListener("click", () => {
+    academicList.appendChild(experienceRow({}, "academic"));
+  });
+  document.getElementById("addPreGraduateExpBtn").addEventListener("click", () => {
+    preGraduateList.appendChild(experienceRow({}, "pre_graduate"));
+  });
+
   document.getElementById("saveExperiencesBtn").addEventListener("click", async () => {
     clearAlert(generalAlert);
-    const rawRows = [...experiencesList.children].map((row) => row._getData());
+    const allRows = [
+      ...workList.children,
+      ...academicList.children,
+      ...preGraduateList.children,
+    ];
+    const rawRows = allRows.map((row) => row._getData());
     const nonEmptyRows = rawRows.filter(
       (exp) => exp.position || exp.organization || exp.startDate || exp.endDate || exp.description || exp._incompleteDate
     );
 
     for (const exp of nonEmptyRows) {
       if (!exp.position || !exp.organization) {
-        showAlert(generalAlert, "En cada experiencia debes indicar tanto el puesto como la organizacion.");
+        showAlert(generalAlert, "En cada experiencia debes indicar tanto el puesto o rol como la organización.");
         return;
       }
       if (exp._incompleteDate) {
@@ -846,9 +981,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const experiences = nonEmptyRows.map(({ _incompleteDate, ...rest }) => rest);
     try {
       await api.profile.setExperiences(experiences);
-      showAlert(generalAlert, "Experiencia guardada.", "success");
+      showAlert(generalAlert, "Experiencias guardadas correctamente.", "success");
     } catch (err) {
-      showAlert(generalAlert, err.message || "No se pudo guardar la experiencia.");
+      showAlert(generalAlert, err.message || "No se pudieron guardar las experiencias.");
     }
   });
 
@@ -898,9 +1033,97 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       await api.profile.setCertificates(nonEmptyRows);
-      showAlert(generalAlert, "Certificados guardados.", "success");
+      showAlert(generalAlert, "Formación académica guardada.", "success");
     } catch (err) {
-      showAlert(generalAlert, err.message || "No se pudieron guardar los certificados.");
+      showAlert(generalAlert, err.message || "No se pudo guardar la formación académica.");
     }
   });
+
+  // --- Cambio de Contraseña ---
+  const passwordForm = document.getElementById("changePasswordForm");
+  const passwordAlert = document.getElementById("passwordAlert");
+  const changePasswordBtn = document.getElementById("changePasswordBtn");
+
+  if (passwordForm) {
+    passwordForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearAlert(passwordAlert);
+
+      const currentPassword = document.getElementById("currentPassword").value;
+      const newPassword = document.getElementById("newPassword").value;
+      const confirmNewPassword = document.getElementById("confirmNewPassword").value;
+
+      if (newPassword !== confirmNewPassword) {
+        showAlert(passwordAlert, "La nueva contraseña y su confirmación no coinciden.");
+        return;
+      }
+
+      if (newPassword.length < 8) {
+        showAlert(passwordAlert, "La nueva contraseña debe tener al menos 8 caracteres.");
+        return;
+      }
+
+      changePasswordBtn.disabled = true;
+      changePasswordBtn.textContent = "Actualizando...";
+
+      try {
+        await api.auth.changePassword({ currentPassword, newPassword });
+        showAlert(passwordAlert, "Contraseña actualizada exitosamente.", "success");
+        passwordForm.reset();
+      } catch (err) {
+        showAlert(passwordAlert, err.message || "No se pudo actualizar la contraseña.");
+      } finally {
+        changePasswordBtn.disabled = false;
+        changePasswordBtn.textContent = "Actualizar contraseña";
+      }
+    });
+  }
+
+  // --- Modal y Exportación de CV en PDF ---
+  const cvPreviewModal = document.getElementById("cvPreviewModal");
+  const closeCvModalBtn = document.getElementById("closeCvModalBtn");
+  const printCvBtn = document.getElementById("printCvBtn");
+  const cvSheetContainer = document.getElementById("cvSheetContainer");
+  const exportCvBtn = document.getElementById("exportCvBtn");
+
+  if (exportCvBtn && cvPreviewModal) {
+    const closeCv = () => {
+      cvPreviewModal.hidden = true;
+    };
+
+    exportCvBtn.addEventListener("click", async () => {
+      const originalText = exportCvBtn.textContent;
+      try {
+        exportCvBtn.disabled = true;
+        exportCvBtn.textContent = "Cargando CV...";
+        clearAlert(generalAlert);
+        const freshGraduate = await api.profile.get();
+        if (window.buildFormalCvHtml) {
+          cvSheetContainer.innerHTML = window.buildFormalCvHtml(freshGraduate);
+        } else {
+          cvSheetContainer.innerHTML = "<p>No se pudo inicializar el generador de CV.</p>";
+        }
+        cvPreviewModal.hidden = false;
+      } catch (err) {
+        showAlert(generalAlert, "Error al generar vista de CV: " + (err.message || err));
+      } finally {
+        exportCvBtn.disabled = false;
+        exportCvBtn.textContent = originalText;
+      }
+    });
+
+    closeCvModalBtn?.addEventListener("click", closeCv);
+
+    cvPreviewModal.addEventListener("click", (e) => {
+      if (e.target === cvPreviewModal) closeCv();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !cvPreviewModal.hidden) closeCv();
+    });
+
+    printCvBtn?.addEventListener("click", () => {
+      window.print();
+    });
+  }
 });

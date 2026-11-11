@@ -21,6 +21,10 @@ export class Graduate {
     graduationYear,
     professionalSummary = null,
     photoUrl = null,
+    phone = null,
+    personalEmail = null,
+    institutionalEmail = null,
+    professionalLinks = [],
     githubUrl = null,
     linkedinUrl = null,
     portfolioUrl = null,
@@ -42,6 +46,10 @@ export class Graduate {
     this.graduationYear = graduationYear;
     this.professionalSummary = professionalSummary;
     this.photoUrl = photoUrl;
+    this.phone = phone;
+    this.personalEmail = personalEmail;
+    this.institutionalEmail = institutionalEmail;
+    this.professionalLinks = Array.isArray(professionalLinks) ? professionalLinks : [];
     this.githubUrl = githubUrl;
     this.linkedinUrl = linkedinUrl;
     this.portfolioUrl = portfolioUrl;

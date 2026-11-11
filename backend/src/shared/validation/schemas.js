@@ -32,6 +32,28 @@ export const loginSchema = z.object({
   password: z.string().min(1).max(72),
 });
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Debes ingresar tu contraseña actual"),
+  newPassword: z
+    .string()
+    .min(8, "La nueva contraseña debe tener al menos 8 caracteres")
+    .max(72, "La nueva contraseña no puede superar los 72 caracteres"),
+});
+
+export const professionalLinkSchema = z.object({
+  type: z.enum([
+    "linkedin",
+    "github",
+    "portfolio",
+    "gitlab",
+    "kaggle",
+    "leetcode",
+    "behance",
+    "other",
+  ]),
+  url: httpUrlSchema,
+});
+
 export const profileUpdateSchema = z.object({
   firstName: z.string().min(1).max(100).optional(),
   lastName: z.string().min(1).max(150).optional(),
@@ -39,6 +61,10 @@ export const profileUpdateSchema = z.object({
   currentRole: z.string().max(150).nullable().optional(),
   professionalSummary: z.string().max(1000).nullable().optional(),
   photoUrl: httpUrlSchema.nullable().optional(),
+  phone: z.string().max(40).nullable().optional(),
+  personalEmail: z.string().email("Correo personal invalido").max(254).nullable().optional(),
+  institutionalEmail: z.string().email("Correo institucional invalido").max(254).nullable().optional(),
+  professionalLinks: z.array(professionalLinkSchema).max(15).optional().default([]),
   githubUrl: httpUrlSchema.nullable().optional(),
   linkedinUrl: httpUrlSchema.nullable().optional(),
   portfolioUrl: httpUrlSchema.nullable().optional(),
@@ -84,6 +110,7 @@ export const experienceSchema = z
   .object({
     position: z.string().min(1).max(150),
     organization: z.string().min(1).max(150),
+    category: z.enum(["work", "academic", "pre_graduate"]).optional().default("work"),
     startDate: experienceDateSchema.nullable().optional(),
     endDate: experienceDateSchema.nullable().optional(),
     dateFormat: z.enum(["day", "month"]).optional().default("day"),
@@ -114,6 +141,10 @@ const certificateFileUrlSchema = z.string().refine((val) => {
 
 export const certificateSchema = z.object({
   title: z.string().min(1, "El nombre del certificado es obligatorio").max(150),
+  formationType: z
+    .enum(["doctorate", "master", "specialty", "diploma", "bachelor", "courses", "other"])
+    .optional()
+    .default("courses"),
   issuer: z.string().max(150).nullable().optional(),
   issueDate: isoDateSchema.nullable().optional(),
   credentialUrl: httpUrlSchema.nullable().optional(),
