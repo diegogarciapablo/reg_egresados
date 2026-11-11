@@ -2,6 +2,7 @@ let selectedTechnologies = new Set();
 let selectedSoftSkills = new Set();
 let allTechnologies = [];
 let allSoftSkills = [];
+let allLanguages = [];
 
 const CROP_VIEW_SIZE = 320;
 const CROP_OUTPUT_SIZE = 512;
@@ -74,6 +75,53 @@ function socialLinkRow(link = {}) {
     return {
       type: typeSelect.value,
       url,
+    };
+  };
+
+  return row;
+}
+
+function languageRow(item = {}) {
+  const row = el("div", { class: "card", style: "margin-bottom:10px;" });
+
+  const langSelect = el("select", { style: "max-width: 240px;" }, [
+    el("option", { value: "", text: "Selecciona un idioma..." }),
+    ...allLanguages.map((l) => el("option", { value: l.id, text: l.name })),
+  ]);
+  const currentLangId = item.languageId || item.language_id;
+  if (currentLangId) {
+    langSelect.value = currentLangId;
+  }
+
+  const levelSelect = el("select", { style: "max-width: 220px;" }, [
+    el("option", { value: "nativo", text: "Nativo / Bilingüe" }),
+    el("option", { value: "avanzado", text: "Avanzado (C1 - C2)" }),
+    el("option", { value: "intermedio", text: "Intermedio (B1 - B2)" }),
+    el("option", { value: "basico", text: "Básico (A1 - A2)" }),
+  ]);
+  levelSelect.value = item.level || "intermedio";
+
+  const removeBtn = el("button", {
+    type: "button",
+    class: "btn btn-danger",
+    text: "Eliminar",
+    style: "padding: 6px 12px;",
+  });
+  removeBtn.addEventListener("click", () => row.remove());
+
+  const flexBox = el("div", { style: "display: flex; gap: 10px; align-items: center; flex-wrap: wrap;" }, [
+    langSelect,
+    levelSelect,
+    removeBtn,
+  ]);
+  row.appendChild(flexBox);
+
+  row._getData = () => {
+    const languageId = langSelect.value;
+    if (!languageId) return null;
+    return {
+      languageId,
+      level: levelSelect.value,
     };
   };
 
@@ -910,10 +958,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   selectedSoftSkills = new Set((graduate.softSkills || []).map((s) => s.id));
 
   try {
-    [allTechnologies, allSoftSkills] = await Promise.all([api.catalogs.technologies(), api.catalogs.softSkills()]);
+    [allTechnologies, allSoftSkills, allLanguages] = await Promise.all([
+      api.catalogs.technologies(),
+      api.catalogs.softSkills(),
+      api.catalogs.languages(),
+    ]);
   } catch {
     allTechnologies = [];
     allSoftSkills = [];
+    allLanguages = [];
   }
 
   renderChips(document.getElementById("technologiesChips"), allTechnologies, selectedTechnologies);
@@ -986,6 +1039,46 @@ document.addEventListener("DOMContentLoaded", async () => {
       showAlert(generalAlert, err.message || "No se pudieron guardar las habilidades personales.");
     }
   });
+
+  // --- Idiomas ---
+  const languagesList = document.getElementById("languagesList");
+  const addLanguageBtn = document.getElementById("addLanguageBtn");
+  const saveLanguagesBtn = document.getElementById("saveLanguagesBtn");
+
+  if (languagesList) {
+    const existingLangs = graduate.languages || [];
+    if (existingLangs.length > 0) {
+      for (const lang of existingLangs) {
+        languagesList.appendChild(languageRow(lang));
+      }
+    } else {
+      languagesList.appendChild(languageRow({}));
+    }
+
+    addLanguageBtn?.addEventListener("click", () => {
+      languagesList.appendChild(languageRow({}));
+    });
+
+    saveLanguagesBtn?.addEventListener("click", async () => {
+      clearAlert(generalAlert);
+      const rowsData = [...languagesList.children].map((row) => row._getData()).filter(Boolean);
+      const uniqueLangs = new Set();
+      for (const item of rowsData) {
+        if (uniqueLangs.has(item.languageId)) {
+          showAlert(generalAlert, "No puedes agregar el mismo idioma más de una vez.");
+          return;
+        }
+        uniqueLangs.add(item.languageId);
+      }
+
+      try {
+        await api.profile.setLanguages(rowsData);
+        showAlert(generalAlert, "Idiomas guardados exitosamente.", "success");
+      } catch (err) {
+        showAlert(generalAlert, err.message || "No se pudieron guardar los idiomas.");
+      }
+    });
+  }
 
   // --- Experiencias (Laboral, Académica y Pre-egreso) ---
   const workList = document.getElementById("experiencesWorkList");

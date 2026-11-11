@@ -6,4 +6,8 @@ export class CatalogRepository {
   async listSoftSkills() {
     throw new Error("CatalogRepository.listSoftSkills no implementado");
   }
+
+  async listLanguages() {
+    throw new Error("CatalogRepository.listLanguages no implementado");
+  }
 }

@@ -7,6 +7,7 @@ export function makeProfileController({
   deleteProfilePhoto,
   updateGraduateTechnologies,
   updateGraduateSoftSkills,
+  updateGraduateLanguages,
   updateGraduateProjects,
   updateGraduateExperiences,
   updateGraduateCertificates,
@@ -86,6 +87,15 @@ export function makeProfileController({
     async putSoftSkills(req, res, next) {
       try {
         const result = await updateGraduateSoftSkills({ userId: req.session.userId, softSkillIds: req.validatedBody.softSkillIds });
+        res.json(result);
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async putLanguages(req, res, next) {
+      try {
+        const result = await updateGraduateLanguages({ userId: req.session.userId, languages: req.validatedBody.languages });
         res.json(result);
       } catch (err) {
         next(err);

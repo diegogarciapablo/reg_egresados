@@ -8,6 +8,7 @@ import {
   visibilitySchema,
   technologiesSelectionSchema,
   softSkillsSelectionSchema,
+  languagesSelectionSchema,
   projectsSelectionSchema,
   experiencesSelectionSchema,
   certificatesSelectionSchema,
@@ -77,6 +78,7 @@ export function meRoutes({ profileController, coverLetterController }) {
   router.delete("/profile/photo", profileController.deletePhoto);
   router.put("/profile/technologies", validateBody(technologiesSelectionSchema), profileController.putTechnologies);
   router.put("/profile/soft-skills", validateBody(softSkillsSelectionSchema), profileController.putSoftSkills);
+  router.put("/profile/languages", validateBody(languagesSelectionSchema), profileController.putLanguages);
   router.put("/profile/projects", validateBody(projectsSelectionSchema), profileController.putProjects);
   router.put("/profile/experiences", validateBody(experiencesSelectionSchema), profileController.putExperiences);
   router.post("/profile/certificates/file", uploadCertificateFile, profileController.uploadCertificateFile);

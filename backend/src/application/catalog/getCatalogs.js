@@ -9,3 +9,9 @@ export function makeListSoftSkills({ catalogRepository }) {
     return catalogRepository.listSoftSkills();
   };
 }
+
+export function makeListLanguages({ catalogRepository }) {
+  return async function listLanguages() {
+    return catalogRepository.listLanguages();
+  };
+}

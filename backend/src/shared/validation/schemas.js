@@ -84,6 +84,16 @@ export const softSkillsSelectionSchema = z.object({
   softSkillIds: z.array(z.string().uuid()).max(100),
 });
 
+export const graduateLanguageItemSchema = z.object({
+  languageId: z.string().uuid("ID de idioma inválido"),
+  level: z.enum(["nativo", "basico", "intermedio", "avanzado"]),
+  displayOrder: z.number().int().min(0).optional(),
+});
+
+export const languagesSelectionSchema = z.object({
+  languages: z.array(graduateLanguageItemSchema).max(10),
+});
+
 export const coverLetterSelectionsSchema = z.object({
   technologyIds: z.array(z.string().uuid()).max(5).default([]),
   softSkillIds: z.array(z.string().uuid()).max(5).default([]),
@@ -195,7 +205,7 @@ export const directoryQuerySchema = z
     yearFrom: z.coerce.number().int().min(1950).max(2100).optional(),
     yearTo: z.coerce.number().int().min(1950).max(2100).optional(),
     page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(50).default(12),
+    limit: z.coerce.number().int().min(1).max(50).default(9),
   })
   .refine(
     (data) => data.yearFrom === undefined || data.yearTo === undefined || data.yearFrom <= data.yearTo,

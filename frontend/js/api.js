@@ -71,6 +71,7 @@ const api = {
   catalogs: {
     technologies: () => request("/catalogs/technologies"),
     softSkills: () => request("/catalogs/soft-skills"),
+    languages: () => request("/catalogs/languages"),
   },
   profile: {
     get: () => request("/me/profile"),
@@ -80,6 +81,7 @@ const api = {
     setVisibility: (visibility) => request("/me/profile/visibility", { method: "PATCH", body: { visibility } }),
     setTechnologies: (technologyIds) => request("/me/profile/technologies", { method: "PUT", body: { technologyIds } }),
     setSoftSkills: (softSkillIds) => request("/me/profile/soft-skills", { method: "PUT", body: { softSkillIds } }),
+    setLanguages: (languages) => request("/me/profile/languages", { method: "PUT", body: { languages } }),
     setProjects: (projects) => request("/me/profile/projects", { method: "PUT", body: { projects } }),
     setExperiences: (experiences) => request("/me/profile/experiences", { method: "PUT", body: { experiences } }),
     uploadCertificateFile: (formData) => request("/me/profile/certificates/file", { method: "POST", body: formData }),

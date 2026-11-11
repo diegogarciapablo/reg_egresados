@@ -1,5 +1,5 @@
 let currentPage = 1;
-const LIMIT = 12;
+const LIMIT = 9;
 
 async function loadTechnologiesFilter() {
   const select = document.getElementById("technology");
@@ -154,26 +154,109 @@ async function loadDirectory(page = 1) {
     }
 
     const totalPages = Math.max(1, Math.ceil(result.total / result.limit));
-    info.textContent = `${result.total} egresado(s) encontrado(s) - pagina ${result.page} de ${totalPages}`;
+    info.textContent = `${result.total} egresado(s) encontrado(s) - página ${result.page} de ${totalPages}`;
 
-    if (totalPages > 1) {
-      if (result.page > 1) {
-        const prev = el("button", { class: "btn btn-secondary", text: "Anterior" });
-        prev.addEventListener("click", () => loadDirectory(result.page - 1));
-        pagination.appendChild(prev);
-      }
-      if (result.page < totalPages) {
-        const next = el("button", { class: "btn btn-secondary", text: "Siguiente" });
-        next.addEventListener("click", () => loadDirectory(result.page + 1));
-        pagination.appendChild(next);
-      }
-    }
-
+    renderPaginationControls(pagination, result.page, totalPages);
     currentPage = result.page;
   } catch (err) {
     grid.innerHTML = "";
     showAlert(grid, err.message || "No se pudo cargar el directorio.");
   }
+}
+
+function scrollToGridTop() {
+  const target = document.getElementById("resultsInfo") || document.getElementById("directoryGrid");
+  if (target) {
+    const offset = target.getBoundingClientRect().top + window.scrollY - 20;
+    window.scrollTo({ top: offset, behavior: "smooth" });
+  }
+}
+
+function renderPaginationControls(paginationContainer, page, totalPages) {
+  paginationContainer.innerHTML = "";
+  if (totalPages <= 1) return;
+
+  // Botón Anterior
+  const prevBtn = el("button", {
+    type: "button",
+    class: "pagination-btn",
+    text: "← Anterior",
+  });
+  if (page <= 1) {
+    prevBtn.disabled = true;
+  } else {
+    prevBtn.addEventListener("click", () => {
+      loadDirectory(page - 1);
+      scrollToGridTop();
+    });
+  }
+  paginationContainer.appendChild(prevBtn);
+
+  // Páginas numeradas
+  const maxButtons = 7;
+  let startPage = 1;
+  let endPage = totalPages;
+
+  if (totalPages > maxButtons) {
+    startPage = Math.max(1, page - 2);
+    endPage = Math.min(totalPages, page + 2);
+
+    if (startPage > 1) {
+      const firstBtn = el("button", { type: "button", class: "pagination-btn", text: "1" });
+      firstBtn.addEventListener("click", () => {
+        loadDirectory(1);
+        scrollToGridTop();
+      });
+      paginationContainer.appendChild(firstBtn);
+
+      if (startPage > 2) {
+        paginationContainer.appendChild(el("span", { class: "pagination-ellipsis", text: "..." }));
+      }
+    }
+  }
+
+  for (let p = startPage; p <= endPage; p += 1) {
+    const pageBtn = el("button", {
+      type: "button",
+      class: `pagination-btn ${p === page ? "active" : ""}`,
+      text: String(p),
+    });
+    if (p !== page) {
+      pageBtn.addEventListener("click", () => {
+        loadDirectory(p);
+        scrollToGridTop();
+      });
+    }
+    paginationContainer.appendChild(pageBtn);
+  }
+
+  if (totalPages > maxButtons && endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      paginationContainer.appendChild(el("span", { class: "pagination-ellipsis", text: "..." }));
+    }
+    const lastBtn = el("button", { type: "button", class: "pagination-btn", text: String(totalPages) });
+    lastBtn.addEventListener("click", () => {
+      loadDirectory(totalPages);
+      scrollToGridTop();
+    });
+    paginationContainer.appendChild(lastBtn);
+  }
+
+  // Botón Siguiente
+  const nextBtn = el("button", {
+    type: "button",
+    class: "pagination-btn",
+    text: "Siguiente →",
+  });
+  if (page >= totalPages) {
+    nextBtn.disabled = true;
+  } else {
+    nextBtn.addEventListener("click", () => {
+      loadDirectory(page + 1);
+      scrollToGridTop();
+    });
+  }
+  paginationContainer.appendChild(nextBtn);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

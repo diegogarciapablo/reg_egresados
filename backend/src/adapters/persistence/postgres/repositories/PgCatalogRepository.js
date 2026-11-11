@@ -19,4 +19,11 @@ export class PgCatalogRepository extends CatalogRepository {
     );
     return rows;
   }
+
+  async listLanguages() {
+    const { rows } = await this.pool.query(
+      "SELECT id, name, slug FROM languages WHERE is_active = TRUE ORDER BY name"
+    );
+    return rows;
+  }
 }

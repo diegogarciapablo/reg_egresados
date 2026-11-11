@@ -24,7 +24,7 @@ import { makeRegisterUser } from "./application/auth/registerUser.js";
 import { makeLoginUser } from "./application/auth/loginUser.js";
 import { makeGetCurrentUser } from "./application/auth/getCurrentUser.js";
 import { makeChangePassword } from "./application/auth/changePassword.js";
-import { makeListTechnologies, makeListSoftSkills } from "./application/catalog/getCatalogs.js";
+import { makeListTechnologies, makeListSoftSkills, makeListLanguages } from "./application/catalog/getCatalogs.js";
 import { makeGetDirectory } from "./application/graduate/getDirectory.js";
 import { makeGetPublicProfile } from "./application/graduate/getPublicProfile.js";
 import {
@@ -40,6 +40,7 @@ import {
 import {
   makeUpdateGraduateTechnologies,
   makeUpdateGraduateSoftSkills,
+  makeUpdateGraduateLanguages,
   makeUpdateGraduateProjects,
   makeUpdateGraduateExperiences,
   makeUpdateGraduateCertificates,
@@ -101,6 +102,7 @@ export function createApp() {
   const changePassword = makeChangePassword({ userRepository });
   const listTechnologies = makeListTechnologies({ catalogRepository });
   const listSoftSkills = makeListSoftSkills({ catalogRepository });
+  const listLanguages = makeListLanguages({ catalogRepository });
   const getDirectory = makeGetDirectory({ graduateRepository });
   const getPublicProfile = makeGetPublicProfile({ graduateRepository });
   const getMyProfile = makeGetMyProfile({ graduateRepository });
@@ -111,6 +113,7 @@ export function createApp() {
   const deleteProfilePhoto = makeDeleteProfilePhoto({ graduateRepository, profilePhotoStore });
   const updateGraduateTechnologies = makeUpdateGraduateTechnologies({ graduateRepository });
   const updateGraduateSoftSkills = makeUpdateGraduateSoftSkills({ graduateRepository });
+  const updateGraduateLanguages = makeUpdateGraduateLanguages({ graduateRepository });
   const updateGraduateProjects = makeUpdateGraduateProjects({ graduateRepository });
   const updateGraduateExperiences = makeUpdateGraduateExperiences({ graduateRepository });
   const updateGraduateCertificates = makeUpdateGraduateCertificates({ graduateRepository });
@@ -140,6 +143,7 @@ export function createApp() {
     getCertificateFile,
     listTechnologies,
     listSoftSkills,
+    listLanguages,
   });
   const profileController = makeProfileController({
     getMyProfile,
@@ -150,6 +154,7 @@ export function createApp() {
     deleteProfilePhoto,
     updateGraduateTechnologies,
     updateGraduateSoftSkills,
+    updateGraduateLanguages,
     updateGraduateProjects,
     updateGraduateExperiences,
     updateGraduateCertificates,

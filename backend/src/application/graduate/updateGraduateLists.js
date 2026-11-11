@@ -15,6 +15,13 @@ export function makeUpdateGraduateSoftSkills({ graduateRepository }) {
   };
 }
 
+export function makeUpdateGraduateLanguages({ graduateRepository }) {
+  return async function updateGraduateLanguages({ userId, languages }) {
+    const graduate = await assertOwnsGraduate({ graduateRepository, userId });
+    return graduateRepository.setLanguages(graduate.id, languages);
+  };
+}
+
 export function makeUpdateGraduateProjects({ graduateRepository }) {
   return async function updateGraduateProjects({ userId, projects }) {
     const graduate = await assertOwnsGraduate({ graduateRepository, userId });

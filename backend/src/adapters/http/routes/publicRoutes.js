@@ -11,6 +11,7 @@ export function publicRoutes({ directoryController, recommendationController }) 
   router.get("/graduates/:registrationCode", directoryController.getByCode);
   router.get("/catalogs/technologies", directoryController.listTechnologies);
   router.get("/catalogs/soft-skills", directoryController.listSoftSkills);
+  router.get("/catalogs/languages", directoryController.listLanguages);
   router.post(
     "/graduates/:id/recommendations",
     validateBody(recommendationSchema),

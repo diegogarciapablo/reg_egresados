@@ -148,7 +148,7 @@ export class PgGraduateRepository extends GraduateRepository {
     yearFrom,
     yearTo,
     page = 1,
-    limit = 12,
+    limit = 9,
     visibility,
     includeInactive = false,
   }) {
@@ -357,8 +357,24 @@ export class PgGraduateRepository extends GraduateRepository {
     });
   }
 
+  async setLanguages(graduateId, languages) {
+    return this._withTransaction(async (client) => {
+      await client.query("DELETE FROM graduate_languages WHERE graduate_id = $1", [graduateId]);
+      let order = 0;
+      for (const item of languages) {
+        await client.query(
+          `INSERT INTO graduate_languages (graduate_id, language_id, level, display_order)
+           VALUES ($1, $2, $3, $4)`,
+          [graduateId, item.languageId, item.level, item.displayOrder ?? order]
+        );
+        order += 1;
+      }
+      return languages;
+    });
+  }
+
   async getFullProfile(graduateId) {
-    const [technologies, softSkills, projects, experiences, certificates, recommendations] = await Promise.all([
+    const [technologies, softSkills, languages, projects, experiences, certificates, recommendations] = await Promise.all([
       this.pool.query(
         `SELECT t.id, t.name, t.slug FROM graduate_technologies gt
          JOIN technologies t ON t.id = gt.technology_id
@@ -369,6 +385,14 @@ export class PgGraduateRepository extends GraduateRepository {
         `SELECT s.id, s.name, s.slug FROM graduate_soft_skills gs
          JOIN soft_skills s ON s.id = gs.soft_skill_id
          WHERE gs.graduate_id = $1 AND s.is_active = TRUE ORDER BY gs.display_order`,
+        [graduateId]
+      ),
+      this.pool.query(
+        `SELECT gl.id, l.id AS "languageId", l.name, l.slug, gl.level, gl.display_order
+         FROM graduate_languages gl
+         JOIN languages l ON l.id = gl.language_id
+         WHERE gl.graduate_id = $1 AND l.is_active = TRUE
+         ORDER BY gl.display_order ASC, l.name ASC`,
         [graduateId]
       ),
       this.pool.query(
@@ -405,6 +429,7 @@ export class PgGraduateRepository extends GraduateRepository {
     return {
       technologies: technologies.rows,
       softSkills: softSkills.rows,
+      languages: languages.rows,
       projects: projects.rows,
       experiences: experiences.rows,
       certificates: certificates.rows,

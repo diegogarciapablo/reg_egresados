@@ -257,6 +257,21 @@ function buildProfileView(graduate) {
     container.appendChild(section("Habilidades Personales", tags));
   }
 
+  if (graduate.languages && graduate.languages.length) {
+    const levelLabels = {
+      nativo: "Nativo / Bilingüe",
+      avanzado: "Avanzado",
+      intermedio: "Intermedio",
+      basico: "Básico",
+    };
+    const tags = el("div", { class: "tag-list" });
+    for (const l of graduate.languages) {
+      const label = `${l.name} (${levelLabels[l.level] || l.level})`;
+      tags.appendChild(el("span", { class: "tag", text: label }));
+    }
+    container.appendChild(section("Idiomas", tags));
+  }
+
   if (graduate.experiences && graduate.experiences.length) {
     const formatExpDate = (rawDate, dateFormat) => {
       if (!rawDate) return null;

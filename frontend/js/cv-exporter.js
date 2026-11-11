@@ -151,7 +151,26 @@ function buildFormalCvHtml(graduate) {
     `;
   }
 
-  // 6. Proyectos Destacados
+  // 6. Idiomas
+  let languagesHtml = "";
+  const langs = Array.isArray(graduate.languages) ? graduate.languages : [];
+  if (langs.length > 0) {
+    const levelLabels = {
+      nativo: "Nativo / Bilingüe",
+      avanzado: "Avanzado",
+      intermedio: "Intermedio",
+      basico: "Básico",
+    };
+    const formattedLangs = langs.map((l) => `${escape(l.name)} (${levelLabels[l.level] || l.level})`);
+    languagesHtml = `
+      <section class="cv-section">
+        <h2 class="cv-section-title">Idiomas</h2>
+        <p class="cv-text">${formattedLangs.join(" &nbsp;·&nbsp; ")}</p>
+      </section>
+    `;
+  }
+
+  // 7. Proyectos Destacados
   let projectsHtml = "";
   const projects = Array.isArray(graduate.projects) ? graduate.projects : [];
   if (projects.length > 0) {
@@ -188,6 +207,7 @@ function buildFormalCvHtml(graduate) {
       ${educationHtml}
       ${experienceHtml}
       ${skillsHtml}
+      ${languagesHtml}
       ${projectsHtml}
     </div>
   `;

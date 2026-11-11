@@ -5,6 +5,7 @@ export function makeDirectoryController({
   getCertificateFile,
   listTechnologies,
   listSoftSkills,
+  listLanguages,
 }) {
   return {
     async health(req, res) {
@@ -74,6 +75,14 @@ export function makeDirectoryController({
     async listSoftSkills(req, res, next) {
       try {
         res.json(await listSoftSkills());
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async listLanguages(req, res, next) {
+      try {
+        res.json(await listLanguages());
       } catch (err) {
         next(err);
       }
