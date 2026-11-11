@@ -490,6 +490,66 @@ function experienceRow(exp = {}, defaultCategory = "work") {
   const startMonthYear = createMonthYearControl(initialStart);
   const endMonthYear = createMonthYearControl(initialEnd);
 
+  function updateDateMinConstraint() {
+    if (startDateInput.value) {
+      endDateInput.min = startDateInput.value;
+      if (endDateInput.value && endDateInput.value < startDateInput.value) {
+        endDateInput.value = "";
+      }
+    } else {
+      endDateInput.removeAttribute("min");
+    }
+  }
+
+  function updateEndMonthYearLimits() {
+    const startY = Number(startMonthYear.yearSelect.value);
+    const startM = Number(startMonthYear.monthSelect.value);
+    const currentEndY = Number(endMonthYear.yearSelect.value);
+
+    // 1. Ocultar años menores al año de inicio en el selector de fin
+    for (const opt of endMonthYear.yearSelect.options) {
+      if (!opt.value) continue;
+      const optY = Number(opt.value);
+      if (startY && optY < startY) {
+        opt.hidden = true;
+        opt.disabled = true;
+      } else {
+        opt.hidden = false;
+        opt.disabled = false;
+      }
+    }
+    if (startY && currentEndY && currentEndY < startY) {
+      endMonthYear.yearSelect.value = "";
+    }
+
+    // 2. Ocultar meses menores si el año de fin es igual al año de inicio
+    const endY = Number(endMonthYear.yearSelect.value);
+    for (const opt of endMonthYear.monthSelect.options) {
+      if (!opt.value) continue;
+      const optM = Number(opt.value);
+      if (startY && endY && endY === startY && startM && optM < startM) {
+        opt.hidden = true;
+        opt.disabled = true;
+      } else {
+        opt.hidden = false;
+        opt.disabled = false;
+      }
+    }
+    if (startY && endY && endY === startY && startM && Number(endMonthYear.monthSelect.value) < startM) {
+      endMonthYear.monthSelect.value = "";
+    }
+  }
+
+  startDateInput.addEventListener("change", updateDateMinConstraint);
+  startDateInput.addEventListener("input", updateDateMinConstraint);
+
+  startMonthYear.yearSelect.addEventListener("change", updateEndMonthYearLimits);
+  startMonthYear.monthSelect.addEventListener("change", updateEndMonthYearLimits);
+  endMonthYear.yearSelect.addEventListener("change", updateEndMonthYearLimits);
+
+  updateDateMinConstraint();
+  updateEndMonthYearLimits();
+
   function syncVisibility(mode, syncValues = false) {
     if (mode === "month") {
       if (syncValues) {
@@ -516,6 +576,8 @@ function experienceRow(exp = {}, defaultCategory = "work") {
       startMonthYear.wrapper.hidden = true;
       endMonthYear.wrapper.hidden = true;
     }
+    updateDateMinConstraint();
+    updateEndMonthYearLimits();
   }
 
   syncVisibility(initialFormat, false);
