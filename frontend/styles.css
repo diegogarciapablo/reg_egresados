@@ -1262,29 +1262,32 @@ th {
 
 /* Reglas de impresión directas para ventana y descarga PDF */
 @media print {
-  @page {
-    margin: 12mm 15mm;
-    size: auto;
-  }
-
   body {
     background: #ffffff !important;
     color: #000000 !important;
-    padding: 0 !important;
-    margin: 0 !important;
   }
 
-  /* Ocultar todos los elementos web */
+  /* Ocultar elementos web globales que nunca deben imprimirse */
   .topbar,
-  main,
   footer,
-  .admin-dialog:not(#cvPreviewModal),
   .cv-preview-header,
   .cv-preview-toolbar {
     display: none !important;
   }
 
-  #cvPreviewModal {
+  /* Si el modal del CV está oculto, que no ocupe espacio ni imprima nada */
+  #cvPreviewModal[hidden] {
+    display: none !important;
+  }
+
+  /* Ocultar main ÚNICAMENTE cuando el modal de CV está abierto/activo para imprimir */
+  body.cv-printing main,
+  body:has(#cvPreviewModal:not([hidden])) main {
+    display: none !important;
+  }
+
+  /* Activar modal del CV solo cuando está abierto */
+  #cvPreviewModal:not([hidden]) {
     position: static !important;
     display: block !important;
     padding: 0 !important;

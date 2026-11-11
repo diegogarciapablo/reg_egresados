@@ -494,7 +494,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (e.key === "Escape" && !cvModal.hidden) closeCv();
     });
     printCvBtn?.addEventListener("click", () => {
+      document.body.classList.add("cv-printing");
       window.print();
+    });
+    window.addEventListener("afterprint", () => {
+      document.body.classList.remove("cv-printing");
     });
   }
 });
