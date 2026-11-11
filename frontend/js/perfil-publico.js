@@ -64,13 +64,13 @@ function buildProfileView(graduate) {
   if (graduate.technologies && graduate.technologies.length) {
     const tags = el("div", { class: "tag-list" });
     for (const t of graduate.technologies) tags.appendChild(el("span", { class: "tag", text: t.name }));
-    container.appendChild(section("Tecnologias", tags));
+    container.appendChild(section("Habilidades técnicas", tags));
   }
 
   if (graduate.softSkills && graduate.softSkills.length) {
     const tags = el("div", { class: "tag-list" });
     for (const s of graduate.softSkills) tags.appendChild(el("span", { class: "tag", text: s.name }));
-    container.appendChild(section("Habilidades blandas", tags));
+    container.appendChild(section("Habilidades Personales", tags));
   }
 
   if (graduate.experiences && graduate.experiences.length) {
@@ -151,11 +151,11 @@ function buildProfileView(graduate) {
       recommendations.appendChild(item);
     }
   } else {
-    recommendations.appendChild(el("p", { class: "muted", text: "Aun no hay recomendaciones publicadas." }));
+    recommendations.appendChild(el("p", { class: "muted", text: "Aún no hay comentarios publicados." }));
   }
-  container.appendChild(section("Recomendaciones", recommendations));
+  container.appendChild(section("Comentarios", recommendations));
 
-  container.appendChild(section("Dejar una recomendacion", buildRecommendationForm(graduate.id)));
+  container.appendChild(section("Dejar un Comentario", buildRecommendationForm(graduate.id)));
 }
 
 function buildRecommendationForm(graduateId) {
@@ -181,7 +181,7 @@ function buildRecommendationForm(graduateId) {
   msgGroup.appendChild(msgInput);
   form.appendChild(msgGroup);
 
-  const submitBtn = el("button", { type: "submit", class: "btn btn-primary", text: "Enviar recomendacion" });
+  const submitBtn = el("button", { type: "submit", class: "btn btn-primary", text: "Enviar comentario" });
   form.appendChild(submitBtn);
 
   form.addEventListener("submit", async (e) => {
@@ -194,10 +194,10 @@ function buildRecommendationForm(graduateId) {
         authorRole: roleInput.value || undefined,
         message: msgInput.value,
       });
-      showAlert(alertBox, "Gracias, tu recomendacion quedo pendiente de revision.", "success");
+      showAlert(alertBox, "Gracias, tu comentario quedó pendiente de revisión.", "success");
       form.reset();
     } catch (err) {
-      showAlert(alertBox, err.message || "No se pudo enviar la recomendacion.");
+      showAlert(alertBox, err.message || "No se pudo enviar el comentario.");
     } finally {
       submitBtn.disabled = false;
     }

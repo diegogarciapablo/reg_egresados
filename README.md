@@ -82,7 +82,7 @@ docs/              <- documentacion tecnica, arquitectura y modelo E-R
 
 El proyecto cuenta con dos entornos listos para usar:
 
-- **Equipo Local (Desarrollo):** Usa [`docker-compose.yml`](./docker-compose.yml), el cual levanta PostgreSQL 16 + pgAdmin 4 + la aplicación web completa en `http://localhost:3000`:
+- **Equipo Local (Desarrollo):** Usa [`docker-compose.yml`](./docker-compose.yml), el cual levanta PostgreSQL 16 + pgAdmin 4 + backend en `:3000` + frontend Nginx en `http://localhost:8080`:
   ```bash
   cp .env.example .env
   docker compose up --build -d

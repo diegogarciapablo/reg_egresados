@@ -20,7 +20,7 @@ El proyecto cuenta con dos estrategias de orquestación mediante Docker Compose:
 
 | Entorno | Archivo Compose | Componentes | Puertos Expuestos |
 | :--- | :--- | :--- | :--- |
-| **Local (Autocontenido)** | `docker-compose.yml` | - `egresados_db` (Postgres 16)<br>- `egresados_pgadmin` (pgAdmin 4)<br>- `egresados_app` (Node.js + Express + Frontend) | `:3000` (Web y API)<br>`:5432` (PostgreSQL)<br>`:5050` (pgAdmin) |
+| **Local (Autocontenido)** | `docker-compose.yml` | - `egresados_db` (Postgres 16)<br>- `egresados_pgadmin` (pgAdmin 4)<br>- `egresados_backend` (Node.js API Express)<br>- `egresados_frontend` (Nginx Alpine) | `:8080` (Frontend Web)<br>`:3000` (API Backend)<br>`:5432` (PostgreSQL)<br>`:5050` (pgAdmin) |
 | **VPS (Producción)** | `docker-compose.vps.yml` | - `egresados2-db` (Postgres 16 Alpine aislado)<br>- `egresados2-backend` (Node.js API)<br>- `egresados2-frontend` (Nginx Alpine para frontend estático) | `:8084` (Frontend Nginx)<br>`:3004` (API Backend)<br>*(BD interna aislada sin puerto host)* |
 
 ---
@@ -74,9 +74,9 @@ El script de arranque (`start.js`) ejecuta automáticamente:
 2. Las semillas de prueba: usuario Administrador (`admin@example.test` / `Prueba123!`), 10 egresados con avatares, proyectos, certificados, experiencias y cartas.
 
 Accede desde tu navegador:
-- **Aplicación Web:** [http://localhost:3000](http://localhost:3000)
+- **Aplicación Web (Frontend Nginx):** [http://localhost:8080](http://localhost:8080)
+- **API Backend:** [http://localhost:3000/api/health](http://localhost:3000/api/health)
 - **pgAdmin:** [http://localhost:5050](http://localhost:5050) (usuario: `admin@admin.com`, clave: `admin123`)
-- **Salud del Backend:** [http://localhost:3000/api/health](http://localhost:3000/api/health)
 
 ---
 
@@ -169,7 +169,8 @@ Deberás ver los 3 contenedores activos:
 ### Ver logs en tiempo real
 ```bash
 # Entorno local:
-docker compose logs -f app
+docker compose logs -f backend
+docker compose logs -f frontend
 docker compose logs -f db
 
 # Entorno VPS:
@@ -193,8 +194,8 @@ DOCKER_BUILDKIT=0 docker compose -f docker-compose.vps.yml up -d --build
 ### Ejecutar migraciones o semillas manualmente
 ```bash
 # Local:
-docker exec -it egresados_app npm run migrate
-docker exec -it egresados_app npm run seed
+docker exec -it egresados_backend npm run migrate
+docker exec -it egresados_backend npm run seed
 
 # VPS:
 docker exec -it egresados2-backend npm run migrate

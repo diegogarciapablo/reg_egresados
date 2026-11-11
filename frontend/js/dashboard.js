@@ -361,11 +361,11 @@ function createMonthYearControl(initialIsoDate = "") {
   ]);
 
   const currentYear = Math.max(new Date().getFullYear(), 2026);
-  const yearOptions = [el("option", { value: "", text: "Ano..." })];
+  const yearOptions = [el("option", { value: "", text: "Año..." })];
   for (let year = currentYear; year >= 1980; year -= 1) {
     yearOptions.push(el("option", { value: String(year), text: String(year) }));
   }
-  const yearSelect = el("select", { "aria-label": "Ano" }, yearOptions);
+  const yearSelect = el("select", { "aria-label": "Año" }, yearOptions);
 
   if (initialIsoDate && initialIsoDate.length >= 7) {
     yearSelect.value = initialIsoDate.slice(0, 4);
@@ -408,8 +408,8 @@ function experienceRow(exp = {}) {
   const orgInput = el("input", { type: "text", placeholder: "Organizacion", value: exp.organization || "" });
 
   const formatSelect = el("select", {}, [
-    el("option", { value: "day", text: "Dia / Mes / Ano" }),
-    el("option", { value: "month", text: "Mes / Ano" }),
+    el("option", { value: "day", text: "Día / Mes / Año" }),
+    el("option", { value: "month", text: "Mes / Año" }),
   ]);
   formatSelect.value = initialFormat;
 
@@ -794,22 +794,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // --- Tecnologias / habilidades ---
+  // --- Habilidades tecnicas / habilidades personales ---
   document.getElementById("saveTechnologiesBtn").addEventListener("click", async () => {
     try {
       await api.profile.setTechnologies([...selectedTechnologies]);
-      showAlert(generalAlert, "Tecnologias guardadas.", "success");
+      showAlert(generalAlert, "Habilidades técnicas guardadas.", "success");
     } catch (err) {
-      showAlert(generalAlert, err.message || "No se pudieron guardar las tecnologias.");
+      showAlert(generalAlert, err.message || "No se pudieron guardar las habilidades técnicas.");
     }
   });
 
   document.getElementById("saveSoftSkillsBtn").addEventListener("click", async () => {
     try {
       await api.profile.setSoftSkills([...selectedSoftSkills]);
-      showAlert(generalAlert, "Habilidades guardadas.", "success");
+      showAlert(generalAlert, "Habilidades personales guardadas.", "success");
     } catch (err) {
-      showAlert(generalAlert, err.message || "No se pudieron guardar las habilidades.");
+      showAlert(generalAlert, err.message || "No se pudieron guardar las habilidades personales.");
     }
   });
 
@@ -834,7 +834,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
       if (exp._incompleteDate) {
-        showAlert(generalAlert, "Si usas el formato Mes / Ano en experiencia, debes seleccionar tanto el mes como el ano.");
+        showAlert(generalAlert, "Si usas el formato Mes / Año en experiencia, debes seleccionar tanto el mes como el año.");
         return;
       }
       if (exp.startDate && exp.endDate && exp.endDate < exp.startDate) {

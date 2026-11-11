@@ -58,13 +58,13 @@ async function renderTopbar(activeUser) {
     if (user.role === "admin") {
       const adminLinks = [
         ["users", "Usuarios y roles"],
-        ["technologies", "Tecnologias"],
-        ["soft_skills", "Habilidades blandas"],
+        ["technologies", "Habilidades técnicas"],
+        ["soft_skills", "Habilidades Personales"],
         ["graduates", "Perfiles"],
         ["projects", "Proyectos"],
         ["experiences", "Experiencias"],
         ["certificates", "Certificados"],
-        ["recommendations", "Recomendaciones"],
+        ["recommendations", "Comentarios"],
         ["cover_letters", "Cartas de presentacion"],
       ];
       const menu = el("details", { class: "admin-nav-menu" }, [

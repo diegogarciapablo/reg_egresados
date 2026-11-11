@@ -35,6 +35,10 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: egresados2-backend
+    networks:
+      egresados2-net:
+        aliases:
+          - backend
     env_file: .env
     environment:
       NODE_ENV: production

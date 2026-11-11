@@ -39,7 +39,7 @@ export const adminEntities = {
     ],
   },
   technologies: {
-    label: "Tecnologias",
+    label: "Habilidades técnicas",
     singularLabel: "tecnologia",
     table: "technologies",
     alias: "t",
@@ -52,8 +52,8 @@ export const adminEntities = {
     ],
   },
   soft_skills: {
-    label: "Habilidades blandas",
-    singularLabel: "habilidad blanda",
+    label: "Habilidades Personales",
+    singularLabel: "habilidad personal",
     table: "soft_skills",
     alias: "s",
     from: "soft_skills s",
@@ -79,7 +79,7 @@ export const adminEntities = {
       { key: "first_name", label: "Nombres", sql: "g.first_name", type: "text", required: true, maxLength: 100 },
       { key: "last_name", label: "Apellidos", sql: "g.last_name", type: "text", required: true, maxLength: 150 },
       { key: "current_role", label: "Cargo actual", sql: "g.current_role", type: "text", nullable: true, maxLength: 150 },
-      { key: "graduation_year", label: "Ano de egreso", sql: "g.graduation_year", type: "number", required: true },
+      { key: "graduation_year", label: "Año de egreso", sql: "g.graduation_year", type: "number", required: true },
       { key: "professional_summary", label: "Resumen", sql: "g.professional_summary", type: "textarea", nullable: true, maxLength: 1000 },
       {
         key: "visibility",
@@ -141,8 +141,8 @@ export const adminEntities = {
         required: true,
         options: ["day", "month"],
         optionLabels: {
-          day: "Dia/Mes/Ano",
-          month: "Mes/Ano",
+          day: "Dia/Mes/Año",
+          month: "Mes/Año",
         },
       },
       { key: "start_date", label: "Inicio", sql: "e.start_date", type: "date", nullable: true },
@@ -175,8 +175,8 @@ export const adminEntities = {
     ],
   },
   recommendations: {
-    label: "Recomendaciones",
-    singularLabel: "recomendacion",
+    label: "Comentarios",
+    singularLabel: "comentario",
     table: "recommendations",
     alias: "r",
     from: "recommendations r JOIN graduates g ON g.id = r.graduate_id JOIN users u ON u.id = g.user_id",
@@ -197,8 +197,8 @@ export const adminEntities = {
         options: ["pending", "published", "rejected"],
         optionLabels: {
           pending: "Pendiente",
-          published: "Publicada",
-          rejected: "Rechazada",
+          published: "Publicado",
+          rejected: "Rechazado",
         },
       },
       { key: "created_at", label: "Creado", sql: "r.created_at", type: "datetime" },

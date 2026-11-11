@@ -168,7 +168,7 @@ export const directoryQuerySchema = z
   })
   .refine(
     (data) => data.yearFrom === undefined || data.yearTo === undefined || data.yearFrom <= data.yearTo,
-    { message: "El ano inicial (desde) no puede ser mayor al ano final (hasta)" }
+    { message: "El año inicial (desde) no puede ser mayor al año final (hasta)" }
   );
 
 /**

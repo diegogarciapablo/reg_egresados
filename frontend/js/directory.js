@@ -92,7 +92,7 @@ async function loadDirectory(page = 1) {
     grid.innerHTML = "";
     pagination.innerHTML = "";
     info.textContent = "";
-    showAlert(grid, "El ano 'desde' no puede ser mayor que el ano 'hasta'.");
+    showAlert(grid, "El año 'desde' no puede ser mayor que el año 'hasta'.");
     return;
   }
 

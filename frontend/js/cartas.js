@@ -58,7 +58,7 @@ function generarCarta() {
     .map((s) => s.name);
 
   const listaTecnicas = tecnicas.length ? unirLista(tecnicas) : "[TECNOLOGÍAS/HERRAMIENTAS]";
-  const listaBlandas = blandas.length ? unirLista(blandas) : "[HABILIDADES BLANDAS]";
+  const listaBlandas = blandas.length ? unirLista(blandas) : "[HABILIDADES PERSONALES]";
 
   const experiencia = valorOPlaceholder("relevantExperience", "EXPERIENCIA/PROYECTO RELEVANTE");
   const motivacion = valorOPlaceholder("motivation", "QUÉ TE MOTIVA DE LA EMPRESA");
@@ -73,7 +73,7 @@ ${saludo}
 
 Me dirijo a usted para postular al puesto de ${puesto}, publicado en ${fuente}. Como egresado/a de ${carrera} en ${universidad}${specialtyPhrase} me interesa iniciar mi trayectoria profesional aportando mis conocimientos al equipo de ${empresa}.
 
-Durante mi formacion desarrollé conocimientos en ${listaTecnicas}, que reforcé a través de ${experiencia}. Entre mis habilidades blandas destacan ${listaBlandas}.
+Durante mi formacion desarrollé conocimientos en ${listaTecnicas}, que reforcé a través de ${experiencia}. Entre mis habilidades personales destacan ${listaBlandas}.
 
 Me motiva especialmente ${motivacion} y considero que puedo aportar ${valor} a su equipo.
 

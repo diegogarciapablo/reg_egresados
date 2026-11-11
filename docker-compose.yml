@@ -3,9 +3,9 @@ services:
     image: postgres:16
     container_name: egresados_db
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER:-admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
+      POSTGRES_DB: ${DB_NAME:-egresados_db}
     ports:
       - "5432:5432"
     volumes:
@@ -23,8 +23,8 @@ services:
     image: dpage/pgadmin4:latest
     container_name: egresados_pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
     ports:
       - "5050:80"
     networks:
@@ -33,12 +33,17 @@ services:
       db:
         condition: service_healthy
 
-  app:
-    build: .
-    container_name: egresados_app
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: egresados_backend
     env_file: .env
     environment:
+      PORT: 3000
       DB_HOST: db
+      DB_PORT: 5432
+      CORS_ORIGIN: http://localhost:8080
     ports:
       - "3000:3000"
     volumes:
@@ -46,6 +51,23 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      egresados_network:
+        aliases:
+          - backend
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: egresados_frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
     networks:
       - egresados_network
     restart: unless-stopped

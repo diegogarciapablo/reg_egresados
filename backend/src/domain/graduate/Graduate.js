@@ -30,7 +30,7 @@ export class Graduate {
       throw new AppError("El egresado debe tener nombre y apellido");
     }
     if (!graduationYear || graduationYear < 1950 || graduationYear > 2100) {
-      throw new AppError("Ano de egreso invalido");
+      throw new AppError("Año de egreso invalido");
     }
 
     this.id = id;

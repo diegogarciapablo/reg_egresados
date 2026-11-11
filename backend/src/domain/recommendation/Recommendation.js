@@ -9,7 +9,7 @@ export const RECOMMENDATION_STATUS = Object.freeze({
 export class Recommendation {
   constructor({ id, graduateId, authorName, authorRole = null, message, status = RECOMMENDATION_STATUS.PENDING }) {
     if (!authorName || !message) {
-      throw new AppError("La recomendacion necesita nombre de autor y mensaje");
+      throw new AppError("El comentario necesita nombre de autor y mensaje");
     }
     this.id = id;
     this.graduateId = graduateId;
