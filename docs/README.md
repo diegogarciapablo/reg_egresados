@@ -4,15 +4,19 @@ Bienvenido a la documentación técnica oficial del sistema **Directorio y Regis
 
 ## Índice de Documentación
 
-1. [**Arquitectura, Principios SOLID y Estructura del Proyecto**](./ARQUITECTURA_Y_ESTRUCTURA.md)
+1. [**Guía Completa de Despliegue (Local y VPS)**](./GUIA_DESPLIEGUE.md)
+   - Prerrequisitos e instrucciones paso a paso para nuevo equipo local y VPS.
+   - Variables de entorno (`.env.example` vs `.env.vps.example`).
+   - Comandos de ciclo de vida, migraciones, semillas y solución de problemas.
+2. [**Arquitectura, Principios SOLID y Estructura del Proyecto**](./ARQUITECTURA_Y_ESTRUCTURA.md)
    - Diseño en Arquitectura Hexagonal (Puertos y Adaptadores).
    - Aplicación práctica de los principios SOLID y seguridad en el código.
    - Árbol completo y explicación de cada directorio y archivo.
-2. [**Funcionamiento del Sistema, Flujos y Referencia de API**](./FUNCIONAMIENTO_Y_API.md)
+3. [**Funcionamiento del Sistema, Flujos y Referencia de API**](./FUNCIONAMIENTO_Y_API.md)
    - Flujo de inicialización automatizada con Docker, migraciones y semillas.
    - Sistema de Roles (**Usuario estándar** vs. **Administrador**) y Panel de Gestión.
    - Flujos de las pantallas del Frontend y catálogo de endpoints REST.
-3. [**Modelo Entidad-Relación (Base de Datos)**](./MODELO_ENTIDAD_RELACION.md)
+4. [**Modelo Entidad-Relación (Base de Datos)**](./MODELO_ENTIDAD_RELACION.md)
    - Diagrama Entidad-Relación (`erDiagram`) interactivo en Mermaid.
    - Diccionario de datos de las tablas, tipos `ENUM`, restricciones (`CHECK` / `UNIQUE`) e índices.
 

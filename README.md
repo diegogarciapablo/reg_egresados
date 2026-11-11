@@ -78,11 +78,23 @@ frontend/          <- vistas HTML, estilos CSS y modulos JS del cliente
 docs/              <- documentacion tecnica, arquitectura y modelo E-R
 ```
 
-## 8. Docker (opcional, para dockerizar tambien el backend)
+## 8. Despliegue con Docker
 
-El `docker-compose.yml` incluido levanta Postgres + pgAdmin + el backend
-(`app`) juntos, usando la red externa `red_externa`. Si prefieres seguir
-corriendo el backend en local mientras aprendes, no lo necesitas todavia.
+El proyecto cuenta con dos entornos listos para usar:
+
+- **Equipo Local (Desarrollo):** Usa [`docker-compose.yml`](./docker-compose.yml), el cual levanta PostgreSQL 16 + pgAdmin 4 + la aplicación web completa en `http://localhost:3000`:
+  ```bash
+  cp .env.example .env
+  docker compose up --build -d
+  ```
+
+- **Servidor VPS (Producción):** Usa [`docker-compose.vps.yml`](./docker-compose.vps.yml), optimizado con Nginx Alpine (`:8084`), Backend Node (`:3004`) y PostgreSQL Alpine con puertos aislados:
+  ```bash
+  cp .env.vps.example .env
+  DOCKER_BUILDKIT=0 docker compose -f docker-compose.vps.yml up -d --build
+  ```
+
+Para ver la guía detallada de despliegue con solución de problemas y comandos de mantenimiento, consulta [**`docs/GUIA_DESPLIEGUE.md`**](./docs/GUIA_DESPLIEGUE.md).
 
 ## Notas
 

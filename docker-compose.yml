@@ -43,7 +43,6 @@ services:
       - "3000:3000"
     volumes:
       - ./backend/multimedia:/usr/src/app/backend/multimedia
-      - ./frontend:/usr/src/app/frontend:ro
     depends_on:
       db:
         condition: service_healthy

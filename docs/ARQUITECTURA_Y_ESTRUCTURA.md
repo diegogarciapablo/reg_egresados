@@ -99,8 +99,8 @@ El repositorio está dividido en dos carpetas principales independientes (**`bac
 ```text
 registro-egresados2/
 ├── Dockerfile                        # Imagen Node 20-slim ejecutada con usuario 'node'
-├── docker-compose.yml                # Orquestación completa: db (Postgres 16) + pgadmin + app
-├── docker-compose.standalone.yml     # Alias standalone de la orquestación completa
+├── docker-compose.yml                # Orquestación local: db (Postgres 16) + pgadmin + app
+├── docker-compose.vps.yml            # Orquestación de producción en VPS (db aislada + backend + frontend nginx)
 ├── package.json                      # Dependencias y scripts (dev, start, migrate, seed, test)
 ├── FRONTEND_RULES.md                 # Guía de diseño visual y reglas de UX/UI
 ├── GUIA_PRUEBAS.md                   # Guía rápida de pruebas y credenciales semilla
@@ -135,7 +135,8 @@ registro-egresados2/
     │   ├── 001_initial_schema.sql    # Tablas principales, enums, checks e índices
     │   ├── 002_seed_catalogs.sql     # Catálogo base de tecnologías y habilidades blandas
     │   ├── 003_admin_entity_management.sql # Borrado lógico (is_active) en las entidades
-    │   └── 004_certificates.sql      # Tabla de certificados y archivos digitales
+    │   ├── 004_certificates.sql      # Tabla de certificados y archivos digitales
+    │   └── 005_experience_date_format.sql # Soporte para formato de fecha (día o mes) en experiencia
     ├── scripts/                      # Scripts de ciclo de vida
     │   ├── start.js                  # Espera a Postgres -> corre migrate -> corre seed -> inicia server
     │   ├── migrate.js                # Ejecutor transaccional de migraciones SQL

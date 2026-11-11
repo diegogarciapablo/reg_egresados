@@ -13,23 +13,11 @@ No hace falta editar nada si vas a usar el modo autocontenido (paso 2).
 
 ## 2. Levantar los contenedores
 
-Este proyecto trae dos formas de levantarse:
+Levanta la base de datos PostgreSQL, pgAdmin y la aplicación web autocontenidos:
 
-- **`docker-compose.standalone.yml`**: incluye Postgres + pgAdmin + backend, todo
-  autocontenido. Usa este si es la primera vez que corres el proyecto o si no
-  tienes un Postgres compartido con otros proyectos.
-
-  ```bash
-  docker compose -f docker-compose.standalone.yml up --build -d
-  ```
-
-- **`docker-compose.yml`**: solo levanta el backend (`app`), reutilizando un
-  Postgres+pgAdmin externo ya existente en la red Docker `red_externa`. Usa
-  este si ya tienes esa infraestructura compartida corriendo (ver seccion 6).
-
-  ```bash
-  docker compose up --build -d
-  ```
+```bash
+docker compose up --build -d
+```
 
 ## 3. Verificar que los contenedores estan arriba
 
@@ -37,8 +25,7 @@ Este proyecto trae dos formas de levantarse:
 docker ps
 ```
 
-Deberias ver `egresados_app` (y `egresados_db` / `egresados_pgadmin` si usaste
-el modo standalone) en estado `Up`.
+Deberias ver `egresados_app`, `egresados_db` y `egresados_pgadmin` en estado `Up`.
 
 ## 4. Datos de prueba
 
@@ -133,8 +120,7 @@ directorio.
 
 ## 7. Consultar la base de datos con pgAdmin
 
-Entra a `http://localhost:5050` (modo standalone) o `http://localhost:5051`
-(si usaste el pgAdmin externo compartido). Conecta con las credenciales de
+Entra a `http://localhost:5050`. Conecta con las credenciales de
 tu `.env` y explora las tablas de `egresados_db`.
 
 ## 8. Aplicar cambios en el codigo
@@ -152,8 +138,7 @@ docker compose up --build -d
 
 ```bash
 docker compose down -v
-docker compose -f docker-compose.standalone.yml up --build -d
-docker exec -it egresados_app npm run migrate
+docker compose up --build -d
 ```
 
 `down -v` tambien borra el volumen de datos de Postgres, asi que pierdes
