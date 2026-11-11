@@ -55,8 +55,6 @@ services:
     depends_on:
       egresados2-db:
         condition: service_healthy
-    networks:
-      - egresados2-net
     restart: unless-stopped
     mem_limit: 256m
 
