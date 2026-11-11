@@ -13,4 +13,4 @@ USER node
 
 EXPOSE 3000
 
-CMD ["node", "backend/scripts/start.js"]
+CMD ["node", "backend/src/server.js"]
