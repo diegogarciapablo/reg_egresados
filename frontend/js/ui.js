@@ -28,6 +28,12 @@ function clearAlert(container) {
   container.innerHTML = "";
 }
 
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text ?? "";
+  return div.innerHTML;
+}
+
 /**
  * Construye la barra de navegacion superior y actualiza sus enlaces
  * segun si hay una sesion activa (llama a /api/auth/me).

@@ -10,12 +10,17 @@
   <header class="topbar" id="topbar"></header>
 
   <main class="container">
-    <div class="page-header flex-between">
+    <div class="page-header flex-between" style="flex-wrap: wrap; gap: 12px;">
       <div>
         <h1>Mi ficha</h1>
         <p class="muted">Completa tu informacion para que aparezca en el directorio.</p>
       </div>
-      <div id="visibilityBox"></div>
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <button id="exportCvBtn" class="btn btn-secondary" type="button" style="display: inline-flex; align-items: center; gap: 6px;">
+          📄 Exportar mi CV en PDF
+        </button>
+        <div id="visibilityBox"></div>
+      </div>
     </div>
 
     <div id="generalAlert"></div>
@@ -58,19 +63,37 @@
           <label for="professionalSummary">Resumen profesional</label>
           <textarea id="professionalSummary" maxlength="1000"></textarea>
         </div>
-        <div class="form-group">
-          <label for="githubUrl">GitHub</label>
-          <input type="url" id="githubUrl" placeholder="https://github.com/usuario" />
+
+        <div class="contact-form-block" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
+          <h3 style="margin-bottom: 4px; font-size: 1.1rem; color: var(--primary);">Canales de Contacto Directo</h3>
+          <p class="hint" style="margin-top: 0; margin-bottom: 12px;">El número y el correo personal son obligatorios para permitir que los interesados te contacten.</p>
+          
+          <div class="form-group">
+            <label for="contactPhone">Número de teléfono / WhatsApp *</label>
+            <input type="text" id="contactPhone" placeholder="Ej: +591 71234567" required />
+          </div>
+          <div class="form-group">
+            <label for="personalEmail">Correo personal / profesional *</label>
+            <input type="email" id="personalEmail" placeholder="tu.correo@gmail.com" required />
+          </div>
+          <div class="form-group">
+            <label for="institutionalEmail">Correo institucional (opcional)</label>
+            <input type="email" id="institutionalEmail" placeholder="usuario@uajms.edu.bo" />
+          </div>
         </div>
-        <div class="form-group">
-          <label for="linkedinUrl">LinkedIn</label>
-          <input type="url" id="linkedinUrl" placeholder="https://linkedin.com/in/usuario" />
+
+        <div class="social-links-block" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
+          <div class="flex-between">
+            <div>
+              <h3 style="margin-bottom: 4px; font-size: 1.1rem; color: var(--primary);">Redes y Enlaces Profesionales</h3>
+              <p class="hint" style="margin-top: 0;">Agrega tus enlaces (LinkedIn, GitHub, Portafolio, GitLab, Kaggle, etc.). El tipo de red define el estilo y color del botón público.</p>
+            </div>
+            <button id="addSocialLinkBtn" type="button" class="btn btn-secondary">+ Agregar red profesional</button>
+          </div>
+          <div id="socialLinksList" style="margin-top: 12px;"></div>
         </div>
-        <div class="form-group">
-          <label for="portfolioUrl">Portafolio</label>
-          <input type="url" id="portfolioUrl" placeholder="https://miportafolio.com" />
-        </div>
-        <button type="submit" class="btn btn-primary">Guardar informacion</button>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 16px;">Guardar información</button>
       </form>
     </section>
 
@@ -90,11 +113,34 @@
 
     <section class="card">
       <div class="section-title flex-between">
-        <h2>Experiencia</h2>
-        <button id="addExperienceBtn" class="btn btn-secondary" type="button">Agregar experiencia</button>
+        <h2>Experiencias</h2>
+        <div class="experience-add-buttons">
+          <button id="addWorkExpBtn" class="btn btn-secondary" type="button">+ Experiencia Laboral</button>
+          <button id="addAcademicExpBtn" class="btn btn-secondary" type="button">+ Experiencia Académica</button>
+          <button id="addPreGraduateExpBtn" class="btn btn-secondary" type="button">+ Experiencia Pre-egreso</button>
+        </div>
       </div>
-      <div id="experiencesList"></div>
-      <button id="saveExperiencesBtn" class="btn btn-primary" style="margin-top:12px;">Guardar experiencia</button>
+      <p class="hint">Organiza tu trayectoria por áreas especializadas. Los registros se mostrarán ordenados cronológicamente (más recientes arriba).</p>
+
+      <div class="experience-subgroup" style="margin-top: 18px;">
+        <h3 style="margin-bottom: 4px; font-size: 1.1rem; color: var(--primary);">1. Experiencia Laboral</h3>
+        <p class="hint" style="margin-top: 0; margin-bottom: 12px;">Empleos formales, consultorías, proyectos profesionales independientes y pasantías laborales.</p>
+        <div id="experiencesWorkList"></div>
+      </div>
+
+      <div class="experience-subgroup" style="margin-top: 24px;">
+        <h3 style="margin-bottom: 4px; font-size: 1.1rem; color: var(--primary);">2. Experiencia Académica</h3>
+        <p class="hint" style="margin-top: 0; margin-bottom: 12px;">Docencia universitaria, estancias de investigación, ponencias, publicaciones y proyectos académicos.</p>
+        <div id="experiencesAcademicList"></div>
+      </div>
+
+      <div class="experience-subgroup" style="margin-top: 24px;">
+        <h3 style="margin-bottom: 4px; font-size: 1.1rem; color: var(--primary);">3. Experiencia Pre-egreso (Vida Universitaria)</h3>
+        <p class="hint" style="margin-top: 0; margin-bottom: 12px;">Ayudantías estudiantiles de cátedra, sociedades científicas, voluntariados, olimpiadas y logros destacados durante tu formación en la carrera.</p>
+        <div id="experiencesPreGraduateList"></div>
+      </div>
+
+      <button id="saveExperiencesBtn" class="btn btn-primary" style="margin-top:16px;">Guardar experiencias</button>
     </section>
 
     <section class="card">
@@ -108,14 +154,37 @@
 
     <section class="card">
       <div class="section-title">
-        <h2>Certificados</h2>
+        <h2>Formación Académica</h2>
       </div>
-      <p class="hint">Lista tus certificaciones o cursos y adjunta el certificado digital (PDF, JPEG, PNG o WebP, max. 10 MB).</p>
+      <p class="hint">Registra tus títulos de grado, postgrado, diplomados y cursos/certificaciones con su certificado digital (PDF o imagen, máx. 10 MB). Se organizarán por nivel académico y fecha más reciente.</p>
       <div id="certificatesList"></div>
       <div class="certificates-actions">
-        <button id="addCertificateBtn" class="btn btn-secondary" type="button">+ Agregar nuevo certificado</button>
-        <button id="saveCertificatesBtn" class="btn btn-primary" type="button">Guardar certificados</button>
+        <button id="addCertificateBtn" class="btn btn-secondary" type="button">+ Agregar formación académica</button>
+        <button id="saveCertificatesBtn" class="btn btn-primary" type="button">Guardar formación académica</button>
       </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">
+        <h2>Seguridad de la Cuenta</h2>
+      </div>
+      <p class="hint">Cambia tu contraseña de acceso ingresando tu clave actual y la nueva clave (mínimo 8 caracteres).</p>
+      <div id="passwordAlert"></div>
+      <form id="changePasswordForm" style="max-width: 460px;">
+        <div class="form-group">
+          <label for="currentPassword">Contraseña actual *</label>
+          <input type="password" id="currentPassword" required />
+        </div>
+        <div class="form-group">
+          <label for="newPassword">Nueva contraseña (mínimo 8 caracteres) *</label>
+          <input type="password" id="newPassword" minlength="8" required />
+        </div>
+        <div class="form-group">
+          <label for="confirmNewPassword">Confirmar nueva contraseña *</label>
+          <input type="password" id="confirmNewPassword" minlength="8" required />
+        </div>
+        <button id="changePasswordBtn" type="submit" class="btn btn-secondary">Actualizar contraseña</button>
+      </form>
     </section>
   </main>
 
@@ -141,8 +210,27 @@
     </section>
   </div>
 
+  <div id="cvPreviewModal" class="cv-dialog" hidden>
+    <section class="cv-preview-panel" role="dialog" aria-modal="true" aria-labelledby="cvModalTitle">
+      <div class="cv-preview-header">
+        <h2 id="cvModalTitle">Vista Previa de Currículum Vitae</h2>
+        <button id="closeCvModalBtn" class="admin-icon-button" type="button" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="cv-preview-toolbar">
+        <span class="hint" style="margin: 0;">Presiona imprimir y selecciona <strong>Guardar como PDF</strong> en tu navegador.</span>
+        <button id="printCvBtn" class="btn btn-primary" type="button" style="display: inline-flex; align-items: center; gap: 6px;">
+          🖨️ Imprimir / Guardar en PDF
+        </button>
+      </div>
+      <div class="cv-preview-scroll-area">
+        <div id="cvSheetContainer"></div>
+      </div>
+    </section>
+  </div>
+
   <script src="/js/api.js"></script>
   <script src="/js/ui.js"></script>
+  <script src="/js/cv-exporter.js"></script>
   <script src="/js/dashboard.js"></script>
 </body>
 </html>

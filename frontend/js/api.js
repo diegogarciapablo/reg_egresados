@@ -61,6 +61,7 @@ const api = {
     login: (payload) => request("/auth/login", { method: "POST", body: payload }),
     logout: () => request("/auth/logout", { method: "POST" }),
     me: () => request("/auth/me"),
+    changePassword: (payload) => request("/auth/change-password", { method: "POST", body: payload }),
   },
   directory: {
     list: (params) => request("/graduates", { params }),

@@ -245,6 +245,50 @@ p {
   border: 1px solid var(--border);
 }
 
+/* --- Textos extensos truncados con 'Ver más' --- */
+.expandable-text-wrap {
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.clamped-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  line-height: 1.5;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.clamped-text.expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+}
+
+.btn-toggle-expand {
+  display: inline-block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 4px;
+  color: var(--secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.btn-toggle-expand:hover {
+  text-decoration: underline;
+  color: var(--primary);
+}
+
 /* --- Formularios --- */
 
 .form-group {
@@ -913,5 +957,395 @@ th {
 
   .month-year-picker {
     grid-template-columns: 1fr;
+  }
+}
+
+/* --- Botones y Canales de Contacto Profesional --- */
+.contact-buttons-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.btn-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.btn-contact:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  text-decoration: none;
+}
+
+.btn-contact svg {
+  flex-shrink: 0;
+}
+
+.btn-brand-whatsapp {
+  background-color: #25D366;
+  color: #ffffff;
+}
+
+.btn-brand-gmail {
+  background-color: #EA4335;
+  color: #ffffff;
+}
+
+.btn-brand-institutional {
+  background-color: #1E3A8A;
+  color: #ffffff;
+}
+
+.btn-brand-linkedin {
+  background-color: #0A66C2;
+  color: #ffffff;
+}
+
+.btn-brand-github {
+  background-color: #24292F;
+  color: #ffffff;
+}
+
+.btn-brand-portfolio {
+  background-color: #4F46E5;
+  color: #ffffff;
+}
+
+.btn-brand-gitlab {
+  background-color: #FC6D26;
+  color: #ffffff;
+}
+
+.btn-brand-kaggle {
+  background-color: #20BEFF;
+  color: #0F172A;
+}
+
+.btn-brand-leetcode {
+  background-color: #FFA116;
+  color: #1F2937;
+}
+
+.btn-brand-behance {
+  background-color: #053EFF;
+  color: #ffffff;
+}
+
+.btn-brand-other {
+  background-color: #4B5563;
+  color: #ffffff;
+}
+
+@media (max-width: 600px) {
+  .contact-buttons-grid {
+    flex-direction: column;
+  }
+  .btn-contact {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ==========================================================================
+   CV Formal y Modal de Exportación / Impresión
+   ========================================================================== */
+
+.cv-dialog[hidden] {
+  display: none;
+}
+
+.cv-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+.cv-preview-panel {
+  width: min(100%, 880px);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.cv-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--panel-soft);
+  border-bottom: 1px solid var(--border);
+}
+
+.cv-preview-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--primary-dark);
+}
+
+.cv-preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--border);
+}
+
+.cv-preview-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  background: #e2e8f0;
+  display: flex;
+  justify-content: center;
+}
+
+/* Hoja de vida formal */
+.cv-formal-sheet {
+  background: #ffffff;
+  width: 100%;
+  max-width: 780px;
+  min-height: 1000px;
+  padding: 48px;
+  color: #1f2937;
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  line-height: 1.5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.cv-formal-sheet a {
+  color: #1f4e79;
+  text-decoration: none;
+}
+
+.cv-formal-sheet a:hover {
+  text-decoration: underline;
+}
+
+.cv-header {
+  text-align: left;
+  border-bottom: 2px solid #1f4e79;
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+}
+
+.cv-name {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #0f2942;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.5px;
+}
+
+.cv-role {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1f4e79;
+  margin-bottom: 4px;
+}
+
+.cv-meta {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.cv-contacts {
+  font-size: 0.88rem;
+  color: #374151;
+  line-height: 1.6;
+  margin-top: 6px;
+}
+
+.cv-section {
+  margin-top: 22px;
+}
+
+.cv-section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #153a59;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-bottom: 1.5px solid #cbd5e1;
+  padding-bottom: 4px;
+  margin-bottom: 12px;
+}
+
+.cv-subsection-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 14px 0 8px 0;
+}
+
+.cv-entry {
+  margin-bottom: 12px;
+}
+
+.cv-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.cv-entry-title {
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.cv-entry-date {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cv-entry-subtitle {
+  font-size: 0.88rem;
+  color: #475569;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.cv-entry-desc {
+  font-size: 0.88rem;
+  color: #334155;
+  margin: 4px 0 0 0;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.cv-text {
+  font-size: 0.9rem;
+  color: #334155;
+  margin: 0;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+.cv-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Reglas de impresión directas para ventana y descarga PDF */
+@media print {
+  @page {
+    margin: 12mm 15mm;
+    size: auto;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Ocultar todos los elementos web */
+  .topbar,
+  main,
+  footer,
+  .admin-dialog:not(#cvPreviewModal),
+  .cv-preview-header,
+  .cv-preview-toolbar {
+    display: none !important;
+  }
+
+  #cvPreviewModal {
+    position: static !important;
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .cv-preview-panel {
+    position: static !important;
+    max-height: none !important;
+    width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  .cv-preview-scroll-area {
+    padding: 0 !important;
+    background: transparent !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .cv-formal-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+  }
+
+  .cv-entry,
+  .cv-section {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .cv-header {
+    border-bottom-color: #000 !important;
+  }
+
+  .cv-section-title {
+    border-bottom-color: #333 !important;
+    color: #000 !important;
+  }
+
+  .cv-name, .cv-role {
+    color: #000 !important;
+  }
+
+  .cv-formal-sheet a {
+    color: #000 !important;
+    text-decoration: underline !important;
   }
 }
