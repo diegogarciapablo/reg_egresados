@@ -348,6 +348,3 @@ function buildFormalCvHtml(graduate) {
 if (typeof window !== "undefined") {
   window.buildFormalCvHtml = buildFormalCvHtml;
 }
-
-export { buildFormalCvHtml };
-export default buildFormalCvHtml;
