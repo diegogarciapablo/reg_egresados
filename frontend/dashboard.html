@@ -16,6 +16,9 @@
         <p class="muted">Completa tu informacion para que aparezca en el directorio.</p>
       </div>
       <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <button id="openPasswordModalBtn" class="btn btn-secondary" type="button" style="display: inline-flex; align-items: center; gap: 6px;">
+          🔒 Cambiar contraseña
+        </button>
         <button id="exportCvBtn" class="btn btn-secondary" type="button" style="display: inline-flex; align-items: center; gap: 6px;">
           📄 Exportar mi CV en PDF
         </button>
@@ -163,30 +166,36 @@
         <button id="saveCertificatesBtn" class="btn btn-primary" type="button">Guardar formación académica</button>
       </div>
     </section>
+  </main>
 
-    <section class="card">
-      <div class="section-title">
-        <h2>Seguridad de la Cuenta</h2>
+  <div id="changePasswordModal" class="admin-dialog" hidden>
+    <section class="admin-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="changePasswordTitle" style="max-width: 480px;">
+      <div class="flex-between admin-dialog-heading">
+        <h2 id="changePasswordTitle">Cambiar contraseña</h2>
+        <button id="closePasswordModalBtn" class="admin-icon-button" type="button" aria-label="Cerrar">✕</button>
       </div>
-      <p class="hint">Cambia tu contraseña de acceso ingresando tu clave actual y la nueva clave (mínimo 8 caracteres).</p>
+      <p class="hint" style="margin-top: 0; margin-bottom: 14px;">Ingresa tu contraseña actual y la nueva contraseña (mínimo 8 caracteres).</p>
       <div id="passwordAlert"></div>
-      <form id="changePasswordForm" style="max-width: 460px;">
+      <form id="changePasswordForm">
         <div class="form-group">
           <label for="currentPassword">Contraseña actual *</label>
-          <input type="password" id="currentPassword" required />
+          <input type="password" id="currentPassword" required autocomplete="current-password" />
         </div>
         <div class="form-group">
           <label for="newPassword">Nueva contraseña (mínimo 8 caracteres) *</label>
-          <input type="password" id="newPassword" minlength="8" required />
+          <input type="password" id="newPassword" minlength="8" required autocomplete="new-password" />
         </div>
         <div class="form-group">
           <label for="confirmNewPassword">Confirmar nueva contraseña *</label>
-          <input type="password" id="confirmNewPassword" minlength="8" required />
+          <input type="password" id="confirmNewPassword" minlength="8" required autocomplete="new-password" />
         </div>
-        <button id="changePasswordBtn" type="submit" class="btn btn-secondary">Actualizar contraseña</button>
+        <div class="admin-dialog-actions" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+          <button id="cancelPasswordBtn" class="btn btn-secondary" type="button">Cancelar</button>
+          <button id="changePasswordBtn" type="submit" class="btn btn-primary">Actualizar contraseña</button>
+        </div>
       </form>
     </section>
-  </main>
+  </div>
 
   <div id="photoCropDialog" class="admin-dialog" hidden>
     <section class="admin-dialog-panel photo-crop-panel" role="dialog" aria-modal="true" aria-labelledby="photoCropTitle">

@@ -1101,10 +1101,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // --- Cambio de Contraseña ---
+  // --- Modal de Cambio de Contraseña ---
+  const changePasswordModal = document.getElementById("changePasswordModal");
+  const openPasswordModalBtn = document.getElementById("openPasswordModalBtn");
+  const closePasswordModalBtn = document.getElementById("closePasswordModalBtn");
+  const cancelPasswordBtn = document.getElementById("cancelPasswordBtn");
   const passwordForm = document.getElementById("changePasswordForm");
   const passwordAlert = document.getElementById("passwordAlert");
   const changePasswordBtn = document.getElementById("changePasswordBtn");
+
+  const closePasswordModal = () => {
+    if (changePasswordModal) {
+      changePasswordModal.hidden = true;
+      clearAlert(passwordAlert);
+      passwordForm?.reset();
+    }
+  };
+
+  openPasswordModalBtn?.addEventListener("click", () => {
+    clearAlert(passwordAlert);
+    passwordForm?.reset();
+    if (changePasswordModal) changePasswordModal.hidden = false;
+  });
+
+  closePasswordModalBtn?.addEventListener("click", closePasswordModal);
+  cancelPasswordBtn?.addEventListener("click", closePasswordModal);
+
+  changePasswordModal?.addEventListener("click", (e) => {
+    if (e.target === changePasswordModal) closePasswordModal();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && changePasswordModal && !changePasswordModal.hidden) {
+      closePasswordModal();
+    }
+  });
 
   if (passwordForm) {
     passwordForm.addEventListener("submit", async (e) => {
@@ -1132,6 +1163,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         await api.auth.changePassword({ currentPassword, newPassword });
         showAlert(passwordAlert, "Contraseña actualizada exitosamente.", "success");
         passwordForm.reset();
+        setTimeout(() => {
+          closePasswordModal();
+          showAlert(generalAlert, "Contraseña actualizada exitosamente.", "success");
+        }, 1500);
       } catch (err) {
         showAlert(passwordAlert, err.message || "No se pudo actualizar la contraseña.");
       } finally {
