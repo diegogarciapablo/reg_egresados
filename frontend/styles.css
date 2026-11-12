@@ -1319,7 +1319,48 @@ th {
   text-decoration: underline;
 }
 
-/* Viñetas de habilidades (estilo cuadrado/limpio) */
+/* Insignia de Verificación Verde (Sello de Confianza) */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin-left: 6px;
+  cursor: help;
+}
+
+.verified-icon {
+  width: 17px;
+  height: 17px;
+  display: block;
+}
+
+.graduate-name-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.profile-name-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.email-verified-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
 .cv-bullets-list {
   list-style: none;
   padding: 0;

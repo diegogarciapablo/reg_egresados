@@ -6,7 +6,7 @@ export const ROLE = Object.freeze({
 });
 
 export class User {
-  constructor({ id, email, passwordHash, role = ROLE.GRADUATE, isActive = true }) {
+  constructor({ id, email, passwordHash, role = ROLE.GRADUATE, isActive = true, emailVerified = false }) {
     if (!email || !email.includes("@")) {
       throw new AppError("Email invalido");
     }
@@ -15,6 +15,7 @@ export class User {
     this.passwordHash = passwordHash;
     this.role = role;
     this.isActive = isActive;
+    this.emailVerified = Boolean(emailVerified);
   }
 
   isAdmin() {
@@ -28,6 +29,7 @@ export class User {
       id: this.id,
       email: this.email,
       isActive: this.isActive,
+      emailVerified: this.emailVerified,
       ...(this.isAdmin() ? { role: this.role } : {}),
     };
   }

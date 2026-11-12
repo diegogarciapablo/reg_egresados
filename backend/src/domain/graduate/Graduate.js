@@ -29,6 +29,7 @@ export class Graduate {
     linkedinUrl = null,
     portfolioUrl = null,
     visibility = VISIBILITY.PRIVATE,
+    emailVerified = false,
   }) {
     if (!firstName || !lastName) {
       throw new AppError("El egresado debe tener nombre y apellido");
@@ -54,6 +55,7 @@ export class Graduate {
     this.linkedinUrl = linkedinUrl;
     this.portfolioUrl = portfolioUrl;
     this.visibility = visibility;
+    this.emailVerified = Boolean(emailVerified);
   }
 
   isPublic() {

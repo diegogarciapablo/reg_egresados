@@ -62,6 +62,8 @@ const api = {
     logout: () => request("/auth/logout", { method: "POST" }),
     me: () => request("/auth/me"),
     changePassword: (payload) => request("/auth/change-password", { method: "POST", body: payload }),
+    requestEmailVerification: () => request("/auth/email-verification/request", { method: "POST" }),
+    verifyEmail: (token) => request("/auth/verify-email", { method: "POST", body: { token } }),
   },
   directory: {
     list: (params) => request("/graduates", { params }),

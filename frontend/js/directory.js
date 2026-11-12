@@ -71,7 +71,12 @@ function graduateCard(graduate) {
   }
 
   const meta = el("div", { class: "graduate-card-meta" });
-  meta.appendChild(el("h3", { text: `${graduate.firstName} ${graduate.lastName}` }));
+  const nameH3 = el("h3", { class: "graduate-name-title" });
+  nameH3.appendChild(document.createTextNode(`${graduate.firstName} ${graduate.lastName}`));
+  if (graduate.emailVerified && typeof createVerifiedBadge === "function") {
+    nameH3.appendChild(createVerifiedBadge());
+  }
+  meta.appendChild(nameH3);
   if (graduate.currentRole) {
     meta.appendChild(el("div", { class: "role", text: graduate.currentRole }));
   }

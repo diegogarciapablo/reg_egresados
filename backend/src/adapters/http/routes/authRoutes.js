@@ -9,6 +9,8 @@ export function authRoutes(authController) {
   router.post("/logout", authController.logout);
   router.get("/me", authController.me);
   router.post("/change-password", validateBody(changePasswordSchema), authController.changePassword);
+  router.post("/email-verification/request", authController.requestVerification);
+  router.post("/verify-email", authController.verifyEmail);
 
   return router;
 }

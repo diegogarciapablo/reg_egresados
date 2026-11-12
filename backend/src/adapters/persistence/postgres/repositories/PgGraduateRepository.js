@@ -27,6 +27,7 @@ function toGraduate(row) {
     linkedinUrl: row.linkedin_url,
     portfolioUrl: row.portfolio_url,
     visibility: row.visibility,
+    emailVerified: row.email_verified,
   });
 }
 
@@ -71,7 +72,7 @@ export class PgGraduateRepository extends GraduateRepository {
 
   async findById(id) {
     const { rows } = await this.pool.query(
-      `SELECT g.* FROM graduates g JOIN users u ON u.id = g.user_id
+      `SELECT g.*, u.email_verified FROM graduates g JOIN users u ON u.id = g.user_id
        WHERE g.id = $1 AND g.is_active = TRUE AND u.is_active = TRUE`,
       [id]
     );
@@ -80,7 +81,7 @@ export class PgGraduateRepository extends GraduateRepository {
 
   async findByUserId(userId) {
     const { rows } = await this.pool.query(
-      `SELECT g.* FROM graduates g JOIN users u ON u.id = g.user_id
+      `SELECT g.*, u.email_verified FROM graduates g JOIN users u ON u.id = g.user_id
        WHERE g.user_id = $1 AND g.is_active = TRUE AND u.is_active = TRUE`,
       [userId],
     );
@@ -89,7 +90,7 @@ export class PgGraduateRepository extends GraduateRepository {
 
   async findByRegistrationCode(code) {
     const { rows } = await this.pool.query(
-      `SELECT g.* FROM graduates g JOIN users u ON u.id = g.user_id
+      `SELECT g.*, u.email_verified FROM graduates g JOIN users u ON u.id = g.user_id
        WHERE g.registration_code = $1 AND g.is_active = TRUE AND u.is_active = TRUE`,
       [code]
     );
@@ -237,7 +238,8 @@ export class PgGraduateRepository extends GraduateRepository {
     const dataValues = [...values, limit, offset];
 
     const { rows } = await this.pool.query(
-      `SELECT g.* FROM graduates g
+      `SELECT g.*, u.email_verified FROM graduates g
+       JOIN users u ON u.id = g.user_id
        ${whereClause}
        ORDER BY g.graduation_year DESC, g.last_name ASC, g.first_name ASC
        LIMIT $${index} OFFSET $${index + 1}`,

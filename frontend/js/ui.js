@@ -35,6 +35,23 @@ function escapeHtml(text) {
 }
 
 /**
+ * Retorna el elemento/nodo HTML de la insignia verde de verificado (Sello Verde de Confianza).
+ */
+function createVerifiedBadge(title = "Correo electrónico verificado") {
+  const span = document.createElement("span");
+  span.className = "verified-badge";
+  span.title = title;
+  span.setAttribute("aria-label", title);
+  span.innerHTML = `
+    <svg viewBox="0 0 20 20" fill="none" class="verified-icon" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0z" fill="#10b981"/>
+      <path d="M6 10.2l2.6 2.6L14.2 7" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  `;
+  return span;
+}
+
+/**
  * Construye la barra de navegacion superior y actualiza sus enlaces
  * segun si hay una sesion activa (llama a /api/auth/me).
  */

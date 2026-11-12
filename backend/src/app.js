@@ -24,6 +24,8 @@ import { makeRegisterUser } from "./application/auth/registerUser.js";
 import { makeLoginUser } from "./application/auth/loginUser.js";
 import { makeGetCurrentUser } from "./application/auth/getCurrentUser.js";
 import { makeChangePassword } from "./application/auth/changePassword.js";
+import { makeRequestEmailVerification, makeVerifyEmail } from "./application/auth/emailVerification.js";
+import { emailService } from "./shared/email/emailService.js";
 import { makeListTechnologies, makeListSoftSkills, makeListLanguages } from "./application/catalog/getCatalogs.js";
 import { makeGetDirectory } from "./application/graduate/getDirectory.js";
 import { makeGetPublicProfile } from "./application/graduate/getPublicProfile.js";
@@ -100,6 +102,8 @@ export function createApp() {
   const loginUser = makeLoginUser({ userRepository });
   const getCurrentUser = makeGetCurrentUser({ userRepository });
   const changePassword = makeChangePassword({ userRepository });
+  const requestEmailVerification = makeRequestEmailVerification({ userRepository, graduateRepository, emailService });
+  const verifyEmail = makeVerifyEmail({ userRepository });
   const listTechnologies = makeListTechnologies({ catalogRepository });
   const listSoftSkills = makeListSoftSkills({ catalogRepository });
   const listLanguages = makeListLanguages({ catalogRepository });
@@ -135,7 +139,7 @@ export function createApp() {
   const setAdminEntityActive = makeSetAdminEntityActive({ adminEntityRepository });
 
   // --- Controladores ---
-  const authController = makeAuthController({ registerUser, loginUser, getCurrentUser, changePassword });
+  const authController = makeAuthController({ registerUser, loginUser, getCurrentUser, changePassword, requestEmailVerification, verifyEmail });
   const directoryController = makeDirectoryController({
     getDirectory,
     getPublicProfile,

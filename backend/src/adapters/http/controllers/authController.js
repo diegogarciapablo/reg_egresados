@@ -1,4 +1,4 @@
-export function makeAuthController({ registerUser, loginUser, getCurrentUser, changePassword }) {
+export function makeAuthController({ registerUser, loginUser, getCurrentUser, changePassword, requestEmailVerification, verifyEmail }) {
   return {
     async register(req, res, next) {
       try {
@@ -41,6 +41,25 @@ export function makeAuthController({ registerUser, loginUser, getCurrentUser, ch
           currentPassword: req.validatedBody.currentPassword,
           newPassword: req.validatedBody.newPassword,
         });
+        res.json(result);
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async requestVerification(req, res, next) {
+      try {
+        const result = await requestEmailVerification(req.session?.userId);
+        res.json(result);
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async verifyEmail(req, res, next) {
+      try {
+        const token = req.body?.token;
+        const result = await verifyEmail(token);
         res.json(result);
       } catch (err) {
         next(err);

@@ -1320,4 +1320,43 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.body.classList.remove("cv-printing");
     });
   }
+
+  // --- Estado de Verificación de Correo ---
+  const emailVerificationStatusBox = document.getElementById("emailVerificationStatusBox");
+  if (emailVerificationStatusBox) {
+    if (user.emailVerified) {
+      emailVerificationStatusBox.innerHTML = `
+        <span class="email-verified-pill" title="Tu correo electrónico está verificado">
+          <svg viewBox="0 0 20 20" fill="none" class="verified-icon" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px;">
+            <path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0z" fill="#10b981"/>
+            <path d="M6 10.2l2.6 2.6L14.2 7" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Correo verificado
+        </span>
+      `;
+    } else {
+      const verifyBtn = el("button", {
+        type: "button",
+        class: "btn btn-secondary",
+        style: "display: inline-flex; align-items: center; gap: 6px;",
+        text: "✉️ Verificar correo",
+      });
+      verifyBtn.addEventListener("click", async () => {
+        try {
+          verifyBtn.disabled = true;
+          verifyBtn.textContent = "Enviando...";
+          clearAlert(generalAlert);
+          const res = await api.auth.requestEmailVerification();
+          showAlert(generalAlert, res.message || "Se envió el correo de verificación.", "success");
+        } catch (err) {
+          showAlert(generalAlert, "Error al solicitar verificación: " + (err.message || err));
+        } finally {
+          verifyBtn.disabled = false;
+          verifyBtn.textContent = "✉️ Reenviar verificación";
+        }
+      });
+      emailVerificationStatusBox.innerHTML = "";
+      emailVerificationStatusBox.appendChild(verifyBtn);
+    }
+  }
 });

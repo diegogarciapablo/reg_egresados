@@ -9,6 +9,7 @@ function toUser(row) {
     passwordHash: row.password_hash,
     role: row.role,
     isActive: row.is_active,
+    emailVerified: row.email_verified,
   });
 }
 
@@ -44,5 +45,33 @@ export class PgUserRepository extends UserRepository {
 
   async updatePassword(id, passwordHash) {
     await this.pool.query("UPDATE users SET password_hash = $1 WHERE id = $2", [passwordHash, id]);
+  }
+
+  async createVerificationToken(userId, tokenHash, expiresAt) {
+    await this.pool.query("DELETE FROM email_verification_tokens WHERE user_id = $1 OR expires_at < NOW()", [userId]);
+    await this.pool.query(
+      `INSERT INTO email_verification_tokens (user_id, token_hash, expires_at)
+       VALUES ($1, $2, $3)`,
+      [userId, tokenHash, expiresAt]
+    );
+  }
+
+  async findVerificationToken(tokenHash) {
+    const { rows } = await this.pool.query(
+      `SELECT t.*, u.email, u.email_verified
+       FROM email_verification_tokens t
+       JOIN users u ON u.id = t.user_id
+       WHERE t.token_hash = $1 AND t.expires_at > NOW()`,
+      [tokenHash]
+    );
+    return rows[0] || null;
+  }
+
+  async setEmailVerified(userId) {
+    await this.pool.query(
+      "UPDATE users SET email_verified = TRUE, email_verified_at = NOW() WHERE id = $1",
+      [userId]
+    );
+    await this.pool.query("DELETE FROM email_verification_tokens WHERE user_id = $1", [userId]);
   }
 }

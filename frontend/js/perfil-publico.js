@@ -78,7 +78,12 @@ function buildProfileView(graduate) {
   }
 
   const headerInfo = el("div", { class: "profile-public-info" });
-  headerInfo.appendChild(el("h1", { text: `${graduate.firstName} ${graduate.lastName}` }));
+  const h1 = el("h1", { class: "profile-name-title" });
+  h1.appendChild(document.createTextNode(`${graduate.firstName} ${graduate.lastName}`));
+  if (graduate.emailVerified && typeof createVerifiedBadge === "function") {
+    h1.appendChild(createVerifiedBadge());
+  }
+  headerInfo.appendChild(h1);
   if (graduate.currentRole) headerInfo.appendChild(el("p", { text: graduate.currentRole }));
   headerInfo.appendChild(el("p", { class: "muted", text: `Egresado ${graduate.graduationYear} - Codigo ${graduate.registrationCode}` }));
   header.appendChild(headerInfo);

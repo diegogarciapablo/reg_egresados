@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verificación de Correo - Registro de Egresados UAJMS</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar" id="topbar"></header>
+
+  <main class="container" style="max-width: 600px; margin-top: 48px;">
+    <section class="card" id="verificationCard" style="text-align: center; padding: 40px 24px;">
+      <div id="loadingState">
+        <p class="muted">Verificando tu enlace...</p>
+      </div>
+
+      <div id="resultState" hidden>
+        <div id="resultIcon" style="margin-bottom: 16px;"></div>
+        <h2 id="resultTitle" style="margin-bottom: 8px;"></h2>
+        <p id="resultMessage" class="muted" style="margin-bottom: 24px; line-height: 1.6;"></p>
+        <div id="resultActions" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      await renderTopbar();
+
+      const loadingState = document.getElementById("loadingState");
+      const resultState = document.getElementById("resultState");
+      const resultIcon = document.getElementById("resultIcon");
+      const resultTitle = document.getElementById("resultTitle");
+      const resultMessage = document.getElementById("resultMessage");
+      const resultActions = document.getElementById("resultActions");
+
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+
+      if (!token) {
+        loadingState.hidden = true;
+        resultState.hidden = false;
+        resultIcon.innerHTML = `<span style="font-size: 3rem;">⚠️</span>`;
+        resultTitle.textContent = "Enlace incompleto";
+        resultMessage.textContent = "No se proporcionó un token de verificación en el enlace.";
+        resultActions.innerHTML = `<a href="/index.html" class="btn btn-primary">Ir al Directorio</a>`;
+        return;
+      }
+
+      try {
+        const response = await api.auth.verifyEmail(token);
+        loadingState.hidden = true;
+        resultState.hidden = false;
+
+        resultIcon.innerHTML = `
+          <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: #d1fae5;">
+            <svg viewBox="0 0 20 20" fill="none" style="width: 40px; height: 40px;" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0z" fill="#10b981"/>
+              <path d="M6 10.2l2.6 2.6L14.2 7" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        `;
+        resultTitle.textContent = "¡Correo Verificado!";
+        resultMessage.textContent = response.message || "Tu correo electrónico ha sido verificado con éxito. Tu perfil ahora cuenta con la insignia de verificado.";
+        resultActions.innerHTML = `
+          <a href="/dashboard.html" class="btn btn-primary">Ir a Mi Ficha</a>
+          <a href="/index.html" class="btn btn-secondary">Ver Directorio</a>
+        `;
+      } catch (err) {
+        loadingState.hidden = true;
+        resultState.hidden = false;
+
+        resultIcon.innerHTML = `<span style="font-size: 3rem;">❌</span>`;
+        resultTitle.textContent = "Verificación fallida";
+        resultMessage.textContent = err.message || "El enlace no es válido o ya ha expirado.";
+        resultActions.innerHTML = `
+          <a href="/dashboard.html" class="btn btn-primary">Solicitar nuevo enlace en Mi Ficha</a>
+          <a href="/index.html" class="btn btn-secondary">Ir al Directorio</a>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
