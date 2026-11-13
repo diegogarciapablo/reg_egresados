@@ -28,6 +28,9 @@ function toGraduate(row) {
     portfolioUrl: row.portfolio_url,
     visibility: row.visibility,
     emailVerified: row.email_verified,
+    moderationStatus: row.moderation_status,
+    moderationObservations: row.moderation_observations,
+    moderationUpdatedAt: row.moderation_updated_at,
   });
 }
 
@@ -107,7 +110,7 @@ export class PgGraduateRepository extends GraduateRepository {
     return toGraduate(rows[0]);
   }
 
-  async update(id, changes) {
+  async update(id, changes, isUserEdit = false) {
     const setClauses = [];
     const values = [];
     let index = 1;
@@ -126,6 +129,12 @@ export class PgGraduateRepository extends GraduateRepository {
 
     if (setClauses.length === 0) {
       return this.findById(id);
+    }
+
+    // Regla de negocio: si el usuario edita su perfil, la ficha se despublica y regresa a borrador/revisión
+    if (isUserEdit) {
+      setClauses.push(`visibility = 'private'`);
+      setClauses.push(`moderation_status = 'draft'`);
     }
 
     setClauses.push(`updated_at = NOW()`);
@@ -378,7 +387,7 @@ export class PgGraduateRepository extends GraduateRepository {
   async getFullProfile(graduateId) {
     const [technologies, softSkills, languages, projects, experiences, certificates, recommendations] = await Promise.all([
       this.pool.query(
-        `SELECT t.id, t.name, t.slug FROM graduate_technologies gt
+        `SELECT t.id, t.name, t.slug, t.specialty FROM graduate_technologies gt
          JOIN technologies t ON t.id = gt.technology_id
          WHERE gt.graduate_id = $1 AND t.is_active = TRUE ORDER BY gt.display_order`,
         [graduateId]
@@ -437,5 +446,41 @@ export class PgGraduateRepository extends GraduateRepository {
       certificates: certificates.rows,
       recommendations: recommendations.rows,
     };
+  }
+
+  async requestPublish(id) {
+    const { rows } = await this.pool.query(
+      `UPDATE graduates
+       SET moderation_status = 'pending_review',
+           moderation_updated_at = NOW(),
+           updated_at = NOW()
+       WHERE id = $1
+       RETURNING *`,
+      [id]
+    );
+    return toGraduate(rows[0]);
+  }
+
+  async setModeration(id, { status, observations = null, visibility = null }) {
+    const setClauses = [
+      `moderation_status = $2`,
+      `moderation_observations = $3`,
+      `moderation_updated_at = NOW()`,
+      `updated_at = NOW()`,
+    ];
+    const values = [id, status, observations];
+    let nextIdx = 4;
+
+    if (visibility) {
+      setClauses.push(`visibility = $${nextIdx}`);
+      values.push(visibility);
+      nextIdx += 1;
+    }
+
+    const { rows } = await this.pool.query(
+      `UPDATE graduates SET ${setClauses.join(", ")} WHERE id = $1 RETURNING *`,
+      values
+    );
+    return toGraduate(rows[0]);
   }
 }

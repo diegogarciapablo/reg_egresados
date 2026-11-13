@@ -6,7 +6,7 @@ import {
   visibilitySchema,
 } from "../../../shared/validation/schemas.js";
 
-export function adminRoutes(adminController) {
+export function adminRoutes(adminController, profileController) {
   const router = Router();
 
   router.use(requireAuth, requireAdmin);
@@ -19,6 +19,7 @@ export function adminRoutes(adminController) {
   router.get("/graduates", adminController.listGraduates);
   router.patch("/recommendations/:id", validateBody(moderateRecommendationSchema), adminController.moderateRecommendation);
   router.patch("/graduates/:id/status", validateBody(visibilitySchema), adminController.updateGraduateStatus);
+  router.post("/graduates/:id/moderate", profileController.moderateGraduate);
 
   return router;
 }

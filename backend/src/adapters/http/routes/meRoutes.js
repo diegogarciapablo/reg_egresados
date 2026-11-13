@@ -73,6 +73,7 @@ export function meRoutes({ profileController, coverLetterController }) {
 
   router.get("/profile", profileController.getMyProfile);
   router.patch("/profile", validateBody(profileUpdateSchema), profileController.patchProfile);
+  router.post("/profile/request-publish", profileController.requestPublish);
   router.get("/profile/photo/:graduateId", profileController.getPhoto);
   router.put("/profile/photo", uploadProfilePhoto, profileController.uploadPhoto);
   router.delete("/profile/photo", profileController.deletePhoto);

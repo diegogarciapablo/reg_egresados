@@ -30,6 +30,9 @@ export class Graduate {
     portfolioUrl = null,
     visibility = VISIBILITY.PRIVATE,
     emailVerified = false,
+    moderationStatus = "draft",
+    moderationObservations = null,
+    moderationUpdatedAt = null,
   }) {
     if (!firstName || !lastName) {
       throw new AppError("El egresado debe tener nombre y apellido");
@@ -56,6 +59,9 @@ export class Graduate {
     this.portfolioUrl = portfolioUrl;
     this.visibility = visibility;
     this.emailVerified = Boolean(emailVerified);
+    this.moderationStatus = moderationStatus;
+    this.moderationObservations = moderationObservations;
+    this.moderationUpdatedAt = moderationUpdatedAt;
   }
 
   isPublic() {

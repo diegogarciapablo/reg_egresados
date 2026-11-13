@@ -1319,7 +1319,232 @@ th {
   text-decoration: underline;
 }
 
-/* Insignia de Verificación Verde (Sello de Confianza) */
+/* Notificaciones Bell & Dropdown */
+.notif-bell-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.notif-bell-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+.notif-bell-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 9999px;
+  line-height: 1;
+  min-width: 14px;
+  text-align: center;
+}
+
+.notif-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-height: 420px;
+  background: #ffffff;
+  color: #1f2937;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e2e8f0;
+  z-index: 250;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+}
+
+.btn-link-action {
+  background: none;
+  border: none;
+  color: #1e40af;
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.notif-list {
+  overflow-y: auto;
+  max-height: 350px;
+}
+
+.notif-item {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.notif-item:hover {
+  background: #f8fafc;
+}
+
+.notif-item.unread {
+  background: #eff6ff;
+  border-left: 3px solid #3b82f6;
+}
+
+.notif-item-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.notif-item-msg {
+  font-size: 0.8rem;
+  color: #475569;
+  line-height: 1.4;
+  white-space: pre-line;
+}
+
+.notif-item-date {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.notif-empty, .notif-loading {
+  padding: 24px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* Toasts Superiores */
+.toast-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 420px;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  background: #ffffff;
+  color: #1f2937;
+  padding: 12px 16px;
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.9rem;
+  border-left: 4px solid #3b82f6;
+  animation: toastIn 0.25s ease-out;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.toast.toast-fadeout {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.toast-success { border-left-color: #10b981; }
+.toast-info { border-left-color: #3b82f6; }
+.toast-warning { border-left-color: #f59e0b; }
+.toast-error { border-left-color: #ef4444; }
+
+.toast-close {
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #94a3b8;
+  line-height: 1;
+}
+
+/* Modal de Términos y Condiciones */
+.terms-panel {
+  max-width: 620px;
+  width: 100%;
+}
+
+.terms-body {
+  padding: 20px 24px;
+  color: #334155;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.terms-list {
+  margin: 14px 0 0 0;
+  padding-left: 20px;
+}
+
+.terms-list li {
+  margin-bottom: 10px;
+}
+
+.terms-footer {
+  padding: 14px 24px 20px 24px;
+  text-align: right;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Badges de moderación */
+.badge-pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+.badge-observed {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Especialidades técnicas */
+.tech-specialty-title {
+  font-size: 0.92rem;
+  color: #1e3a8a;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 4px;
+}
 .verified-badge {
   display: inline-flex;
   align-items: center;

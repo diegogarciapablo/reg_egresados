@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Institucional - Red Alumni Informática Yacuiba</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .portal-hero {
+      background: linear-gradient(135deg, #0f2744 0%, #1e3a8a 100%);
+      color: #ffffff;
+      padding: 60px 24px;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+    .portal-hero h1 {
+      font-size: 2.2rem;
+      margin-bottom: 12px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+    .portal-hero p {
+      font-size: 1.1rem;
+      max-width: 680px;
+      margin: 0 auto 28px auto;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+    .btn-alumni-access {
+      background-color: #10b981;
+      color: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    .btn-alumni-access:hover {
+      background-color: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    }
+    .portal-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      padding: 16px;
+    }
+    .portal-modal-panel {
+      background: #ffffff;
+      max-width: 540px;
+      width: 100%;
+      border-radius: 8px;
+      padding: 28px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      animation: modalFadeIn 0.2s ease-out;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .portal-modal-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+    .portal-modal-title {
+      font-size: 1.35rem;
+      color: #0f2744;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+    .portal-modal-text {
+      color: #334155;
+      font-size: 0.98rem;
+      line-height: 1.6;
+      margin-bottom: 24px;
+      text-align: justify;
+    }
+    .portal-modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar" id="topbar"></header>
+
+  <main class="container">
+    <div class="portal-hero">
+      <h1>Facultad de Ciencias y Tecnología</h1>
+      <p>Carrera de Ingeniería Informática — Sede Yacuiba · Universidad Autónoma Juan Misael Saracho</p>
+      
+      <button id="openAlumniAccessBtn" type="button" class="btn-alumni-access">
+        🎓 Acceder a red Alumni Informatica Yacuiba
+      </button>
+    </div>
+
+    <div style="margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+      <div class="card">
+        <h3>Directorio de Egresados</h3>
+        <p class="muted">Perfiles profesionales actualizados, experiencias, proyectos realizados y habilidades técnicas clasificadas.</p>
+      </div>
+      <div class="card">
+        <h3>Oportunidades y Empleo</h3>
+        <p class="muted">Vinculación laboral directa con empresas, proyectos independientes e instituciones públicas.</p>
+      </div>
+      <div class="card">
+        <h3>Comunidad Académica</h3>
+        <p class="muted">Red de colaboración entre docentes, estudiantes egresados y profesionales del área tecnológica.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de Alerta Previa antes de redirigir -->
+  <div id="alumniAlertModal" class="portal-modal-overlay" hidden>
+    <div class="portal-modal-panel">
+      <div class="portal-modal-icon">ℹ️</div>
+      <div class="portal-modal-title">Aviso de Ingreso a la Red Alumni</div>
+      <div class="portal-modal-text">
+        Usted está por ingresar a una plataforma que permite el acceso a perfiles profesionales que egresaron o trabajan en la carrera de Ingeniería Informática Yacuiba. Esta plataforma te permitirá contactar con compañeros y también la posibilidad de acceder a trabajos publicados en la plataforma.
+      </div>
+      <div class="portal-modal-actions">
+        <button id="cancelModalBtn" type="button" class="btn btn-secondary">Cancelar</button>
+        <button id="confirmAccessBtn" type="button" class="btn btn-primary" style="background: #10b981; border: none;">
+          Acceder al Directorio
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      await renderTopbar();
+
+      const openBtn = document.getElementById("openAlumniAccessBtn");
+      const modal = document.getElementById("alumniAlertModal");
+      const cancelBtn = document.getElementById("cancelModalBtn");
+      const confirmBtn = document.getElementById("confirmAccessBtn");
+
+      openBtn.addEventListener("click", () => {
+        modal.hidden = false;
+      });
+
+      cancelBtn.addEventListener("click", () => {
+        modal.hidden = true;
+      });
+
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) modal.hidden = true;
+      });
+
+      confirmBtn.addEventListener("click", () => {
+        window.location.href = "/index.html";
+      });
+    });
+  </script>
+</body>
+</html>

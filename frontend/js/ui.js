@@ -98,6 +98,42 @@ async function renderTopbar(activeUser) {
       ]);
       nav.appendChild(menu);
     }
+
+    // Botón de Campana de Notificaciones
+    const notifContainer = el("div", { class: "notif-bell-container" });
+    const bellBtn = el("button", {
+      type: "button",
+      class: "notif-bell-btn",
+      title: "Notificaciones",
+      "aria-label": "Notificaciones",
+    }, [
+      el("span", { class: "notif-bell-icon", text: "🔔" }),
+      el("span", { id: "notifBadge", class: "notif-badge", style: "display:none;" })
+    ]);
+
+    const notifDropdown = el("div", { id: "notifDropdown", class: "notif-dropdown", hidden: true });
+    notifContainer.appendChild(bellBtn);
+    notifContainer.appendChild(notifDropdown);
+
+    bellBtn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      notifDropdown.hidden = !notifDropdown.hidden;
+      if (!notifDropdown.hidden) {
+        await loadNotificationsDropdown(notifDropdown);
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!notifContainer.contains(e.target)) {
+        notifDropdown.hidden = true;
+      }
+    });
+
+    nav.appendChild(notifContainer);
+
+    // Cargar conteo no leídas
+    checkUnreadNotifications();
+
     const logoutBtn = el("button", { class: "btn btn-secondary", text: "Cerrar sesion" });
     logoutBtn.addEventListener("click", async () => {
       await api.auth.logout();
@@ -113,6 +149,171 @@ async function renderTopbar(activeUser) {
   return user;
 }
 
+async function checkUnreadNotifications() {
+  const badge = document.getElementById("notifBadge");
+  if (!badge) return;
+  try {
+    const data = await api.notifications.list(5);
+    if (data.unreadCount > 0) {
+      badge.textContent = data.unreadCount > 9 ? "9+" : data.unreadCount;
+      badge.style.display = "inline-flex";
+    } else {
+      badge.style.display = "none";
+    }
+  } catch {
+    badge.style.display = "none";
+  }
+}
+
+async function loadNotificationsDropdown(container) {
+  container.innerHTML = `<div class="notif-loading">Cargando notificaciones...</div>`;
+  try {
+    const data = await api.notifications.list(15);
+    container.innerHTML = "";
+
+    const header = el("div", { class: "notif-header" }, [
+      el("strong", { text: "Notificaciones" }),
+      el("button", {
+        type: "button",
+        class: "btn-link-action",
+        text: "Marcar todas como leídas",
+        onclick: async () => {
+          await api.notifications.markAllRead();
+          await checkUnreadNotifications();
+          await loadNotificationsDropdown(container);
+        }
+      })
+    ]);
+    container.appendChild(header);
+
+    if (!data.items || data.items.length === 0) {
+      container.appendChild(el("div", { class: "notif-empty", text: "No tienes notificaciones pendientes." }));
+      return;
+    }
+
+    const list = el("div", { class: "notif-list" });
+    for (const item of data.items) {
+      const itemEl = el("div", { class: `notif-item ${item.isRead ? "read" : "unread"}` });
+      const content = el("div", { class: "notif-item-body" }, [
+        el("div", { class: "notif-item-title", text: item.title }),
+        el("div", { class: "notif-item-msg", text: item.message }),
+        el("div", { class: "notif-item-date", text: new Date(item.createdAt).toLocaleDateString() + " " + new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) })
+      ]);
+
+      itemEl.appendChild(content);
+
+      itemEl.addEventListener("click", async () => {
+        if (!item.isRead) {
+          await api.notifications.markRead(item.id);
+          await checkUnreadNotifications();
+        }
+        if (item.link) {
+          window.location.href = item.link;
+        }
+      });
+
+      list.appendChild(itemEl);
+    }
+    container.appendChild(list);
+  } catch (err) {
+    container.innerHTML = `<div class="notif-empty">Error al cargar notificaciones.</div>`;
+  }
+}
+
+/**
+ * Toast superior general reutilizable
+ */
+function showToast(message, type = "info", durationMs = 4500) {
+  let container = document.getElementById("toastContainer");
+  if (!container) {
+    container = el("div", { id: "toastContainer", class: "toast-container" });
+    document.body.appendChild(container);
+  }
+  const toast = el("div", { class: `toast toast-${type}` }, [
+    el("span", { class: "toast-msg", text: message }),
+    el("button", {
+      type: "button",
+      class: "toast-close",
+      text: "✕",
+      onclick: () => toast.remove()
+    })
+  ]);
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add("toast-fadeout");
+    setTimeout(() => toast.remove(), 400);
+  }, durationMs);
+}
+
+/**
+ * Modal obligatorio de Términos y Condiciones si el usuario no los ha aceptado.
+ */
+function ensureTermsAccepted(user) {
+  if (!user || user.termsAccepted) return;
+
+  const existing = document.getElementById("termsModal");
+  if (existing) return;
+
+  const modal = el("div", { id: "termsModal", class: "cv-dialog" }, [
+    el("div", { class: "cv-preview-panel terms-panel", role: "dialog", "aria-modal": "true" }, [
+      el("div", { class: "cv-preview-header" }, [
+        el("h2", { text: "Términos y Condiciones de la Red Alumni" })
+      ]),
+      el("div", { class: "terms-body" }, [
+        el("p", { text: "Bienvenido al Directorio y Red Alumni de la carrera de Ingeniería Informática UAJMS." }),
+        el("p", { text: "Antes de continuar, debes conocer y aceptar las siguientes condiciones del servicio:" }),
+        el("ul", { class: "terms-list" }, [
+          el("li", [
+            el("strong", { text: "Promoción y Difusión Profesional: " }),
+            document.createTextNode("La plataforma tiene como finalidad exclusiva difundir tu perfil profesional ante empleadores, instituciones y la comunidad académica para apoyar tu inserción y crecimiento laboral.")
+          ]),
+          el("li", [
+            el("strong", { text: "Datos Públicos y de Contacto: " }),
+            document.createTextNode("Al publicar tu ficha, la información registrada (teléfonos, correos, habilidades y enlaces) será visible a terceros interesados en contactarte.")
+          ]),
+          el("li", [
+            el("strong", { text: "Notificaciones y Empleo: " }),
+            document.createTextNode("Aceptas recibir notificaciones y correos electrónicos informativos sobre ofertas laborales, trabajos temporales y actividades de interés acordes a tus habilidades.")
+          ]),
+          el("li", [
+            el("strong", { text: "Veracidad de la Información: " }),
+            document.createTextNode("Declaras que los títulos, certificaciones y datos ingresados son fidedignos y de tu autoría.")
+          ]),
+          el("li", [
+            el("strong", { text: "Moderación de Fichas: " }),
+            document.createTextNode("La administración de la carrera supervisará y aprobará la publicación de fichas para garantizar la calidad y el respeto a la ética universitaria.")
+          ])
+        ])
+      ]),
+      el("div", { class: "terms-footer" }, [
+        el("button", {
+          id: "acceptTermsBtn",
+          class: "btn btn-primary",
+          type: "button",
+          text: "Acepto los términos y condiciones",
+          onclick: async () => {
+            const btn = document.getElementById("acceptTermsBtn");
+            btn.disabled = true;
+            btn.textContent = "Procesando...";
+            try {
+              await api.auth.acceptTerms();
+              user.termsAccepted = true;
+              modal.remove();
+              showToast("Términos y condiciones aceptados.", "success");
+            } catch (err) {
+              alert("Error al guardar aceptación: " + (err.message || err));
+              btn.disabled = false;
+              btn.textContent = "Acepto los términos y condiciones";
+            }
+          }
+        })
+      ])
+    ])
+  ]);
+
+  document.body.appendChild(modal);
+}
+
 /**
  * Redirige a login si no hay sesion activa. Devuelve el usuario si la hay.
  */
@@ -122,5 +323,6 @@ async function requireSession() {
     window.location.href = "/login.html";
     return null;
   }
+  ensureTermsAccepted(user);
   return user;
 }

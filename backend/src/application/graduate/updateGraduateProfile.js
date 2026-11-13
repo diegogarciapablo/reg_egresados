@@ -18,7 +18,7 @@ export function makeUpdateGraduateProfile({ graduateRepository }) {
       throw new NotFoundError("El usuario no tiene una ficha asociada");
     }
     const { technologyIds, softSkillIds, ...profileChanges } = changes || {};
-    const updated = await graduateRepository.update(graduate.id, profileChanges);
+    const updated = await graduateRepository.update(graduate.id, profileChanges, true);
     if (Array.isArray(technologyIds)) {
       await graduateRepository.setTechnologies(graduate.id, technologyIds);
     }

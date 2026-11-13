@@ -11,6 +11,7 @@ export function authRoutes(authController) {
   router.post("/change-password", validateBody(changePasswordSchema), authController.changePassword);
   router.post("/email-verification/request", authController.requestVerification);
   router.post("/verify-email", authController.verifyEmail);
+  router.post("/accept-terms", authController.acceptTerms);
 
   return router;
 }

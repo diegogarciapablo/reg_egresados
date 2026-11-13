@@ -476,8 +476,98 @@ function buildRecommendationForm(graduateId) {
   return form;
 }
 
+function buildAdminModerationSection(graduate) {
+  const wrap = el("div", { class: "card admin-moderation-panel", style: "border: 2px solid var(--primary-dark); margin-top: 32px; background: #f8fafc;" });
+
+  const titleRow = el("div", { class: "flex-between", style: "border-bottom: 1.5px solid #cbd5e1; padding-bottom: 8px; margin-bottom: 14px;" }, [
+    el("h3", { style: "margin: 0; color: #0f2744;", text: "🛡️ Panel de Moderación de Ficha (Solo Administrador)" }),
+    el("span", {
+      class: `badge ${graduate.visibility === "public" ? "badge-public" : "badge-private"}`,
+      text: `Estado: ${graduate.moderationStatus || "draft"} (${graduate.visibility === "public" ? "Pública" : "Privada"})`
+    })
+  ]);
+  wrap.appendChild(titleRow);
+
+  const alertBox = el("div");
+  wrap.appendChild(alertBox);
+
+  // Parte 1: Observaciones
+  const obsBlock = el("div", { class: "form-group", style: "margin-bottom: 20px;" }, [
+    el("label", { style: "font-weight: 700;", text: "Observaciones de la ficha (se enviarán por notificación y correo al egresado):" }),
+    el("textarea", {
+      id: "adminObsInput",
+      placeholder: "Ej: Por favor completa una descripción más detallada de tus funciones en la empresa X o ajusta la fecha de finalización...",
+      style: "width: 100%; min-height: 80px;",
+    }),
+    el("button", {
+      type: "button",
+      class: "btn btn-secondary",
+      style: "margin-top: 8px; background: #f59e0b; color: #ffffff; border: none;",
+      text: "⚠️ Enviar observación al egresado",
+      onclick: async () => {
+        const input = document.getElementById("adminObsInput");
+        if (!input.value.trim()) {
+          showAlert(alertBox, "Escribe una observación antes de enviar.");
+          return;
+        }
+        clearAlert(alertBox);
+        try {
+          const res = await api.admin.moderateGraduate(graduate.id, {
+            action: "observe",
+            observations: input.value.trim()
+          });
+          showAlert(alertBox, res.message || "Observación enviada.", "success");
+          if (typeof showToast === "function") showToast("Observación enviada al egresado.", "info");
+        } catch (err) {
+          showAlert(alertBox, err.message || "Error al enviar observación.");
+        }
+      }
+    })
+  ]);
+  wrap.appendChild(obsBlock);
+
+  // Parte 2: Switch de Aprobación y Publicación
+  const approveBlock = el("div", { style: "border-top: 1px dashed #cbd5e1; padding-top: 14px;" }, [
+    el("h4", { style: "margin-top: 0; margin-bottom: 8px; color: #0f2744;", text: "Aprobación y Visibilidad Pública" }),
+    el("p", { class: "hint", text: "Al activar este switch y presionar Aprobar, el perfil se publicará en el directorio público y se notificará al egresado." }),
+    el("div", { style: "display: flex; align-items: center; gap: 12px; margin-top: 10px;" }, [
+      el("label", { style: "display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;" }, [
+        el("input", {
+          type: "checkbox",
+          id: "adminMakePublicSwitch",
+          checked: graduate.visibility === "public"
+        }),
+        document.createTextNode("Hacer público el perfil en el directorio")
+      ]),
+      el("button", {
+        type: "button",
+        class: "btn btn-primary",
+        style: "background: #10b981; border: none;",
+        text: "✅ Guardar y Aprobar Ficha",
+        onclick: async () => {
+          const isPublic = document.getElementById("adminMakePublicSwitch").checked;
+          clearAlert(alertBox);
+          try {
+            const res = await api.admin.moderateGraduate(graduate.id, {
+              action: "approve",
+              makePublic: isPublic
+            });
+            showAlert(alertBox, res.message || "Ficha aprobada exitosamente.", "success");
+            if (typeof showToast === "function") showToast("Ficha aprobada con éxito.", "success");
+          } catch (err) {
+            showAlert(alertBox, err.message || "Error al aprobar la ficha.");
+          }
+        }
+      })
+    ])
+  ]);
+  wrap.appendChild(approveBlock);
+
+  return wrap;
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
-  await renderTopbar();
+  const activeUser = await renderTopbar();
 
   const params = new URLSearchParams(window.location.search);
   const code = params.get("codigo");
@@ -492,6 +582,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const graduate = await api.directory.getByCode(code);
     buildProfileView(graduate);
+
+    if (activeUser && activeUser.role === "admin") {
+      container.appendChild(buildAdminModerationSection(graduate));
+    }
   } catch (err) {
     container.innerHTML = "";
     showAlert(container, err.message || "No se encontro la ficha solicitada.");

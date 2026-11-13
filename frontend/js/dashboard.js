@@ -398,32 +398,140 @@ function renderVisibilityToggle(graduate) {
   const box = document.getElementById("visibilityBox");
   box.innerHTML = "";
 
+  const moderationAlertBox = document.getElementById("moderationAlertBox");
+  if (moderationAlertBox) {
+    moderationAlertBox.innerHTML = "";
+    if (graduate.moderationStatus === "observed" && graduate.moderationObservations) {
+      moderationAlertBox.appendChild(
+        el("div", { class: "alert alert-warning", style: "margin-bottom: 20px; border-left: 4px solid #f59e0b;" }, [
+          el("strong", { text: "⚠️ Observaciones del Administrador: " }),
+          el("p", { style: "margin: 6px 0 0 0; white-space: pre-line;", text: graduate.moderationObservations })
+        ])
+      );
+    }
+  }
+
+  // Estado de visibilidad y moderación
+  let statusText = "Ficha privada";
+  let badgeClass = "badge-private";
+
+  if (graduate.visibility === "public") {
+    statusText = "Ficha pública";
+    badgeClass = "badge-public";
+  } else if (graduate.moderationStatus === "pending_review") {
+    statusText = "En revisión";
+    badgeClass = "badge-pending";
+  } else if (graduate.moderationStatus === "observed") {
+    statusText = "Con observaciones";
+    badgeClass = "badge-observed";
+  }
+
   const badge = el("span", {
-    class: `badge ${graduate.visibility === "public" ? "badge-public" : "badge-private"}`,
-    text: graduate.visibility === "public" ? "Ficha publica" : "Ficha privada",
+    class: `badge ${badgeClass}`,
+    text: statusText,
   });
   box.appendChild(badge);
 
+  // Botón "Solicitar publicar ficha"
+  const isPending = graduate.moderationStatus === "pending_review";
+  const isPublic = graduate.visibility === "public";
+
+  let btnText = "📢 Solicitar publicar ficha";
+  if (isPublic) btnText = "Ocultar ficha";
+  else if (isPending) btnText = "⏳ En revisión de moderación";
+
   const toggleBtn = el("button", {
-    class: "btn btn-secondary",
+    class: `btn ${isPublic ? "btn-secondary" : "btn-primary"}`,
     style: "margin-left:10px;",
-    text: graduate.visibility === "public" ? "Ocultar del directorio" : "Publicar en el directorio",
+    text: btnText,
+    disabled: isPending,
   });
+
   toggleBtn.addEventListener("click", async () => {
-    const newVisibility = graduate.visibility === "public" ? "private" : "public";
+    if (isPublic) {
+      toggleBtn.disabled = true;
+      try {
+        const updated = await api.profile.setVisibility("private");
+        graduate.visibility = updated.visibility;
+        graduate.moderationStatus = "draft";
+        renderVisibilityToggle(graduate);
+        showToast("Ficha ocultada del directorio público.", "info");
+      } catch (err) {
+        showAlert(document.getElementById("generalAlert"), err.message || "Error al cambiar visibilidad.");
+      } finally {
+        toggleBtn.disabled = false;
+      }
+      return;
+    }
+
+    // Solicitar publicación
     toggleBtn.disabled = true;
     try {
-      const updated = await api.profile.setVisibility(newVisibility);
-      graduate.visibility = updated.visibility;
+      showToast("Solicitando revisión de publicación al administrador...", "info", 5000);
+      const res = await api.profile.requestPublish();
+      graduate.moderationStatus = "pending_review";
       renderVisibilityToggle(graduate);
-      showAlert(document.getElementById("generalAlert"), "Visibilidad actualizada.", "success");
+      showToast(res.message || "Solicitud de publicación enviada con éxito.", "success", 6000);
     } catch (err) {
-      showAlert(document.getElementById("generalAlert"), err.message || "No se pudo actualizar la visibilidad.");
-    } finally {
+      showAlert(document.getElementById("generalAlert"), err.message || "No se pudo solicitar la publicación.");
       toggleBtn.disabled = false;
     }
   });
+
   box.appendChild(toggleBtn);
+}
+
+function renderSpecializedTechChips(container, items, selectedSet) {
+  container.innerHTML = "";
+  const specialtyNames = {
+    software: "💻 Software y Programación",
+    hardware: "🔌 Hardware y Ensamblaje",
+    networks: "🌐 Redes y Comunicaciones",
+    documentation: "📄 Documentación y Gestión",
+  };
+
+  const groups = {
+    software: [],
+    hardware: [],
+    networks: [],
+    documentation: [],
+  };
+
+  for (const item of items) {
+    const spec = item.specialty || "software";
+    if (!groups[spec]) groups[spec] = [];
+    groups[spec].push(item);
+  }
+
+  for (const [key, list] of Object.entries(groups)) {
+    if (!list.length) continue;
+    const groupBlock = el("div", { class: "tech-specialty-group", style: "margin-bottom: 16px;" });
+    groupBlock.appendChild(el("h4", { class: "tech-specialty-title", text: specialtyNames[key] || key }));
+    const chipsWrap = el("div", { class: "chip-group" });
+
+    for (const item of list) {
+      const isSelected = selectedSet.has(item.id);
+      const chip = el("button", {
+        type: "button",
+        class: `chip ${isSelected ? "selected" : ""}`,
+        text: item.name,
+      });
+
+      chip.addEventListener("click", () => {
+        if (!selectedSet.has(item.id)) {
+          selectedSet.add(item.id);
+        } else {
+          selectedSet.delete(item.id);
+        }
+        clearAlert(document.getElementById("generalAlert"));
+        renderSpecializedTechChips(container, items, selectedSet);
+      });
+
+      chipsWrap.appendChild(chip);
+    }
+    groupBlock.appendChild(chipsWrap);
+    container.appendChild(groupBlock);
+  }
 }
 
 function renderChips(container, items, selectedSet) {
@@ -969,7 +1077,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     allLanguages = [];
   }
 
-  renderChips(document.getElementById("technologiesChips"), allTechnologies, selectedTechnologies);
+  renderSpecializedTechChips(document.getElementById("technologiesChips"), allTechnologies, selectedTechnologies);
   renderChips(document.getElementById("softSkillsChips"), allSoftSkills, selectedSoftSkills);
 
   // --- Redes profesionales dinámicas ---
@@ -1318,6 +1426,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     window.addEventListener("afterprint", () => {
       document.body.classList.remove("cv-printing");
+    });
+  }
+
+  const previewProfileBtn = document.getElementById("previewProfileBtn");
+  if (previewProfileBtn) {
+    previewProfileBtn.addEventListener("click", () => {
+      if (graduate && graduate.registrationCode) {
+        window.open(`/perfil.html?codigo=${encodeURIComponent(graduate.registrationCode)}&preview=true`, "_blank");
+      } else {
+        showAlert(generalAlert, "Aún no tienes código de egresado para previsualizar.");
+      }
     });
   }
 

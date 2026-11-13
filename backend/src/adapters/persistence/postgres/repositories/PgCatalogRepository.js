@@ -8,7 +8,7 @@ export class PgCatalogRepository extends CatalogRepository {
 
   async listTechnologies() {
     const { rows } = await this.pool.query(
-      "SELECT id, name, slug FROM technologies WHERE is_active = TRUE ORDER BY name"
+      "SELECT id, name, slug, specialty FROM technologies WHERE is_active = TRUE ORDER BY specialty ASC, name ASC"
     );
     return rows;
   }

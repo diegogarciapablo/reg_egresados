@@ -6,7 +6,7 @@ export const ROLE = Object.freeze({
 });
 
 export class User {
-  constructor({ id, email, passwordHash, role = ROLE.GRADUATE, isActive = true, emailVerified = false }) {
+  constructor({ id, email, passwordHash, role = ROLE.GRADUATE, isActive = true, emailVerified = false, termsAcceptedAt = null }) {
     if (!email || !email.includes("@")) {
       throw new AppError("Email invalido");
     }
@@ -16,10 +16,15 @@ export class User {
     this.role = role;
     this.isActive = isActive;
     this.emailVerified = Boolean(emailVerified);
+    this.termsAcceptedAt = termsAcceptedAt;
   }
 
   isAdmin() {
     return this.role === ROLE.ADMIN;
+  }
+
+  hasAcceptedTerms() {
+    return Boolean(this.termsAcceptedAt);
   }
 
   toSafeObject() {
@@ -30,6 +35,8 @@ export class User {
       email: this.email,
       isActive: this.isActive,
       emailVerified: this.emailVerified,
+      termsAccepted: this.hasAcceptedTerms(),
+      termsAcceptedAt: this.termsAcceptedAt,
       ...(this.isAdmin() ? { role: this.role } : {}),
     };
   }

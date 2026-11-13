@@ -16,6 +16,7 @@ import { PgRecommendationRepository } from "./adapters/persistence/postgres/repo
 import { PgCoverLetterRepository } from "./adapters/persistence/postgres/repositories/PgCoverLetterRepository.js";
 import { PgAdminEntityRepository } from "./adapters/persistence/postgres/repositories/PgAdminEntityRepository.js";
 import { PgCatalogRepository } from "./adapters/persistence/postgres/repositories/PgCatalogRepository.js";
+import { PgNotificationRepository } from "./adapters/persistence/postgres/repositories/PgNotificationRepository.js";
 import { ProfilePhotoStore } from "./adapters/persistence/filesystem/ProfilePhotoStore.js";
 import { CertificateFileStore } from "./adapters/persistence/filesystem/CertificateFileStore.js";
 
@@ -50,6 +51,10 @@ import {
   makeGetCertificateFile,
 } from "./application/graduate/updateGraduateLists.js";
 import { makeCreateRecommendation, makeModerateRecommendation } from "./application/recommendation/manageRecommendations.js";
+import { makeModerationService } from "./application/moderation/moderationService.js";
+import { makeNotificationService } from "./application/notification/notificationService.js";
+import { makeNotificationController } from "./adapters/http/controllers/notificationController.js";
+import { notificationRoutes } from "./adapters/http/routes/notificationRoutes.js";
 import {
   makeCreateCoverLetter,
   makeListCoverLetters,
@@ -94,6 +99,7 @@ export function createApp() {
   const coverLetterRepository = new PgCoverLetterRepository(pool);
   const adminEntityRepository = new PgAdminEntityRepository(pool);
   const catalogRepository = new PgCatalogRepository(pool);
+  const notificationRepository = new PgNotificationRepository(pool);
   const profilePhotoStore = new ProfilePhotoStore();
   const certificateFileStore = new CertificateFileStore();
 
@@ -104,6 +110,13 @@ export function createApp() {
   const changePassword = makeChangePassword({ userRepository });
   const requestEmailVerification = makeRequestEmailVerification({ userRepository, graduateRepository, emailService });
   const verifyEmail = makeVerifyEmail({ userRepository });
+  const moderationService = makeModerationService({
+    graduateRepository,
+    userRepository,
+    notificationRepository,
+    emailService,
+  });
+  const notificationService = makeNotificationService({ notificationRepository });
   const listTechnologies = makeListTechnologies({ catalogRepository });
   const listSoftSkills = makeListSoftSkills({ catalogRepository });
   const listLanguages = makeListLanguages({ catalogRepository });
@@ -139,7 +152,8 @@ export function createApp() {
   const setAdminEntityActive = makeSetAdminEntityActive({ adminEntityRepository });
 
   // --- Controladores ---
-  const authController = makeAuthController({ registerUser, loginUser, getCurrentUser, changePassword, requestEmailVerification, verifyEmail });
+  const authController = makeAuthController({ registerUser, loginUser, getCurrentUser, changePassword, requestEmailVerification, verifyEmail, userRepository });
+  const notificationController = makeNotificationController({ notificationService });
   const directoryController = makeDirectoryController({
     getDirectory,
     getPublicProfile,
@@ -163,6 +177,7 @@ export function createApp() {
     updateGraduateExperiences,
     updateGraduateCertificates,
     uploadCertificateFile,
+    moderationService,
   });
   const recommendationController = makeRecommendationController({ createRecommendation, moderateRecommendation });
   const coverLetterController = makeCoverLetterController({
@@ -230,7 +245,8 @@ export function createApp() {
   app.use("/api/auth", authRoutes(authController));
   app.use("/api", publicRoutes({ directoryController, recommendationController }));
   app.use("/api/me", meRoutes({ profileController, coverLetterController }));
-  app.use("/api/admin", adminRoutes(adminController));
+  app.use("/api/notifications", notificationRoutes(notificationController));
+  app.use("/api/admin", adminRoutes(adminController, profileController));
 
   // --- Frontend estatico ---
   app.use(express.static(path.join(__dirname, "..", "..", "frontend")));

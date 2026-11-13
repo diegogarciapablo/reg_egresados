@@ -64,6 +64,12 @@ const api = {
     changePassword: (payload) => request("/auth/change-password", { method: "POST", body: payload }),
     requestEmailVerification: () => request("/auth/email-verification/request", { method: "POST" }),
     verifyEmail: (token) => request("/auth/verify-email", { method: "POST", body: { token } }),
+    acceptTerms: () => request("/auth/accept-terms", { method: "POST" }),
+  },
+  notifications: {
+    list: (limit = 20) => request("/notifications", { params: { limit } }),
+    markRead: (id) => request(`/notifications/${id}/read`, { method: "PATCH" }),
+    markAllRead: () => request("/notifications/read-all", { method: "POST" }),
   },
   directory: {
     list: (params) => request("/graduates", { params }),
@@ -88,6 +94,7 @@ const api = {
     setExperiences: (experiences) => request("/me/profile/experiences", { method: "PUT", body: { experiences } }),
     uploadCertificateFile: (formData) => request("/me/profile/certificates/file", { method: "POST", body: formData }),
     setCertificates: (certificates) => request("/me/profile/certificates", { method: "PUT", body: { certificates } }),
+    requestPublish: () => request("/me/profile/request-publish", { method: "POST" }),
   },
   coverLetters: {
     list: () => request("/me/cover-letters"),
@@ -104,5 +111,6 @@ const api = {
     createEntity: (entity, data) => request(`/admin/entities/${encodeURIComponent(entity)}`, { method: "POST", body: { data } }),
     updateEntity: (entity, id, changes) => request(`/admin/entities/${encodeURIComponent(entity)}/${encodeURIComponent(id)}`, { method: "PATCH", body: { changes } }),
     setEntityActive: (entity, id, isActive) => request(`/admin/entities/${encodeURIComponent(entity)}/${encodeURIComponent(id)}/active`, { method: "PATCH", body: { isActive } }),
+    moderateGraduate: (id, payload) => request(`/admin/graduates/${id}/moderate`, { method: "POST", body: payload }),
   },
 };

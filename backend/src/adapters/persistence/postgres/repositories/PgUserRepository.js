@@ -10,6 +10,7 @@ function toUser(row) {
     role: row.role,
     isActive: row.is_active,
     emailVerified: row.email_verified,
+    termsAcceptedAt: row.terms_accepted_at,
   });
 }
 
@@ -73,5 +74,20 @@ export class PgUserRepository extends UserRepository {
       [userId]
     );
     await this.pool.query("DELETE FROM email_verification_tokens WHERE user_id = $1", [userId]);
+  }
+
+  async acceptTerms(userId) {
+    const { rows } = await this.pool.query(
+      "UPDATE users SET terms_accepted_at = NOW() WHERE id = $1 RETURNING *",
+      [userId]
+    );
+    return toUser(rows[0]);
+  }
+
+  async listAdmins() {
+    const { rows } = await this.pool.query(
+      "SELECT * FROM users WHERE role = 'admin' AND is_active = TRUE"
+    );
+    return rows.map(toUser);
   }
 }

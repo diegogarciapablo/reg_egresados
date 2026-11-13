@@ -19,6 +19,9 @@
         <button id="openPasswordModalBtn" class="btn btn-secondary" type="button" style="display: inline-flex; align-items: center; gap: 6px;">
           🔒 Cambiar contraseña
         </button>
+        <button id="previewProfileBtn" class="btn btn-secondary" type="button" style="display: inline-flex; align-items: center; gap: 6px;">
+          👁️ Previsualización de ficha profesional
+        </button>
         <button id="exportCvBtn" class="btn btn-secondary" type="button" style="display: inline-flex; align-items: center; gap: 6px;">
           📄 Exportar mi CV en PDF
         </button>
@@ -28,6 +31,7 @@
     </div>
 
     <div id="generalAlert"></div>
+    <div id="moderationAlertBox"></div>
 
     <section class="card">
       <div class="section-title"><h2>Informacion general</h2></div>
@@ -64,7 +68,7 @@
           <input type="text" id="currentRole" placeholder="Ej: Analista de sistemas" />
         </div>
         <div class="form-group">
-          <label for="professionalSummary">Resumen profesional</label>
+          <label for="professionalSummary">Perfil profesional</label>
           <textarea id="professionalSummary" maxlength="1000"></textarea>
         </div>
 
@@ -159,7 +163,7 @@
 
     <section class="card">
       <div class="section-title flex-between">
-        <h2>Proyectos</h2>
+        <h2>Proyectos realizados</h2>
         <button id="addProjectBtn" class="btn btn-secondary" type="button">Agregar proyecto</button>
       </div>
       <div id="projectsList"></div>

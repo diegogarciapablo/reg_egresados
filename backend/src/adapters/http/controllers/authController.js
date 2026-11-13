@@ -1,4 +1,4 @@
-export function makeAuthController({ registerUser, loginUser, getCurrentUser, changePassword, requestEmailVerification, verifyEmail }) {
+export function makeAuthController({ registerUser, loginUser, getCurrentUser, changePassword, requestEmailVerification, verifyEmail, userRepository }) {
   return {
     async register(req, res, next) {
       try {
@@ -61,6 +61,16 @@ export function makeAuthController({ registerUser, loginUser, getCurrentUser, ch
         const token = req.body?.token;
         const result = await verifyEmail(token);
         res.json(result);
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async acceptTerms(req, res, next) {
+      try {
+        if (!req.session?.userId) throw new AppError("No autorizado", 401);
+        const user = await userRepository.acceptTerms(req.session.userId);
+        res.json({ success: true, user: user.toSafeObject() });
       } catch (err) {
         next(err);
       }

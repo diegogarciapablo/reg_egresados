@@ -12,6 +12,7 @@ export function makeProfileController({
   updateGraduateExperiences,
   updateGraduateCertificates,
   uploadCertificateFile,
+  moderationService,
 }) {
   return {
     async getMyProfile(req, res, next) {
@@ -27,6 +28,28 @@ export function makeProfileController({
       try {
         const graduate = await updateGraduateProfile({ userId: req.session.userId, changes: req.validatedBody });
         res.json(graduate);
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async requestPublish(req, res, next) {
+      try {
+        const result = await moderationService.requestPublish(req.session.userId);
+        res.json(result);
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async moderateGraduate(req, res, next) {
+      try {
+        const result = await moderationService.moderateGraduate(
+          req.session.userId,
+          req.params.id,
+          req.body
+        );
+        res.json(result);
       } catch (err) {
         next(err);
       }
