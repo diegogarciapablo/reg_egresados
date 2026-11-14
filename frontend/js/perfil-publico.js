@@ -530,6 +530,7 @@ function buildAdminModerationSection(graduate) {
   const titleRow = el("div", { class: "flex-between", style: "border-bottom: 1.5px solid #cbd5e1; padding-bottom: 8px; margin-bottom: 14px;" }, [
     el("h3", { style: "margin: 0; color: #0f2744;", text: "🛡️ Panel de Moderación de Ficha (Solo Administrador)" }),
     el("span", {
+      id: "adminStatusBadge",
       class: `badge ${graduate.visibility === "public" ? "badge-public" : "badge-private"}`,
       text: `Estado: ${graduate.moderationStatus || "draft"} (${graduate.visibility === "public" ? "Pública" : "Privada"})`
     })
@@ -564,7 +565,14 @@ function buildAdminModerationSection(graduate) {
             action: "observe",
             observations: input.value.trim()
           });
-          showAlert(alertBox, res.message || "Observación enviada.", "success");
+          graduate.moderationStatus = "observed";
+          graduate.visibility = "private";
+          const statusBadge = document.getElementById("adminStatusBadge");
+          if (statusBadge) {
+            statusBadge.className = "badge badge-observed";
+            statusBadge.textContent = "Estado: observed (Privada)";
+          }
+          showAlert(alertBox, res.message || "Observación enviada con éxito.", "success");
           if (typeof showToast === "function") showToast("Observación enviada al egresado.", "info");
         } catch (err) {
           showAlert(alertBox, err.message || "Error al enviar observación.");
@@ -600,6 +608,13 @@ function buildAdminModerationSection(graduate) {
               action: "approve",
               makePublic: isPublic
             });
+            graduate.moderationStatus = "approved";
+            graduate.visibility = isPublic ? "public" : "private";
+            const statusBadge = document.getElementById("adminStatusBadge");
+            if (statusBadge) {
+              statusBadge.className = `badge ${isPublic ? "badge-public" : "badge-private"}`;
+              statusBadge.textContent = `Estado: approved (${isPublic ? "Pública" : "Privada"})`;
+            }
             showAlert(alertBox, res.message || "Ficha aprobada exitosamente.", "success");
             if (typeof showToast === "function") showToast("Ficha aprobada con éxito.", "success");
           } catch (err) {

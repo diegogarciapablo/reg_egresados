@@ -415,7 +415,7 @@ function renderVisibilityToggle(graduate) {
   }
 
   // Estado de visibilidad y moderación
-  let statusText = "Ficha privada";
+  let statusText = "Borrador privado";
   let badgeClass = "badge-private";
 
   if (graduate.visibility === "public") {
@@ -438,16 +438,23 @@ function renderVisibilityToggle(graduate) {
   // Botón "Solicitar publicar ficha"
   const isPending = graduate.moderationStatus === "pending_review";
   const isPublic = graduate.visibility === "public";
+  const isObserved = graduate.moderationStatus === "observed";
 
   let btnText = "📢 Solicitar publicar ficha";
-  if (isPublic) btnText = "Ocultar ficha";
-  else if (isPending) btnText = "⏳ En revisión de moderación";
+  if (isPublic) {
+    btnText = "👁️ Ocultar ficha del directorio";
+  } else if (isPending) {
+    btnText = "⏳ Solicitud enviada (En revisión)";
+  } else if (isObserved) {
+    btnText = "📢 Re-enviar para revisión";
+  }
 
   const toggleBtn = el("button", {
     class: `btn ${isPublic ? "btn-secondary" : "btn-primary"}`,
     style: "margin-left:10px;",
     text: btnText,
     disabled: isPending,
+    title: isPending ? "Tu solicitud ya fue enviada y está en cola de revisión del administrador." : ""
   });
 
   toggleBtn.addEventListener("click", async () => {
