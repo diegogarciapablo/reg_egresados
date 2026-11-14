@@ -57,7 +57,7 @@ function createExpandableText(text) {
   return wrap;
 }
 
-function buildProfileView(graduate) {
+function buildProfileView(graduate, activeUser) {
   const container = document.getElementById("profileContainer");
   container.innerHTML = "";
 
@@ -88,7 +88,19 @@ function buildProfileView(graduate) {
   headerInfo.appendChild(el("p", { class: "muted", text: `Egresado ${graduate.graduationYear} - Codigo ${graduate.registrationCode}` }));
   header.appendChild(headerInfo);
 
-  const headerActions = el("div", { class: "profile-header-actions" });
+  const headerActions = el("div", { class: "profile-header-actions", style: "display: flex; gap: 8px; flex-wrap: wrap;" });
+
+  // Si es el propio perfil del usuario autenticado, mostrar botón para volver al modo edición
+  if (activeUser && (activeUser.id === graduate.userId || activeUser.email === graduate.personalEmail)) {
+    const editModeBtn = el("a", {
+      href: "/dashboard.html",
+      class: "btn btn-primary",
+      style: "display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;",
+      text: "✏️ Volver al modo edición",
+    });
+    headerActions.appendChild(editModeBtn);
+  }
+
   const downloadCvBtn = el("button", {
     id: "downloadCvBtn",
     class: "btn btn-secondary",
@@ -581,7 +593,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     const graduate = await api.directory.getByCode(code);
-    buildProfileView(graduate);
+    buildProfileView(graduate, activeUser);
 
     if (activeUser && activeUser.role === "admin") {
       container.appendChild(buildAdminModerationSection(graduate));
