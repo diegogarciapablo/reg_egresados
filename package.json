@@ -10,7 +10,12 @@
     "migrate": "node backend/scripts/migrate.js",
     "seed": "node backend/scripts/seed.js",
     "seed:more": "node backend/scripts/seed_more_profiles.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "audit:deps": "node pruebas_desarrollo/scripts/auditar_dependencias.js",
+    "audit:code": "node pruebas_desarrollo/scripts/auditar_codigo_sast.js",
+    "audit:secrets": "node pruebas_desarrollo/scripts/auditar_secretos.js",
+    "audit:headers": "node pruebas_desarrollo/scripts/auditar_cabeceras_http.js",
+    "audit:all": "node pruebas_desarrollo/scripts/auditar_todo.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

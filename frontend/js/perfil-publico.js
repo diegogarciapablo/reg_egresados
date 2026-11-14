@@ -259,13 +259,49 @@ function buildProfileView(graduate, activeUser) {
   }
 
   if (graduate.professionalSummary) {
-    container.appendChild(section("Resumen profesional", el("p", { text: graduate.professionalSummary })));
+    container.appendChild(section("Perfil profesional", el("p", { text: graduate.professionalSummary })));
   }
 
   if (graduate.technologies && graduate.technologies.length) {
-    const tags = el("div", { class: "tag-list" });
-    for (const t of graduate.technologies) tags.appendChild(el("span", { class: "tag", text: t.name }));
-    container.appendChild(section("Habilidades técnicas", tags));
+    const specialtyNames = {
+      software: "💻 Software y Programación",
+      hardware: "🔌 Hardware y Ensamblaje",
+      networks: "🌐 Redes y Comunicaciones",
+      documentation: "📄 Documentación y Gestión",
+    };
+
+    const groups = {
+      software: [],
+      hardware: [],
+      networks: [],
+      documentation: [],
+    };
+
+    for (const item of graduate.technologies) {
+      const spec = item.specialty || "software";
+      if (!groups[spec]) groups[spec] = [];
+      groups[spec].push(item);
+    }
+
+    const techContainer = el("div", { class: "tech-specialties-display" });
+
+    for (const [key, list] of Object.entries(groups)) {
+      if (!list.length) continue;
+      const groupBlock = el("div", { class: "tech-specialty-group", style: "margin-bottom: 14px;" });
+      groupBlock.appendChild(el("h4", {
+        class: "tech-specialty-title",
+        text: specialtyNames[key] || key,
+        style: "margin: 0 0 8px 0; font-size: 0.95rem; color: var(--primary);"
+      }));
+      const tags = el("div", { class: "tag-list" });
+      for (const t of list) {
+        tags.appendChild(el("span", { class: "tag", text: t.name }));
+      }
+      groupBlock.appendChild(tags);
+      techContainer.appendChild(groupBlock);
+    }
+
+    container.appendChild(section("Habilidades técnicas", techContainer));
   }
 
   if (graduate.softSkills && graduate.softSkills.length) {
@@ -357,7 +393,7 @@ function buildProfileView(graduate, activeUser) {
       if (projLink) card.appendChild(projLink);
       grid.appendChild(card);
     }
-    container.appendChild(section("Proyectos", grid));
+    container.appendChild(section("Proyectos realizados", grid));
   }
 
   if (graduate.certificates && graduate.certificates.length) {

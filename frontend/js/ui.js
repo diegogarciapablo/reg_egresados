@@ -264,7 +264,7 @@ function showCreditsModal() {
         el("div", { style: "background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; margin-bottom: 16px; text-align: left;" }, [
           el("div", { style: "margin-bottom: 12px;" }, [
             el("span", { style: "font-weight: 700; color: #0f2744; display: block; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px;", text: "Supervisión del Proyecto:" }),
-            el("span", { style: "font-size: 1.05rem; font-weight: 600;", text: "Ing. Yovanna Sanches Sanches" })
+            el("span", { style: "font-size: 1.05rem; font-weight: 600;", text: "Yovana Luisa Sánchez Sánchez" })
           ]),
           el("div", { style: "margin-bottom: 12px;" }, [
             el("span", { style: "font-weight: 700; color: #0f2744; display: block; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px;", text: "Desarrollador 1:" }),
