@@ -277,6 +277,10 @@ export class PgGraduateRepository extends GraduateRepository {
         );
         order += 1;
       }
+      await client.query(
+        "UPDATE graduates SET visibility = 'private', moderation_status = 'draft', updated_at = NOW() WHERE id = $1",
+        [graduateId]
+      );
       return uniqueIds;
     });
   }
@@ -295,6 +299,10 @@ export class PgGraduateRepository extends GraduateRepository {
         );
         order += 1;
       }
+      await client.query(
+        "UPDATE graduates SET visibility = 'private', moderation_status = 'draft', updated_at = NOW() WHERE id = $1",
+        [graduateId]
+      );
       return uniqueIds;
     });
   }
@@ -311,6 +319,10 @@ export class PgGraduateRepository extends GraduateRepository {
         );
         order += 1;
       }
+      await client.query(
+        "UPDATE graduates SET visibility = 'private', moderation_status = 'draft', updated_at = NOW() WHERE id = $1",
+        [graduateId]
+      );
       return projects;
     });
   }
@@ -338,6 +350,10 @@ export class PgGraduateRepository extends GraduateRepository {
         );
         order += 1;
       }
+      await client.query(
+        "UPDATE graduates SET visibility = 'private', moderation_status = 'draft', updated_at = NOW() WHERE id = $1",
+        [graduateId]
+      );
       return experiences;
     });
   }
@@ -364,6 +380,10 @@ export class PgGraduateRepository extends GraduateRepository {
         );
         order += 1;
       }
+      await client.query(
+        "UPDATE graduates SET visibility = 'private', moderation_status = 'draft', updated_at = NOW() WHERE id = $1",
+        [graduateId]
+      );
       return certificates;
     });
   }
@@ -380,6 +400,10 @@ export class PgGraduateRepository extends GraduateRepository {
         );
         order += 1;
       }
+      await client.query(
+        "UPDATE graduates SET visibility = 'private', moderation_status = 'draft', updated_at = NOW() WHERE id = $1",
+        [graduateId]
+      );
       return languages;
     });
   }

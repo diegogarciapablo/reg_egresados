@@ -11,7 +11,7 @@ const SALT_ROUNDS = 12;
  * @param {object} deps - { userRepository, graduateRepository, withTransaction }
  */
 export function makeRegisterUser({ userRepository, graduateRepository, withTransaction }) {
-  return async function registerUser({ email, password, firstName, lastName, graduationYear }) {
+  return async function registerUser({ email, password, firstName, lastName, graduationYear, termsAccepted }) {
     const normalizedEmail = email.toLowerCase();
 
     const existing = await userRepository.findByEmail(normalizedEmail);
@@ -24,7 +24,7 @@ export function makeRegisterUser({ userRepository, graduateRepository, withTrans
 
     return withTransaction(async (client) => {
       const user = await userRepository.create(
-        { email: normalizedEmail, passwordHash, role: "graduate" },
+        { email: normalizedEmail, passwordHash, role: "graduate", termsAccepted: Boolean(termsAccepted) },
         client
       );
       const graduate = await graduateRepository.create(

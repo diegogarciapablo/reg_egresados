@@ -1,6 +1,6 @@
 # Reporte de Auditoría de Dependencias (SCA)
 
-**Fecha de Ejecución:** 13/11/2026, 8:54:37 p. m.
+**Fecha de Ejecución:** 13/11/2026, 9:04:26 p. m.
 **Proyecto:** Registro y Directorio de Egresados Informática UAJMS
 **Herramienta:** npm audit (Node.js Package Manager)
 

@@ -997,6 +997,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  function markProfileAsDraft() {
+    if (!graduate) return;
+    graduate.visibility = "private";
+    graduate.moderationStatus = "draft";
+    renderVisibilityToggle(graduate);
+  }
+
   fillProfileForm(graduate, user);
   renderProfilePhoto(graduate.photoUrl);
   renderVisibilityToggle(graduate);
@@ -1125,6 +1132,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         technologyIds: [...selectedTechnologies],
         softSkillIds: [...selectedSoftSkills],
       });
+      markProfileAsDraft();
       showAlert(generalAlert, "Información general y canales de contacto guardados.", "success");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudo guardar la información.");
@@ -1135,6 +1143,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("saveTechnologiesBtn").addEventListener("click", async () => {
     try {
       await api.profile.setTechnologies([...selectedTechnologies]);
+      markProfileAsDraft();
       showAlert(generalAlert, "Habilidades técnicas guardadas.", "success");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudieron guardar las habilidades técnicas.");
@@ -1144,6 +1153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("saveSoftSkillsBtn").addEventListener("click", async () => {
     try {
       await api.profile.setSoftSkills([...selectedSoftSkills]);
+      markProfileAsDraft();
       showAlert(generalAlert, "Habilidades personales guardadas.", "success");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudieron guardar las habilidades personales.");
@@ -1183,6 +1193,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       try {
         await api.profile.setLanguages(rowsData);
+        markProfileAsDraft();
         showAlert(generalAlert, "Idiomas guardados exitosamente.", "success");
       } catch (err) {
         showAlert(generalAlert, err.message || "No se pudieron guardar los idiomas.");
@@ -1246,6 +1257,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const experiences = nonEmptyRows.map(({ _incompleteDate, ...rest }) => rest);
     try {
       await api.profile.setExperiences(experiences);
+      markProfileAsDraft();
       showAlert(generalAlert, "Experiencias guardadas correctamente.", "success");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudieron guardar las experiencias.");
@@ -1264,6 +1276,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const projects = [...projectsList.children].map((row) => row._getData());
     try {
       await api.profile.setProjects(projects);
+      markProfileAsDraft();
       showAlert(generalAlert, "Proyectos guardados.", "success");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudieron guardar los proyectos.");
@@ -1298,11 +1311,120 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       await api.profile.setCertificates(nonEmptyRows);
+      markProfileAsDraft();
       showAlert(generalAlert, "Formación académica guardada.", "success");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudo guardar la formación académica.");
     }
   });
+
+  // --- Botón de Guardado Global de Todas las Modificaciones ---
+  const saveAllSectionsBtn = document.getElementById("saveAllSectionsBtn");
+  if (saveAllSectionsBtn) {
+    saveAllSectionsBtn.addEventListener("click", async () => {
+      clearAlert(generalAlert);
+      saveAllSectionsBtn.disabled = true;
+      const originalText = saveAllSectionsBtn.textContent;
+      saveAllSectionsBtn.textContent = "⏳ Guardando toda la ficha...";
+
+      try {
+        // 1. Datos generales y canales de contacto
+        const phone = document.getElementById("contactPhone").value.trim() || null;
+        const personalEmail = document.getElementById("personalEmail").value.trim();
+        const institutionalEmail = document.getElementById("institutionalEmail").value.trim() || null;
+
+        if (!personalEmail) {
+          throw new Error("El correo personal / profesional es obligatorio en Información General.");
+        }
+
+        const socialRows = [...socialList.children].map((row) => row._getData && row._getData()).filter(Boolean);
+
+        await api.profile.update({
+          firstName: document.getElementById("firstName").value,
+          lastName: document.getElementById("lastName").value,
+          graduationYear: Number(document.getElementById("graduationYear").value) || undefined,
+          currentRole: document.getElementById("currentRole").value || null,
+          professionalSummary: document.getElementById("professionalSummary").value || null,
+          phone,
+          personalEmail,
+          institutionalEmail,
+          professionalLinks: socialRows,
+          technologyIds: [...selectedTechnologies],
+          softSkillIds: [...selectedSoftSkills],
+        });
+
+        // 2. Habilidades
+        await Promise.all([
+          api.profile.setTechnologies([...selectedTechnologies]),
+          api.profile.setSoftSkills([...selectedSoftSkills]),
+        ]);
+
+        // 3. Idiomas
+        if (languagesList) {
+          const langRows = [...languagesList.children].map((row) => row._getData && row._getData()).filter(Boolean);
+          const uniqueLangs = new Set();
+          for (const item of langRows) {
+            if (uniqueLangs.has(item.languageId)) {
+              throw new Error("No puedes agregar el mismo idioma más de una vez.");
+            }
+            uniqueLangs.add(item.languageId);
+          }
+          await api.profile.setLanguages(langRows);
+        }
+
+        // 4. Experiencias
+        const allExpRows = [
+          ...workList.children,
+          ...academicList.children,
+          ...preGraduateList.children,
+        ];
+        const rawExpRows = allExpRows.map((row) => row._getData && row._getData()).filter(Boolean);
+        const nonEmptyExpRows = rawExpRows.filter(
+          (exp) => exp.position || exp.organization || exp.startDate || exp.endDate || exp.description || exp._incompleteDate
+        );
+        for (const exp of nonEmptyExpRows) {
+          if (!exp.position || !exp.organization) {
+            throw new Error("En cada experiencia debes indicar tanto el puesto o rol como la organización.");
+          }
+          if (exp._incompleteDate) {
+            throw new Error("Si usas el formato Mes / Año en experiencia, debes seleccionar tanto el mes como el año.");
+          }
+          if (exp.startDate && exp.endDate && exp.endDate < exp.startDate) {
+            throw new Error("La fecha de fin no puede ser anterior a la fecha de inicio en la experiencia.");
+          }
+        }
+        const experiencesToSave = nonEmptyExpRows.map(({ _incompleteDate, ...rest }) => rest);
+        await api.profile.setExperiences(experiencesToSave);
+
+        // 5. Proyectos
+        const projectRows = [...projectsList.children].map((row) => row._getData && row._getData()).filter(Boolean);
+        await api.profile.setProjects(projectRows);
+
+        // 6. Certificados
+        const certRows = [...certificatesList.children].map((row) => row._getData && row._getData()).filter(Boolean);
+        const nonEmptyCertRows = certRows.filter(
+          (c) => c.title || c.issuer || c.issueDate || c.credentialUrl || c.fileUrl
+        );
+        const missingTitle = nonEmptyCertRows.find((c) => !c.title);
+        if (missingTitle) {
+          throw new Error("Cada certificado de Formación Académica debe tener un título o nombre.");
+        }
+        await api.profile.setCertificates(nonEmptyCertRows);
+
+        // 7. Marcar como borrador y activar botón de solicitar publicación
+        markProfileAsDraft();
+
+        showAlert(generalAlert, "¡Todas las modificaciones de tu ficha han sido guardadas con éxito! Ahora puedes solicitar publicar tu ficha cuando lo desees.", "success");
+        showToast("Ficha completa guardada. Ya puedes solicitar la publicación.", "success", 6000);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (err) {
+        showAlert(generalAlert, err.message || "Error al guardar todas las secciones.");
+      } finally {
+        saveAllSectionsBtn.disabled = false;
+        saveAllSectionsBtn.textContent = originalText;
+      }
+    });
+  }
 
   // --- Modal de Cambio de Contraseña ---
   const changePasswordModal = document.getElementById("changePasswordModal");

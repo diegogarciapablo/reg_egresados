@@ -1,6 +1,6 @@
 # Reporte de Auditoría de Código Estático (SAST)
 
-**Fecha de Ejecución:** 13/11/2026, 8:54:37 p. m.
+**Fecha de Ejecución:** 13/11/2026, 9:04:27 p. m.
 **Proyecto:** Registro y Directorio de Egresados Informática UAJMS
 **Archivos analizados:** 70 archivos JavaScript (.js)
 **Total de Hallazgos:** 15
@@ -96,7 +96,7 @@ const { rows } = await this.pool.query(
 ```
 
 ### [SEC-SQL-01] Posible Inyección SQL por concatenación o interpolación (ALTA)
-- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js#L480) (Línea 480)
+- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js#L504) (Línea 504)
 - **Descripción:** Uso de plantilla literal (template string) con variables interpoladas dentro de query SQL en lugar de consultas parametrizadas ($1, $2, etc.).
 - **Código detectado:**
 ```javascript

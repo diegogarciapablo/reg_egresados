@@ -322,19 +322,87 @@ function showToast(message, type = "info", durationMs = 4500) {
 }
 
 /**
- * Modal obligatorio de Términos y Condiciones si el usuario no los ha aceptado.
+ * Modal reutilizable de Términos y Condiciones de la Red Alumni.
+ * @param {object} options
+ * @param {object} [options.user] - Usuario actual si está autenticado
+ * @param {boolean} [options.canClose] - Si es true, muestra botón para cerrar (modo consulta)
+ * @param {Function} [options.onAccepted] - Callback al aceptar términos
  */
-function ensureTermsAccepted(user) {
-  if (!user || user.termsAccepted) return;
-
+function showTermsModal({ user = null, canClose = false, onAccepted = null } = {}) {
   const existing = document.getElementById("termsModal");
-  if (existing) return;
+  if (existing) existing.remove();
+
+  const footerChildren = [];
+
+  if (canClose) {
+    footerChildren.push(
+      el("button", {
+        class: "btn btn-secondary",
+        type: "button",
+        style: "margin-right: 10px;",
+        text: "Cerrar",
+        onclick: () => modal.remove(),
+      })
+    );
+  }
+
+  if (user && !user.termsAccepted) {
+    footerChildren.push(
+      el("button", {
+        id: "acceptTermsBtn",
+        class: "btn btn-primary",
+        type: "button",
+        text: "Acepto los términos y condiciones",
+        onclick: async () => {
+          const btn = document.getElementById("acceptTermsBtn");
+          btn.disabled = true;
+          btn.textContent = "Procesando...";
+          try {
+            await api.auth.acceptTerms();
+            user.termsAccepted = true;
+            modal.remove();
+            showToast("Términos y condiciones aceptados.", "success");
+            if (onAccepted) onAccepted();
+          } catch (err) {
+            alert("Error al guardar aceptación: " + (err.message || err));
+            btn.disabled = false;
+            btn.textContent = "Acepto los términos y condiciones";
+          }
+        },
+      })
+    );
+  } else if (!user && !canClose) {
+    footerChildren.push(
+      el("button", {
+        class: "btn btn-primary",
+        type: "button",
+        text: "Entendido",
+        onclick: () => {
+          modal.remove();
+          if (onAccepted) onAccepted();
+        },
+      })
+    );
+  }
+
+  const headerChildren = [
+    el("h2", { text: "Términos y Condiciones de la Red Alumni", style: "margin: 0;" }),
+  ];
+
+  if (canClose) {
+    headerChildren.push(
+      el("button", {
+        type: "button",
+        class: "admin-icon-button",
+        text: "✕",
+        onclick: () => modal.remove(),
+      })
+    );
+  }
 
   const modal = el("div", { id: "termsModal", class: "cv-dialog" }, [
     el("div", { class: "cv-preview-panel terms-panel", role: "dialog", "aria-modal": "true" }, [
-      el("div", { class: "cv-preview-header" }, [
-        el("h2", { text: "Términos y Condiciones de la Red Alumni" })
-      ]),
+      el("div", { class: "cv-preview-header", style: canClose ? "display: flex; justify-content: space-between; align-items: center;" : "" }, headerChildren),
       el("div", { class: "terms-body" }, [
         el("p", { text: "Bienvenido al Directorio y Red Alumni de la carrera de Ingeniería Informática UAJMS." }),
         el("p", { text: "Antes de continuar, debes conocer y aceptar las siguientes condiciones del servicio:" }),
@@ -361,33 +429,26 @@ function ensureTermsAccepted(user) {
           ])
         ])
       ]),
-      el("div", { class: "terms-footer" }, [
-        el("button", {
-          id: "acceptTermsBtn",
-          class: "btn btn-primary",
-          type: "button",
-          text: "Acepto los términos y condiciones",
-          onclick: async () => {
-            const btn = document.getElementById("acceptTermsBtn");
-            btn.disabled = true;
-            btn.textContent = "Procesando...";
-            try {
-              await api.auth.acceptTerms();
-              user.termsAccepted = true;
-              modal.remove();
-              showToast("Términos y condiciones aceptados.", "success");
-            } catch (err) {
-              alert("Error al guardar aceptación: " + (err.message || err));
-              btn.disabled = false;
-              btn.textContent = "Acepto los términos y condiciones";
-            }
-          }
-        })
-      ])
+      el("div", { class: "terms-footer" }, footerChildren)
     ])
   ]);
 
+  if (canClose) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) modal.remove();
+    });
+  }
+
   document.body.appendChild(modal);
+  return modal;
+}
+
+/**
+ * Modal obligatorio de Términos y Condiciones si el usuario no los ha aceptado.
+ */
+function ensureTermsAccepted(user) {
+  if (!user || user.termsAccepted) return;
+  showTermsModal({ user, canClose: false });
 }
 
 /**

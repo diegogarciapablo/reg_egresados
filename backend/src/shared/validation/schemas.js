@@ -25,6 +25,7 @@ export const registerSchema = z.object({
   firstName: z.string().min(1).max(100),
   lastName: z.string().min(1).max(150),
   graduationYear: z.number().int().min(1950).max(2100),
+  termsAccepted: z.boolean().optional().default(true),
 });
 
 export const loginSchema = z.object({

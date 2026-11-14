@@ -15,9 +15,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   const form = document.getElementById("registerForm");
   const alertBox = document.getElementById("alertBox");
 
+  const viewTermsLink = document.getElementById("viewTermsLink");
+  if (viewTermsLink) {
+    viewTermsLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      showTermsModal({ canClose: true });
+    });
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     clearAlert(alertBox);
+
+    const termsCheckbox = document.getElementById("termsAccepted");
+    if (!termsCheckbox.checked) {
+      showAlert(alertBox, "Debes marcar la casilla para confirmar que entendiste y aceptas los términos y condiciones antes de registrarte.");
+      return;
+    }
+
     const submitBtn = form.querySelector("button[type=submit]");
     submitBtn.disabled = true;
 
@@ -28,6 +43,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         graduationYear: Number(document.getElementById("graduationYear").value),
         email: document.getElementById("email").value,
         password: document.getElementById("password").value,
+        termsAccepted: true,
       });
       window.location.href = "/dashboard.html";
     } catch (err) {

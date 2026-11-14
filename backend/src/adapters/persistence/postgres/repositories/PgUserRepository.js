@@ -30,12 +30,12 @@ export class PgUserRepository extends UserRepository {
     return toUser(rows[0]);
   }
 
-  async create({ email, passwordHash, role }, client = this.pool) {
+  async create({ email, passwordHash, role, termsAccepted }, client = this.pool) {
     const { rows } = await client.query(
-      `INSERT INTO users (email, password_hash, role)
-       VALUES ($1, $2, $3)
+      `INSERT INTO users (email, password_hash, role, terms_accepted_at)
+       VALUES ($1, $2, $3, CASE WHEN $4::boolean THEN NOW() ELSE NULL END)
        RETURNING *`,
-      [email, passwordHash, role]
+      [email, passwordHash, role, Boolean(termsAccepted)]
     );
     return toUser(rows[0]);
   }
