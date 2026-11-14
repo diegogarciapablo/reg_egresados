@@ -389,6 +389,7 @@ function setupPhotoCropEvents(graduate, generalAlert) {
       renderVisibilityToggle(graduate);
       closeCropDialog();
       showAlert(generalAlert, "Foto de perfil encuadrada y guardada.", "success");
+      showToast("Foto de perfil encuadrada y guardada.", "success");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudo guardar la foto.");
     } finally {
@@ -1014,6 +1015,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderVisibilityToggle(graduate);
   }
 
+  function notifySaveSuccess(message) {
+    showAlert(generalAlert, message, "success");
+    showToast(message, "success", 4500);
+  }
+
   fillProfileForm(graduate, user);
   renderProfilePhoto(graduate.photoUrl);
   renderVisibilityToggle(graduate);
@@ -1077,7 +1083,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       graduate.moderationStatus = "draft";
       renderProfilePhoto(null);
       renderVisibilityToggle(graduate);
-      showAlert(generalAlert, "Foto de perfil quitada.", "success");
+      notifySaveSuccess("Foto de perfil quitada.");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudo quitar la foto.");
     } finally {
@@ -1143,7 +1149,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         softSkillIds: [...selectedSoftSkills],
       });
       markProfileAsDraft();
-      showAlert(generalAlert, "Información general y canales de contacto guardados.", "success");
+      notifySaveSuccess("Información general y canales de contacto guardados.");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudo guardar la información.");
     }
@@ -1154,7 +1160,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       await api.profile.setTechnologies([...selectedTechnologies]);
       markProfileAsDraft();
-      showAlert(generalAlert, "Habilidades técnicas guardadas.", "success");
+      notifySaveSuccess("Habilidades técnicas guardadas.");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudieron guardar las habilidades técnicas.");
     }
@@ -1164,7 +1170,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       await api.profile.setSoftSkills([...selectedSoftSkills]);
       markProfileAsDraft();
-      showAlert(generalAlert, "Habilidades personales guardadas.", "success");
+      notifySaveSuccess("Habilidades personales guardadas.");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudieron guardar las habilidades personales.");
     }
@@ -1204,7 +1210,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       try {
         await api.profile.setLanguages(rowsData);
         markProfileAsDraft();
-        showAlert(generalAlert, "Idiomas guardados exitosamente.", "success");
+        notifySaveSuccess("Idiomas guardados exitosamente.");
       } catch (err) {
         showAlert(generalAlert, err.message || "No se pudieron guardar los idiomas.");
       }
@@ -1268,7 +1274,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       await api.profile.setExperiences(experiences);
       markProfileAsDraft();
-      showAlert(generalAlert, "Experiencias guardadas correctamente.", "success");
+      notifySaveSuccess("Experiencias guardadas correctamente.");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudieron guardar las experiencias.");
     }
@@ -1287,7 +1293,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       await api.profile.setProjects(projects);
       markProfileAsDraft();
-      showAlert(generalAlert, "Proyectos guardados.", "success");
+      notifySaveSuccess("Proyectos guardados.");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudieron guardar los proyectos.");
     }
@@ -1322,7 +1328,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       await api.profile.setCertificates(nonEmptyRows);
       markProfileAsDraft();
-      showAlert(generalAlert, "Formación académica guardada.", "success");
+      notifySaveSuccess("Formación académica guardada.");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudo guardar la formación académica.");
     }
