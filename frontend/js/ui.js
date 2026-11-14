@@ -12,7 +12,13 @@ function el(tag, attrs = {}, children = []) {
     }
   }
   for (const child of [].concat(children)) {
-    if (child) node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+    if (child) {
+      if (child instanceof Node) {
+        node.appendChild(child);
+      } else {
+        node.appendChild(document.createTextNode(String(child)));
+      }
+    }
   }
   return node;
 }
@@ -333,25 +339,25 @@ function ensureTermsAccepted(user) {
         el("p", { text: "Bienvenido al Directorio y Red Alumni de la carrera de Ingeniería Informática UAJMS." }),
         el("p", { text: "Antes de continuar, debes conocer y aceptar las siguientes condiciones del servicio:" }),
         el("ul", { class: "terms-list" }, [
-          el("li", [
-            el("strong", { text: "Promoción y Difusión Profesional: " }),
-            document.createTextNode("La plataforma tiene como finalidad exclusiva difundir tu perfil profesional ante empleadores, instituciones y la comunidad académica para apoyar tu inserción y crecimiento laboral.")
+          el("li", {}, [
+            el("strong", { text: "Cuidado y Privacidad con Datos de Contacto: " }),
+            "Debes ser consciente de que la información que decidas publicar en tu ficha (teléfono, correos y redes) será accesible a terceros. Sé prudente con los datos que compartes públicamente."
           ]),
-          el("li", [
-            el("strong", { text: "Datos Públicos y de Contacto: " }),
-            document.createTextNode("Al publicar tu ficha, la información registrada (teléfonos, correos, habilidades y enlaces) será visible a terceros interesados en contactarte.")
+          el("li", {}, [
+            el("strong", { text: "Ofertas Laborales según tus Habilidades: " }),
+            "Tu información profesional y habilidades técnicas/blandas registradas serán utilizadas para enviarte notificaciones y correos informativos sobre posibles trabajos temporales y oportunidades laborales afines a tu perfil."
           ]),
-          el("li", [
-            el("strong", { text: "Notificaciones y Empleo: " }),
-            document.createTextNode("Aceptas recibir notificaciones y correos electrónicos informativos sobre ofertas laborales, trabajos temporales y actividades de interés acordes a tus habilidades.")
+          el("li", {}, [
+            el("strong", { text: "Promoción y Apoyo Profesional: " }),
+            "Entiendes y aceptas que la razón de publicar tu perfil es hacer publicidad a tu trayectoria profesional y darte un respaldo institucional en tus primeros años de egreso o en tu carrera avanzada."
           ]),
-          el("li", [
+          el("li", {}, [
             el("strong", { text: "Veracidad de la Información: " }),
-            document.createTextNode("Declaras que los títulos, certificaciones y datos ingresados son fidedignos y de tu autoría.")
+            "Declaras que los títulos, certificaciones, proyectos y experiencias registradas son verídicos y comprobables."
           ]),
-          el("li", [
-            el("strong", { text: "Moderación de Fichas: " }),
-            document.createTextNode("La administración de la carrera supervisará y aprobará la publicación de fichas para garantizar la calidad y el respeto a la ética universitaria.")
+          el("li", {}, [
+            el("strong", { text: "Moderación y Supervisión Institucional: " }),
+            "La administración de la carrera revisará y aprobará la publicación de fichas para garantizar la calidad y el prestigio de nuestra comunidad académica."
           ])
         ])
       ]),
