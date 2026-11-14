@@ -90,11 +90,24 @@ async function renderTopbar(activeUser) {
         ["recommendations", "Comentarios"],
         ["cover_letters", "Cartas de presentacion"],
       ];
+      const creditsBtn = el("a", {
+        href: "#",
+        text: "ℹ️ Créditos del proyecto",
+        style: "border-top: 1px solid #e2e8f0; font-weight: 600; color: #1e40af;",
+        onclick: (e) => {
+          e.preventDefault();
+          showCreditsModal();
+        }
+      });
+
+      const dropdownChildren = adminLinks.map(([entity, label]) =>
+        el("a", { href: `/admin.html?entity=${entity}`, text: label })
+      );
+      dropdownChildren.push(creditsBtn);
+
       const menu = el("details", { class: "admin-nav-menu" }, [
         el("summary", { text: "Gestion" }),
-        el("div", { class: "admin-nav-dropdown" }, adminLinks.map(([entity, label]) =>
-          el("a", { href: `/admin.html?entity=${entity}`, text: label })
-        )),
+        el("div", { class: "admin-nav-dropdown" }, dropdownChildren),
       ]);
       nav.appendChild(menu);
     }
@@ -218,6 +231,63 @@ async function loadNotificationsDropdown(container) {
   } catch (err) {
     container.innerHTML = `<div class="notif-empty">Error al cargar notificaciones.</div>`;
   }
+}
+
+/**
+ * Modal formal de créditos del equipo de desarrollo.
+ */
+function showCreditsModal() {
+  const existing = document.getElementById("creditsModal");
+  if (existing) {
+    existing.remove();
+  }
+
+  const modal = el("div", { id: "creditsModal", class: "cv-dialog" }, [
+    el("div", { class: "cv-preview-panel", style: "max-width: 520px; width: 100%; text-align: center; padding: 28px 24px;", role: "dialog", "aria-modal": "true" }, [
+      el("div", { class: "cv-preview-header", style: "justify-content: center; position: relative; padding: 0 0 16px 0; border-bottom: 2px solid #0f2744;" }, [
+        el("h2", { style: "margin: 0; color: #0f2744; font-size: 1.3rem;", text: "Créditos del Proyecto" }),
+        el("button", {
+          type: "button",
+          class: "admin-icon-button",
+          style: "position: absolute; right: 0; top: -6px;",
+          text: "✕",
+          onclick: () => modal.remove()
+        })
+      ]),
+      el("div", { style: "padding: 24px 12px 16px 12px; line-height: 1.8; color: #1e293b; font-size: 1rem;" }, [
+        el("div", { style: "background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; margin-bottom: 16px; text-align: left;" }, [
+          el("div", { style: "margin-bottom: 12px;" }, [
+            el("span", { style: "font-weight: 700; color: #0f2744; display: block; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px;", text: "Supervisión del Proyecto:" }),
+            el("span", { style: "font-size: 1.05rem; font-weight: 600;", text: "Ing. Yovanna Sanches Sanches" })
+          ]),
+          el("div", { style: "margin-bottom: 12px;" }, [
+            el("span", { style: "font-weight: 700; color: #0f2744; display: block; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px;", text: "Desarrollador 1:" }),
+            el("span", { style: "font-size: 1.05rem; font-weight: 600;", text: "Ing. Diego Garcia Pablo" })
+          ]),
+          el("div", {}, [
+            el("span", { style: "font-weight: 700; color: #0f2744; display: block; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px;", text: "Capataz:" }),
+            el("span", { style: "font-size: 1.05rem; font-weight: 600;", text: "Ing. Daniel Cruz Zarate" })
+          ])
+        ]),
+        el("p", { style: "font-size: 0.85rem; color: #64748b; margin: 0;", text: "Carrera de Ingeniería Informática — Sede Yacuiba\nUniversidad Autónoma Juan Misael Saracho" })
+      ]),
+      el("div", { style: "padding-top: 12px; border-top: 1px solid #e2e8f0;" }, [
+        el("button", {
+          class: "btn btn-primary",
+          type: "button",
+          style: "min-width: 120px;",
+          text: "Cerrar",
+          onclick: () => modal.remove()
+        })
+      ])
+    ])
+  ]);
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.remove();
+  });
+
+  document.body.appendChild(modal);
 }
 
 /**
