@@ -3,172 +3,196 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Portal Institucional - Red Alumni Informática Yacuiba</title>
-  <link rel="stylesheet" href="/styles.css?v=20261114e" />
+  <title>Alumni Informatica Yacuiba</title>
   <style>
-    .portal-hero {
-      background: linear-gradient(135deg, #0f2744 0%, #1e3a8a 100%);
-      color: #ffffff;
-      padding: 60px 24px;
-      border-radius: 8px;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: 20px;
+    }
+    .landing-box {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 50px 40px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
       text-align: center;
-      margin-top: 24px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      max-width: 440px;
+      width: 100%;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .portal-hero h1 {
-      font-size: 2.2rem;
-      margin-bottom: 12px;
-      font-weight: 800;
+    .landing-box:hover {
+      box-shadow: 0 14px 35px rgba(15, 23, 42, 0.12);
+    }
+    .btn-alumni {
+      background-color: #0f2744;
       color: #ffffff;
-    }
-    .portal-hero p {
-      font-size: 1.1rem;
-      max-width: 680px;
-      margin: 0 auto 28px auto;
-      color: #cbd5e1;
-      line-height: 1.6;
-    }
-    .btn-alumni-access {
-      background-color: #10b981;
-      color: #ffffff;
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       font-weight: 700;
-      padding: 14px 32px;
+      padding: 16px 32px;
       border: none;
-      border-radius: 6px;
+      border-radius: 10px;
       cursor: pointer;
+      width: 100%;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      box-shadow: 0 4px 14px rgba(15, 39, 68, 0.25);
     }
-    .btn-alumni-access:hover {
-      background-color: #059669;
+    .btn-alumni:hover {
+      background-color: #1e3a8a;
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+      box-shadow: 0 6px 18px rgba(15, 39, 68, 0.35);
     }
-    .portal-modal-overlay {
+    .btn-alumni:active {
+      transform: translateY(0);
+    }
+
+    /* Modal emergente */
+    .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.65);
+      background: rgba(15, 23, 42, 0.6);
       backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 300;
+      z-index: 1000;
       padding: 16px;
+      animation: fadeIn 0.2s ease-out;
     }
-    .portal-modal-panel {
+    .modal-card {
       background: #ffffff;
-      max-width: 540px;
+      max-width: 520px;
       width: 100%;
-      border-radius: 8px;
-      padding: 28px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      border-radius: 14px;
+      padding: 32px 28px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
       text-align: center;
-      animation: modalFadeIn 0.2s ease-out;
+      animation: scaleIn 0.2s ease-out;
     }
-    @keyframes modalFadeIn {
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes scaleIn {
       from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
-    .portal-modal-icon {
-      font-size: 3rem;
-      margin-bottom: 12px;
-    }
-    .portal-modal-title {
-      font-size: 1.35rem;
-      color: #0f2744;
+    .modal-icon {
+      font-size: 2.6rem;
       margin-bottom: 14px;
+    }
+    .modal-title {
+      font-size: 1.3rem;
+      color: #0f2744;
       font-weight: 700;
+      margin-bottom: 14px;
     }
-    .portal-modal-text {
+    .modal-text {
       color: #334155;
-      font-size: 0.98rem;
+      font-size: 1rem;
       line-height: 1.6;
-      margin-bottom: 24px;
-      text-align: justify;
+      margin-bottom: 26px;
+      text-align: left;
     }
-    .portal-modal-actions {
+    .modal-actions {
       display: flex;
       gap: 12px;
-      justify-content: center;
+      justify-content: flex-end;
+    }
+    .btn-modal-cancel {
+      background: #f1f5f9;
+      color: #475569;
+      font-weight: 600;
+      padding: 10px 20px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.15s ease;
+    }
+    .btn-modal-cancel:hover {
+      background: #e2e8f0;
+    }
+    .btn-modal-continue {
+      background: #10b981;
+      color: #ffffff;
+      font-weight: 700;
+      padding: 10px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
+    }
+    .btn-modal-continue:hover {
+      background: #059669;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(16, 185, 129, 0.4);
     }
   </style>
 </head>
 <body>
-  <header class="topbar" id="topbar"></header>
 
-  <main class="container">
-    <div class="portal-hero">
-      <h1>Facultad de Ciencias y Tecnología</h1>
-      <p>Carrera de Ingeniería Informática — Sede Yacuiba · Universidad Autónoma Juan Misael Saracho</p>
-      
-      <button id="openAlumniAccessBtn" type="button" class="btn-alumni-access">
-        🎓 Acceder a red Alumni Informatica Yacuiba
-      </button>
-    </div>
+  <!-- Cuadrado centrado sobre la página en blanco -->
+  <div class="landing-box">
+    <button id="openModalBtn" type="button" class="btn-alumni">
+      Alumni Informatica Yacuiba
+    </button>
+  </div>
 
-    <div style="margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-      <div class="card">
-        <h3>Directorio de Egresados</h3>
-        <p class="muted">Perfiles profesionales actualizados, experiencias, proyectos realizados y habilidades técnicas clasificadas.</p>
-      </div>
-      <div class="card">
-        <h3>Oportunidades y Empleo</h3>
-        <p class="muted">Vinculación laboral directa con empresas, proyectos independientes e instituciones públicas.</p>
-      </div>
-      <div class="card">
-        <h3>Comunidad Académica</h3>
-        <p class="muted">Red de colaboración entre docentes, estudiantes egresados y profesionales del área tecnológica.</p>
-      </div>
-    </div>
-  </main>
-
-  <!-- Modal de Alerta Previa antes de redirigir -->
-  <div id="alumniAlertModal" class="portal-modal-overlay" hidden>
-    <div class="portal-modal-panel">
-      <div class="portal-modal-icon">ℹ️</div>
-      <div class="portal-modal-title">Aviso de Ingreso a la Red Alumni</div>
-      <div class="portal-modal-text">
+  <!-- Modal con el aviso previo y botón Continuar -->
+  <div id="infoModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="modal-icon">ℹ️</div>
+      <h2 class="modal-title">Aviso de Ingreso</h2>
+      <p class="modal-text">
         Usted está por ingresar a una plataforma que permite el acceso a perfiles profesionales que egresaron o trabajan en la carrera de Ingeniería Informática Yacuiba. Esta plataforma te permitirá contactar con compañeros y también la posibilidad de acceder a trabajos publicados en la plataforma.
-      </div>
-      <div class="portal-modal-actions">
-        <button id="cancelModalBtn" type="button" class="btn btn-secondary">Cancelar</button>
-        <button id="confirmAccessBtn" type="button" class="btn btn-primary" style="background: #10b981; border: none;">
-          Acceder al Directorio
-        </button>
+      </p>
+      <div class="modal-actions">
+        <button id="cancelBtn" type="button" class="btn-modal-cancel">Cancelar</button>
+        <button id="continueBtn" type="button" class="btn-modal-continue">Continuar</button>
       </div>
     </div>
   </div>
 
-  <script src="/js/api.js?v=20261114e"></script>
-  <script src="/js/ui.js?v=20261114e"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      await renderTopbar();
+    const TARGET_URL = "http://187.41.117.126:8084/";
 
-      const openBtn = document.getElementById("openAlumniAccessBtn");
-      const modal = document.getElementById("alumniAlertModal");
-      const cancelBtn = document.getElementById("cancelModalBtn");
-      const confirmBtn = document.getElementById("confirmAccessBtn");
+    const openModalBtn = document.getElementById("openModalBtn");
+    const infoModal = document.getElementById("infoModal");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const continueBtn = document.getElementById("continueBtn");
 
-      openBtn.addEventListener("click", () => {
-        modal.hidden = false;
-      });
+    openModalBtn.addEventListener("click", () => {
+      infoModal.style.display = "flex";
+    });
 
-      cancelBtn.addEventListener("click", () => {
-        modal.hidden = true;
-      });
+    cancelBtn.addEventListener("click", () => {
+      infoModal.style.display = "none";
+    });
 
-      modal.addEventListener("click", (e) => {
-        if (e.target === modal) modal.hidden = true;
-      });
+    infoModal.addEventListener("click", (e) => {
+      if (e.target === infoModal) {
+        infoModal.style.display = "none";
+      }
+    });
 
-      confirmBtn.addEventListener("click", () => {
-        window.location.href = "/index.html";
-      });
+    continueBtn.addEventListener("click", () => {
+      window.location.href = TARGET_URL;
     });
   </script>
 </body>
