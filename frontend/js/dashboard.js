@@ -1094,14 +1094,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     e.preventDefault();
     clearAlert(generalAlert);
 
-    const phone = document.getElementById("contactPhone").value.trim();
+    const phone = document.getElementById("contactPhone").value.trim() || null;
     const personalEmail = document.getElementById("personalEmail").value.trim();
     const institutionalEmail = document.getElementById("institutionalEmail").value.trim() || null;
 
-    if (!phone) {
-      showAlert(generalAlert, "El número de teléfono / WhatsApp es obligatorio.");
-      return;
-    }
     if (!personalEmail) {
       showAlert(generalAlert, "El correo personal / profesional es obligatorio.");
       return;
