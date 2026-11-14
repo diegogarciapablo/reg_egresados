@@ -57,7 +57,7 @@ export function makeDirectoryController({
 
     async getByCode(req, res, next) {
       try {
-        const profile = await getPublicProfile(req.params.registrationCode);
+        const profile = await getPublicProfile(req.params.registrationCode, req.session?.userId);
         res.json(profile);
       } catch (err) {
         next(err);

@@ -121,7 +121,7 @@ export function createApp() {
   const listSoftSkills = makeListSoftSkills({ catalogRepository });
   const listLanguages = makeListLanguages({ catalogRepository });
   const getDirectory = makeGetDirectory({ graduateRepository });
-  const getPublicProfile = makeGetPublicProfile({ graduateRepository });
+  const getPublicProfile = makeGetPublicProfile({ graduateRepository, userRepository });
   const getMyProfile = makeGetMyProfile({ graduateRepository });
   const updateGraduateProfile = makeUpdateGraduateProfile({ graduateRepository });
   const updateVisibility = makeUpdateVisibility({ graduateRepository });

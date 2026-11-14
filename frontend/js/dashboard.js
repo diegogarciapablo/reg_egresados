@@ -1429,7 +1429,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (previewProfileBtn) {
     previewProfileBtn.addEventListener("click", () => {
       if (graduate && graduate.registrationCode) {
-        window.open(`/perfil.html?codigo=${encodeURIComponent(graduate.registrationCode)}&preview=true`, "_blank");
+        window.location.href = `/perfil.html?codigo=${encodeURIComponent(graduate.registrationCode)}&preview=true`;
       } else {
         showAlert(generalAlert, "Aún no tienes código de egresado para previsualizar.");
       }
