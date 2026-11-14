@@ -34,6 +34,7 @@ export const adminEntities = {
           admin: "Administrador",
         },
       },
+      { key: "email_verified", label: "Correo Verificado", sql: "u.email_verified", type: "boolean" },
       { key: "last_login_at", label: "Ultimo acceso", sql: "u.last_login_at", type: "datetime" },
       { key: "created_at", label: "Creado", sql: "u.created_at", type: "datetime" },
     ],
