@@ -282,6 +282,25 @@ export const adminEntities = {
       { key: "updated_at", label: "Actualizada", sql: "c.updated_at", type: "datetime" },
     ],
   },
+  audit_logs: {
+    label: "Registro de Auditoría",
+    singularLabel: "registro de auditoría",
+    table: "audit_logs",
+    alias: "a",
+    from: "audit_logs a",
+    orderBy: "a.created_at DESC",
+    creatable: false,
+    columns: [
+      { key: "created_at", label: "Fecha y Hora", sql: "a.created_at", type: "datetime" },
+      { key: "user_email", label: "Usuario", sql: "a.user_email", type: "text" },
+      { key: "user_role", label: "Rol", sql: "a.user_role", type: "text" },
+      { key: "action", label: "Acción", sql: "a.action", type: "text" },
+      { key: "entity_type", label: "Módulo", sql: "a.entity_type", type: "text" },
+      { key: "details", label: "Detalles", sql: "a.details", type: "text" },
+      { key: "before_state", label: "Estado Anterior", sql: "a.before_state::text", type: "text" },
+      { key: "after_state", label: "Estado Posterior", sql: "a.after_state::text", type: "text" },
+    ],
+  },
 };
 
 export function getEntityConfig(entity) {

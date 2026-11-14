@@ -1346,17 +1346,23 @@ th {
 
 .notif-badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: 0px;
+  right: 0px;
   background: #ef4444;
   color: #ffffff;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 1px 5px;
+  padding: 2px 5px;
   border-radius: 9999px;
   line-height: 1;
-  min-width: 14px;
-  text-align: center;
+  min-width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 2px #0f2744;
+  pointer-events: none;
+  z-index: 10;
 }
 
 .notif-dropdown {
@@ -1373,6 +1379,12 @@ th {
   z-index: 250;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
+}
+
+.notif-dropdown[hidden] {
+  display: none !important;
+}
   flex-direction: column;
 }
 

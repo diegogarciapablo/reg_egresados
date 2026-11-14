@@ -1,25 +1,31 @@
 // Utilidades UI compartidas entre todas las paginas.
 
 function el(tag, attrs = {}, children = []) {
+  if (Array.isArray(attrs) || attrs instanceof Node || typeof attrs === "string" || typeof attrs === "number") {
+    children = attrs;
+    attrs = {};
+  }
   const node = document.createElement(tag);
-  for (const [key, value] of Object.entries(attrs)) {
+  for (const [key, value] of Object.entries(attrs || {})) {
     if (key === "class") node.className = value;
     else if (key === "text") node.textContent = value;
     else if (key.startsWith("on") && typeof value === "function") {
       node.addEventListener(key.slice(2).toLowerCase(), value);
-    } else {
+    } else if (value !== null && value !== undefined) {
       node.setAttribute(key, value);
     }
   }
-  for (const child of [].concat(children)) {
-    if (child) {
-      if (child instanceof Node) {
-        node.appendChild(child);
-      } else {
-        node.appendChild(document.createTextNode(String(child)));
-      }
+  const append = (c) => {
+    if (c === null || c === undefined || c === false) return;
+    if (Array.isArray(c)) {
+      c.forEach(append);
+    } else if (c instanceof Node) {
+      node.appendChild(c);
+    } else {
+      node.appendChild(document.createTextNode(String(c)));
     }
-  }
+  };
+  append(children);
   return node;
 }
 
@@ -95,6 +101,7 @@ async function renderTopbar(activeUser) {
         ["certificates", "Certificados"],
         ["recommendations", "Comentarios"],
         ["cover_letters", "Cartas de presentacion"],
+        ["audit_logs", "Registro de Auditoría"],
       ];
       const creditsBtn = el("a", {
         href: "#",
@@ -130,21 +137,37 @@ async function renderTopbar(activeUser) {
       el("span", { id: "notifBadge", class: "notif-badge", style: "display:none;" })
     ]);
 
-    const notifDropdown = el("div", { id: "notifDropdown", class: "notif-dropdown", hidden: true });
+    const notifDropdown = el("div", { id: "notifDropdown", class: "notif-dropdown", hidden: true, style: "display:none;" });
     notifContainer.appendChild(bellBtn);
     notifContainer.appendChild(notifDropdown);
 
-    bellBtn.addEventListener("click", async (e) => {
-      e.stopPropagation();
-      notifDropdown.hidden = !notifDropdown.hidden;
-      if (!notifDropdown.hidden) {
+    const toggleNotifications = async (forceClose = false) => {
+      const isCurrentlyOpen = !notifDropdown.hasAttribute("hidden") && notifDropdown.style.display !== "none";
+      if (isCurrentlyOpen || forceClose) {
+        notifDropdown.setAttribute("hidden", "");
+        notifDropdown.style.display = "none";
+      } else {
+        notifDropdown.removeAttribute("hidden");
+        notifDropdown.style.display = "flex";
         await loadNotificationsDropdown(notifDropdown);
       }
+    };
+
+    bellBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      await toggleNotifications();
     });
 
     document.addEventListener("click", (e) => {
       if (!notifContainer.contains(e.target)) {
-        notifDropdown.hidden = true;
+        toggleNotifications(true);
+      }
+    });
+
+    nav.addEventListener("click", (e) => {
+      if (!notifContainer.contains(e.target)) {
+        toggleNotifications(true);
       }
     });
 
@@ -152,6 +175,9 @@ async function renderTopbar(activeUser) {
 
     // Cargar conteo no leídas
     checkUnreadNotifications();
+    if (!window._notifPollInterval) {
+      window._notifPollInterval = setInterval(checkUnreadNotifications, 20000);
+    }
 
     const logoutBtn = el("button", { class: "btn btn-secondary", text: "Cerrar sesion" });
     logoutBtn.addEventListener("click", async () => {
@@ -172,15 +198,20 @@ async function checkUnreadNotifications() {
   const badge = document.getElementById("notifBadge");
   if (!badge) return;
   try {
-    const data = await api.notifications.list(5);
-    if (data.unreadCount > 0) {
-      badge.textContent = data.unreadCount > 9 ? "9+" : data.unreadCount;
+    const data = await api.notifications.list(10);
+    const unread = Number(data?.unreadCount || 0);
+    if (unread > 0) {
+      badge.textContent = unread > 99 ? "99+" : String(unread);
       badge.style.display = "inline-flex";
+      badge.removeAttribute("hidden");
     } else {
+      badge.textContent = "";
       badge.style.display = "none";
+      badge.setAttribute("hidden", "");
     }
   } catch {
     badge.style.display = "none";
+    badge.setAttribute("hidden", "");
   }
 }
 

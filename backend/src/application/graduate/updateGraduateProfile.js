@@ -11,13 +11,19 @@ export function makeGetMyProfile({ graduateRepository }) {
   };
 }
 
-export function makeUpdateGraduateProfile({ graduateRepository }) {
+export function makeUpdateGraduateProfile({ graduateRepository, userRepository, auditLogRepository }) {
   return async function updateGraduateProfile({ userId, changes }) {
     const graduate = await graduateRepository.findByUserId(userId);
     if (!graduate) {
       throw new NotFoundError("El usuario no tiene una ficha asociada");
     }
+
     const { technologyIds, softSkillIds, ...profileChanges } = changes || {};
+    const beforeState = {};
+    for (const key of Object.keys(profileChanges)) {
+      beforeState[key] = graduate[key];
+    }
+
     const updated = await graduateRepository.update(graduate.id, profileChanges, true);
     if (Array.isArray(technologyIds)) {
       await graduateRepository.setTechnologies(graduate.id, technologyIds);
@@ -25,6 +31,22 @@ export function makeUpdateGraduateProfile({ graduateRepository }) {
     if (Array.isArray(softSkillIds)) {
       await graduateRepository.setSoftSkills(graduate.id, softSkillIds);
     }
+
+    if (auditLogRepository) {
+      const user = await userRepository?.findById(userId);
+      await auditLogRepository.create({
+        userId,
+        userEmail: user?.email,
+        userRole: user?.role || "graduate",
+        entityType: "graduate_profile",
+        entityId: graduate.id,
+        action: "actualizar_datos_personales",
+        details: `Actualizó información de su ficha (${Object.keys(profileChanges).join(", ")})`,
+        beforeState,
+        afterState: profileChanges,
+      }).catch(console.error);
+    }
+
     return updated;
   };
 }

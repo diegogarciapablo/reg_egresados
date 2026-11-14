@@ -17,6 +17,7 @@ import { PgCoverLetterRepository } from "./adapters/persistence/postgres/reposit
 import { PgAdminEntityRepository } from "./adapters/persistence/postgres/repositories/PgAdminEntityRepository.js";
 import { PgCatalogRepository } from "./adapters/persistence/postgres/repositories/PgCatalogRepository.js";
 import { PgNotificationRepository } from "./adapters/persistence/postgres/repositories/PgNotificationRepository.js";
+import { PgAuditLogRepository } from "./adapters/persistence/postgres/repositories/PgAuditLogRepository.js";
 import { ProfilePhotoStore } from "./adapters/persistence/filesystem/ProfilePhotoStore.js";
 import { CertificateFileStore } from "./adapters/persistence/filesystem/CertificateFileStore.js";
 
@@ -100,6 +101,7 @@ export function createApp() {
   const adminEntityRepository = new PgAdminEntityRepository(pool);
   const catalogRepository = new PgCatalogRepository(pool);
   const notificationRepository = new PgNotificationRepository(pool);
+  const auditLogRepository = new PgAuditLogRepository(pool);
   const profilePhotoStore = new ProfilePhotoStore();
   const certificateFileStore = new CertificateFileStore();
 
@@ -115,6 +117,7 @@ export function createApp() {
     userRepository,
     notificationRepository,
     emailService,
+    auditLogRepository,
   });
   const notificationService = makeNotificationService({ notificationRepository });
   const listTechnologies = makeListTechnologies({ catalogRepository });
@@ -123,17 +126,17 @@ export function createApp() {
   const getDirectory = makeGetDirectory({ graduateRepository });
   const getPublicProfile = makeGetPublicProfile({ graduateRepository, userRepository });
   const getMyProfile = makeGetMyProfile({ graduateRepository });
-  const updateGraduateProfile = makeUpdateGraduateProfile({ graduateRepository });
+  const updateGraduateProfile = makeUpdateGraduateProfile({ graduateRepository, userRepository, auditLogRepository });
   const updateVisibility = makeUpdateVisibility({ graduateRepository });
   const uploadProfilePhoto = makeUploadProfilePhoto({ graduateRepository, profilePhotoStore });
   const getProfilePhoto = makeGetProfilePhoto({ graduateRepository, profilePhotoStore });
   const deleteProfilePhoto = makeDeleteProfilePhoto({ graduateRepository, profilePhotoStore });
-  const updateGraduateTechnologies = makeUpdateGraduateTechnologies({ graduateRepository });
-  const updateGraduateSoftSkills = makeUpdateGraduateSoftSkills({ graduateRepository });
-  const updateGraduateLanguages = makeUpdateGraduateLanguages({ graduateRepository });
-  const updateGraduateProjects = makeUpdateGraduateProjects({ graduateRepository });
-  const updateGraduateExperiences = makeUpdateGraduateExperiences({ graduateRepository });
-  const updateGraduateCertificates = makeUpdateGraduateCertificates({ graduateRepository });
+  const updateGraduateTechnologies = makeUpdateGraduateTechnologies({ graduateRepository, userRepository, auditLogRepository });
+  const updateGraduateSoftSkills = makeUpdateGraduateSoftSkills({ graduateRepository, userRepository, auditLogRepository });
+  const updateGraduateLanguages = makeUpdateGraduateLanguages({ graduateRepository, userRepository, auditLogRepository });
+  const updateGraduateProjects = makeUpdateGraduateProjects({ graduateRepository, userRepository, auditLogRepository });
+  const updateGraduateExperiences = makeUpdateGraduateExperiences({ graduateRepository, userRepository, auditLogRepository });
+  const updateGraduateCertificates = makeUpdateGraduateCertificates({ graduateRepository, userRepository, auditLogRepository });
   const uploadCertificateFile = makeUploadCertificateFile({ graduateRepository, certificateFileStore });
   const getCertificateFile = makeGetCertificateFile({ graduateRepository, certificateFileStore });
   const createRecommendation = makeCreateRecommendation({ recommendationRepository, graduateRepository });

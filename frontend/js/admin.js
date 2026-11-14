@@ -131,6 +131,15 @@ function renderTable(rows) {
 
     const actionCell = el("td", { class: "admin-actions-cell" });
     const actions = el("div", { class: "admin-row-actions" });
+
+    if (activeDefinition.key === "audit_logs") {
+      actions.appendChild(el("span", { class: "badge badge-public", style: "font-size:0.8rem;", text: "Auditado" }));
+      actionCell.appendChild(actions);
+      tableRow.appendChild(actionCell);
+      body.appendChild(tableRow);
+      continue;
+    }
+
     const switchButton = el("button", {
       type: "button",
       class: "admin-status-switch",
