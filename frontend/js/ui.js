@@ -11,6 +11,11 @@ function el(tag, attrs = {}, children = []) {
     else if (key === "text") node.textContent = value;
     else if (key.startsWith("on") && typeof value === "function") {
       node.addEventListener(key.slice(2).toLowerCase(), value);
+    } else if (value === true) {
+      // Atributos booleanos (disabled, hidden, checked, required...): presente = activo
+      node.setAttribute(key, "");
+    } else if (value === false) {
+      // Atributo booleano desactivado: se omite (evita disabled="false" y checked="false")
     } else if (value !== null && value !== undefined) {
       node.setAttribute(key, value);
     }
@@ -101,6 +106,7 @@ async function renderTopbar(activeUser) {
         ["certificates", "Certificados"],
         ["recommendations", "Comentarios"],
         ["cover_letters", "Cartas de presentacion"],
+        ["notifications", "Notificaciones"],
         ["audit_logs", "Registro de Auditoría"],
       ];
       const creditsBtn = el("a", {
@@ -173,12 +179,6 @@ async function renderTopbar(activeUser) {
 
     nav.appendChild(notifContainer);
 
-    // Cargar conteo no leídas
-    checkUnreadNotifications();
-    if (!window._notifPollInterval) {
-      window._notifPollInterval = setInterval(checkUnreadNotifications, 20000);
-    }
-
     const logoutBtn = el("button", { class: "btn btn-secondary", text: "Cerrar sesion" });
     logoutBtn.addEventListener("click", async () => {
       await api.auth.logout();
@@ -191,6 +191,16 @@ async function renderTopbar(activeUser) {
   }
 
   bar.appendChild(nav);
+
+  // El badge debe consultarse DESPUES de insertar la barra en el documento;
+  // antes de appendChild(getElementById("notifBadge")) devuelve null.
+  if (user) {
+    checkUnreadNotifications();
+    if (!window._notifPollInterval) {
+      window._notifPollInterval = setInterval(checkUnreadNotifications, 20000);
+    }
+  }
+
   return user;
 }
 
@@ -198,10 +208,11 @@ async function checkUnreadNotifications() {
   const badge = document.getElementById("notifBadge");
   if (!badge) return;
   try {
-    const data = await api.notifications.list(10);
+    const data = await api.notifications.list(5);
     const unread = Number(data?.unreadCount || 0);
     if (unread > 0) {
-      badge.textContent = unread > 99 ? "99+" : String(unread);
+      // Se muestra como maximo "5+" para no saturar el boton
+      badge.textContent = unread > 5 ? "5+" : String(unread);
       badge.style.display = "inline-flex";
       badge.removeAttribute("hidden");
     } else {
@@ -218,7 +229,8 @@ async function checkUnreadNotifications() {
 async function loadNotificationsDropdown(container) {
   container.innerHTML = `<div class="notif-loading">Cargando notificaciones...</div>`;
   try {
-    const data = await api.notifications.list(15);
+    // Maximo 5 notificaciones visibles en el panel del boton
+    const data = await api.notifications.list(5);
     container.innerHTML = "";
 
     const header = el("div", { class: "notif-header" }, [

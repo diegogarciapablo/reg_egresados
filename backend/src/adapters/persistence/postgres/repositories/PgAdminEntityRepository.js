@@ -4,7 +4,8 @@ import { AppError, ConflictError, NotFoundError } from "../../../../shared/error
 
 function buildSelect(config) {
   const columns = config.columns.map(({ key, sql }) => `${sql} AS "${key}"`);
-  return `${config.alias}.id, ${config.alias}.is_active, ${columns.join(", ")}`;
+  const isActiveExpression = config.isActiveSql || `${config.alias}.is_active`;
+  return `${config.alias}.id, ${isActiveExpression} AS is_active, ${columns.join(", ")}`;
 }
 
 export class PgAdminEntityRepository extends AdminEntityRepository {
@@ -19,6 +20,7 @@ export class PgAdminEntityRepository extends AdminEntityRepository {
 
   async list(entity, search = "") {
     const config = getEntityConfig(entity);
+    const isActiveExpression = config.isActiveSql || `${config.alias}.is_active`;
     const values = [];
     let where = "";
     if (search.trim()) {
@@ -28,7 +30,7 @@ export class PgAdminEntityRepository extends AdminEntityRepository {
         .map(({ sql }) => `COALESCE((${sql})::text, '') ILIKE $1 ESCAPE '\\'`)
         .concat([
           `${config.alias}.id::text ILIKE $1 ESCAPE '\\'`,
-          `COALESCE(${config.alias}.is_active::text, '') ILIKE $1 ESCAPE '\\'`,
+          `COALESCE((${isActiveExpression})::text, '') ILIKE $1 ESCAPE '\\'`,
         ]);
       where = `WHERE (${searchColumns.join(" OR ")})`;
     }
@@ -86,6 +88,9 @@ export class PgAdminEntityRepository extends AdminEntityRepository {
 
   async update(entity, id, normalizedChanges) {
     const config = getEntityConfig(entity);
+    if (config.readOnly) {
+      throw new AppError(`${config.label} es de solo lectura: no se permite editar registros.`);
+    }
     const setClauses = normalizedChanges.map(({ field }, index) => `"${field.key}" = $${index + 1}`);
     const values = normalizedChanges.map(({ value }) => value);
     if (config.updatesTimestamp) setClauses.push("updated_at = NOW()");
@@ -112,6 +117,9 @@ export class PgAdminEntityRepository extends AdminEntityRepository {
 
   async setActive(entity, id, isActive) {
     const config = getEntityConfig(entity);
+    if (config.readOnly) {
+      throw new AppError(`${config.label} es de solo lectura: no se puede cambiar el estado de registros.`);
+    }
     const result = await this.pool.query(
       `UPDATE ${config.table} SET is_active = $1${config.updatesTimestamp ? ", updated_at = NOW()" : ""} WHERE id = $2 RETURNING is_active`,
       [isActive, id],

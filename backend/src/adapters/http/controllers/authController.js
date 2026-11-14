@@ -1,3 +1,5 @@
+import { UnauthorizedError } from "../../../shared/errors/AppError.js";
+
 export function makeAuthController({ registerUser, loginUser, getCurrentUser, changePassword, requestEmailVerification, verifyEmail, userRepository }) {
   return {
     async register(req, res, next) {
@@ -68,8 +70,9 @@ export function makeAuthController({ registerUser, loginUser, getCurrentUser, ch
 
     async acceptTerms(req, res, next) {
       try {
-        if (!req.session?.userId) throw new AppError("No autorizado", 401);
+        if (!req.session?.userId) throw new UnauthorizedError("No autorizado");
         const user = await userRepository.acceptTerms(req.session.userId);
+        if (!user) throw new UnauthorizedError("Sesion invalida");
         res.json({ success: true, user: user.toSafeObject() });
       } catch (err) {
         next(err);

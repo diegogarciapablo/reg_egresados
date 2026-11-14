@@ -2,7 +2,9 @@ export function makeNotificationController({ notificationService }) {
   return {
     async listMine(req, res, next) {
       try {
-        const result = await notificationService.getMyNotifications(req.session?.userId);
+        const rawLimit = Number(req.query?.limit);
+        const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(Math.floor(rawLimit), 50) : 20;
+        const result = await notificationService.getMyNotifications(req.session?.userId, limit);
         res.json(result);
       } catch (err) {
         next(err);

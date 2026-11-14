@@ -1385,8 +1385,6 @@ th {
 .notif-dropdown[hidden] {
   display: none !important;
 }
-  flex-direction: column;
-}
 
 .notif-header {
   display: flex;

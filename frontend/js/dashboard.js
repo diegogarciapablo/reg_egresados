@@ -443,19 +443,22 @@ function renderVisibilityToggle(graduate) {
   let btnText = "📢 Solicitar publicar ficha";
   if (isPublic) {
     btnText = "👁️ Ocultar ficha del directorio";
-  } else if (isPending) {
-    btnText = "⏳ Solicitud enviada (En revisión)";
   } else if (isObserved) {
     btnText = "📢 Re-enviar para revisión";
   }
 
+  // Importante: aunque la ficha esté en revisión, el egresado puede volver a
+  // solicitar la publicación si realizó nuevos cambios. Solo se bloquea
+  // temporalmente mientras la petición está en curso.
   const toggleBtn = el("button", {
     class: `btn ${isPublic ? "btn-secondary" : "btn-primary"}`,
     style: "margin-left:10px;",
     text: btnText,
-    disabled: isPending,
-    title: isPending ? "Tu solicitud ya fue enviada y está en cola de revisión del administrador." : ""
+    title: isPending
+      ? "Tu ficha está en revisión. Si hiciste cambios, puedes volver a enviarla."
+      : "",
   });
+  toggleBtn.disabled = false;
 
   toggleBtn.addEventListener("click", async () => {
     if (isPublic) {

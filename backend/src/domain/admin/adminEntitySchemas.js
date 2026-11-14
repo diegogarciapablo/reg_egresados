@@ -282,6 +282,26 @@ export const adminEntities = {
       { key: "updated_at", label: "Actualizada", sql: "c.updated_at", type: "datetime" },
     ],
   },
+  notifications: {
+    label: "Notificaciones",
+    singularLabel: "notificacion",
+    table: "notifications",
+    alias: "n",
+    from: "notifications n JOIN users u ON u.id = n.user_id",
+    orderBy: "n.created_at DESC",
+    creatable: false,
+    readOnly: true,
+    isActiveSql: "TRUE",
+    columns: [
+      { key: "created_at", label: "Fecha y Hora", sql: "n.created_at", type: "datetime" },
+      { key: "account_email", label: "Destinatario", sql: "u.email", type: "text", editable: false },
+      { key: "title", label: "Titulo", sql: "n.title", type: "text", editable: false },
+      { key: "message", label: "Mensaje", sql: "n.message", type: "text", editable: false },
+      { key: "type", label: "Tipo", sql: "n.type", type: "text", editable: false },
+      { key: "read_status", label: "Estado", sql: "CASE WHEN n.is_read THEN 'Leida' ELSE 'No leida' END", type: "text", editable: false },
+      { key: "link", label: "Enlace", sql: "n.link", type: "text", editable: false },
+    ],
+  },
   audit_logs: {
     label: "Registro de Auditoría",
     singularLabel: "registro de auditoría",
@@ -315,6 +335,7 @@ export function getEntityDefinitions() {
     label: config.label,
     singularLabel: config.singularLabel || config.label.toLowerCase(),
     creatable: Boolean(config.creatable),
+    readOnly: Boolean(config.readOnly),
     columns: config.columns.map(({ key: columnKey, label, type, options, optionLabels }) => ({
       key: columnKey,
       label,
@@ -410,6 +431,9 @@ export function normalizeEntityCreate(entity, data) {
 
 export function normalizeEntityChanges(entity, changes) {
   const config = getEntityConfig(entity);
+  if (config.readOnly) {
+    throw new AppError(`${config.label} es de solo lectura: no se permite editar registros.`);
+  }
   if (!changes || typeof changes !== "object" || Array.isArray(changes)) {
     throw new AppError("Debes enviar campos para editar.");
   }
