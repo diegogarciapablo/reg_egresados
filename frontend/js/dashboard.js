@@ -383,7 +383,10 @@ function setupPhotoCropEvents(graduate, generalAlert) {
       formData.append("photo", blob, "avatar.jpg");
       const result = await api.profile.updatePhoto(formData);
       graduate.photoUrl = result.photoUrl;
+      graduate.visibility = "private";
+      graduate.moderationStatus = "draft";
       renderProfilePhoto(graduate.photoUrl);
+      renderVisibilityToggle(graduate);
       closeCropDialog();
       showAlert(generalAlert, "Foto de perfil encuadrada y guardada.", "success");
     } catch (err) {
@@ -1053,7 +1056,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       await api.profile.removePhoto();
       graduate.photoUrl = null;
+      graduate.visibility = "private";
+      graduate.moderationStatus = "draft";
       renderProfilePhoto(null);
+      renderVisibilityToggle(graduate);
       showAlert(generalAlert, "Foto de perfil quitada.", "success");
     } catch (err) {
       showAlert(generalAlert, err.message || "No se pudo quitar la foto.");
