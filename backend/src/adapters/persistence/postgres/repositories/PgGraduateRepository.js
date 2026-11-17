@@ -198,13 +198,21 @@ export class PgGraduateRepository extends GraduateRepository {
     }
 
     if (technology) {
-      conditions.push(`EXISTS (
-        SELECT 1 FROM graduate_technologies gt
-        JOIN technologies t ON t.id = gt.technology_id
-        WHERE gt.graduate_id = g.id AND t.slug = $${index} AND t.is_active = TRUE
-      )`);
-      values.push(technology);
-      index += 1;
+      const slugs = String(technology)
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 3);
+
+      for (const slug of slugs) {
+        conditions.push(`EXISTS (
+          SELECT 1 FROM graduate_technologies gt
+          JOIN technologies t ON t.id = gt.technology_id
+          WHERE gt.graduate_id = g.id AND t.slug = $${index} AND t.is_active = TRUE
+        )`);
+        values.push(slug);
+        index += 1;
+      }
     }
 
     if (q) {

@@ -1,5 +1,33 @@
 // Utilidades UI compartidas entre todas las paginas.
 
+// Oculta visualmente la extensión .html de la barra de direcciones del navegador sin recargar
+(function cleanBrowserUrl() {
+  try {
+    const { pathname, search, hash } = window.location;
+    if (pathname.endsWith("/index.html")) {
+      const base = pathname.slice(0, -10) || "/";
+      window.history.replaceState(null, "", base + search + hash);
+    } else if (pathname.endsWith(".html")) {
+      const cleanPath = pathname.slice(0, -5) || "/";
+      window.history.replaceState(null, "", cleanPath + search + hash);
+    }
+  } catch {
+    // Ignorar en entornos restringidos
+  }
+})();
+
+function normalizeInternalUrl(rawUrl) {
+  if (!rawUrl) return rawUrl;
+  const str = String(rawUrl);
+  if (/^https?:\/\//i.test(str) || str.startsWith("/api/") || str.startsWith("#")) return str;
+  const [pathPart, queryPart] = str.split("?");
+  if (pathPart === "/" || pathPart === "") {
+    return queryPart ? `/index.html?${queryPart}` : "/index.html";
+  }
+  const cleanBase = pathPart.endsWith(".html") ? pathPart : `${pathPart}.html`;
+  return queryPart ? `${cleanBase}?${queryPart}` : cleanBase;
+}
+
 function el(tag, attrs = {}, children = []) {
   if (Array.isArray(attrs) || attrs instanceof Node || typeof attrs === "string" || typeof attrs === "number") {
     children = attrs;
@@ -179,7 +207,7 @@ async function renderTopbar(activeUser) {
 
     nav.appendChild(notifContainer);
 
-    const logoutBtn = el("button", { class: "btn btn-secondary", text: "Cerrar sesion" });
+    const logoutBtn = el("button", { class: "btn btn-logout-topbar", text: "Cerrar sesión" });
     logoutBtn.addEventListener("click", async () => {
       await api.auth.logout();
       window.location.href = "/index.html";
@@ -270,7 +298,7 @@ async function loadNotificationsDropdown(container) {
           await checkUnreadNotifications();
         }
         if (item.link) {
-          window.location.href = item.link;
+          window.location.href = normalizeInternalUrl(item.link);
         }
       });
 
@@ -506,3 +534,45 @@ async function requireSession() {
   ensureTermsAccepted(user);
   return user;
 }
+
+const EYE_OPEN_SVG = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+const EYE_OFF_SVG = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+
+/**
+ * Envuelve un input de contraseña con un botón de ojo para mostrar/ocultar su contenido.
+ */
+function attachPasswordToggle(input) {
+  if (!input || input.dataset.passwordToggleAttached === "true") return;
+  input.dataset.passwordToggleAttached = "true";
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "password-input-wrapper";
+  input.parentNode.insertBefore(wrapper, input);
+  wrapper.appendChild(input);
+
+  const toggleBtn = document.createElement("button");
+  toggleBtn.type = "button";
+  toggleBtn.className = "password-toggle-btn";
+  toggleBtn.title = "Mostrar contraseña";
+  toggleBtn.setAttribute("aria-label", "Mostrar u ocultar contraseña");
+  toggleBtn.innerHTML = EYE_OPEN_SVG;
+
+  toggleBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    const isPassword = input.type === "password";
+    input.type = isPassword ? "text" : "password";
+    toggleBtn.innerHTML = isPassword ? EYE_OFF_SVG : EYE_OPEN_SVG;
+    toggleBtn.title = isPassword ? "Ocultar contraseña" : "Mostrar contraseña";
+  });
+
+  wrapper.appendChild(toggleBtn);
+}
+
+function initPasswordToggles(root = document) {
+  const inputs = root.querySelectorAll('input[type="password"]');
+  inputs.forEach(attachPasswordToggle);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initPasswordToggles();
+});

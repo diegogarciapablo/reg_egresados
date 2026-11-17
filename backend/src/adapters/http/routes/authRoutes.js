@@ -1,5 +1,12 @@
 import { Router } from "express";
-import { validateBody, registerSchema, loginSchema, changePasswordSchema } from "../../../shared/validation/schemas.js";
+import {
+  validateBody,
+  registerSchema,
+  loginSchema,
+  changePasswordSchema,
+  requestPasswordResetSchema,
+  resetPasswordSchema,
+} from "../../../shared/validation/schemas.js";
 
 export function authRoutes(authController) {
   const router = Router();
@@ -12,6 +19,8 @@ export function authRoutes(authController) {
   router.post("/email-verification/request", authController.requestVerification);
   router.post("/verify-email", authController.verifyEmail);
   router.post("/accept-terms", authController.acceptTerms);
+  router.post("/forgot-password", validateBody(requestPasswordResetSchema), authController.forgotPassword);
+  router.post("/reset-password", validateBody(resetPasswordSchema), authController.resetPassword);
 
   return router;
 }

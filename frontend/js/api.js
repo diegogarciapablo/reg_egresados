@@ -65,6 +65,8 @@ const api = {
     requestEmailVerification: () => request("/auth/email-verification/request", { method: "POST" }),
     verifyEmail: (token) => request("/auth/verify-email", { method: "POST", body: { token } }),
     acceptTerms: () => request("/auth/accept-terms", { method: "POST" }),
+    requestPasswordReset: (email) => request("/auth/forgot-password", { method: "POST", body: { email } }),
+    resetPassword: (payload) => request("/auth/reset-password", { method: "POST", body: payload }),
   },
   notifications: {
     list: (limit = 20) => request("/notifications", { params: { limit } }),

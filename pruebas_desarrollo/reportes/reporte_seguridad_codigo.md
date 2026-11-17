@@ -1,22 +1,22 @@
 # Reporte de Auditoría de Código Estático (SAST)
 
-**Fecha de Ejecución:** 13/11/2026, 9:04:27 p. m.
+**Fecha de Ejecución:** 17/11/2026, 1:37:10 a. m.
 **Proyecto:** Registro y Directorio de Egresados Informática UAJMS
-**Archivos analizados:** 70 archivos JavaScript (.js)
-**Total de Hallazgos:** 15
+**Archivos analizados:** 74 archivos JavaScript (.js)
+**Total de Hallazgos:** 17
 
 ## Resumen de Severidad
 
 | Nivel | Hallazgos |
 |---|---|
 | 🔴 Crítica | 0 |
-| 🟠 Alta | 11 |
+| 🟠 Alta | 13 |
 | 🟡 Media | 4 |
 
 ## Detalle de Hallazgos
 
 ### [SEC-SQL-01] Posible Inyección SQL por concatenación o interpolación (ALTA)
-- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js#L36) (Línea 36)
+- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js#L38) (Línea 38)
 - **Descripción:** Uso de plantilla literal (template string) con variables interpoladas dentro de query SQL en lugar de consultas parametrizadas ($1, $2, etc.).
 - **Código detectado:**
 ```javascript
@@ -24,7 +24,7 @@ const { rows } = await this.pool.query(
 ```
 
 ### [SEC-SQL-01] Posible Inyección SQL por concatenación o interpolación (ALTA)
-- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js#L48) (Línea 48)
+- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js#L50) (Línea 50)
 - **Descripción:** Uso de plantilla literal (template string) con variables interpoladas dentro de query SQL en lugar de consultas parametrizadas ($1, $2, etc.).
 - **Código detectado:**
 ```javascript
@@ -32,7 +32,7 @@ return this.pool.query(
 ```
 
 ### [SEC-SQL-01] Posible Inyección SQL por concatenación o interpolación (ALTA)
-- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js#L70) (Línea 70)
+- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js#L72) (Línea 72)
 - **Descripción:** Uso de plantilla literal (template string) con variables interpoladas dentro de query SQL en lugar de consultas parametrizadas ($1, $2, etc.).
 - **Código detectado:**
 ```javascript
@@ -40,7 +40,7 @@ const result = await this.pool.query(
 ```
 
 ### [SEC-SQL-01] Posible Inyección SQL por concatenación o interpolación (ALTA)
-- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js#L95) (Línea 95)
+- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js#L100) (Línea 100)
 - **Descripción:** Uso de plantilla literal (template string) con variables interpoladas dentro de query SQL en lugar de consultas parametrizadas ($1, $2, etc.).
 - **Código detectado:**
 ```javascript
@@ -48,11 +48,27 @@ const result = await this.pool.query(
 ```
 
 ### [SEC-SQL-01] Posible Inyección SQL por concatenación o interpolación (ALTA)
-- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js#L115) (Línea 115)
+- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgAdminEntityRepository.js#L123) (Línea 123)
 - **Descripción:** Uso de plantilla literal (template string) con variables interpoladas dentro de query SQL en lugar de consultas parametrizadas ($1, $2, etc.).
 - **Código detectado:**
 ```javascript
 const result = await this.pool.query(
+```
+
+### [SEC-SQL-01] Posible Inyección SQL por concatenación o interpolación (ALTA)
+- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgAuditLogRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgAuditLogRepository.js#L60) (Línea 60)
+- **Descripción:** Uso de plantilla literal (template string) con variables interpoladas dentro de query SQL en lugar de consultas parametrizadas ($1, $2, etc.).
+- **Código detectado:**
+```javascript
+const { rows } = await this.pool.query(
+```
+
+### [SEC-SQL-01] Posible Inyección SQL por concatenación o interpolación (ALTA)
+- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgAuditLogRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgAuditLogRepository.js#L81) (Línea 81)
+- **Descripción:** Uso de plantilla literal (template string) con variables interpoladas dentro de query SQL en lugar de consultas parametrizadas ($1, $2, etc.).
+- **Código detectado:**
+```javascript
+const countRes = await this.pool.query(
 ```
 
 ### [SEC-SQL-01] Posible Inyección SQL por concatenación o interpolación (ALTA)
@@ -80,7 +96,7 @@ const { rows } = await this.pool.query(
 ```
 
 ### [SEC-SQL-01] Posible Inyección SQL por concatenación o interpolación (ALTA)
-- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js#L240) (Línea 240)
+- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js#L248) (Línea 248)
 - **Descripción:** Uso de plantilla literal (template string) con variables interpoladas dentro de query SQL en lugar de consultas parametrizadas ($1, $2, etc.).
 - **Código detectado:**
 ```javascript
@@ -88,7 +104,7 @@ const countResult = await this.pool.query(
 ```
 
 ### [SEC-SQL-01] Posible Inyección SQL por concatenación o interpolación (ALTA)
-- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js#L249) (Línea 249)
+- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js#L257) (Línea 257)
 - **Descripción:** Uso de plantilla literal (template string) con variables interpoladas dentro de query SQL en lugar de consultas parametrizadas ($1, $2, etc.).
 - **Código detectado:**
 ```javascript
@@ -96,7 +112,7 @@ const { rows } = await this.pool.query(
 ```
 
 ### [SEC-SQL-01] Posible Inyección SQL por concatenación o interpolación (ALTA)
-- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js#L504) (Línea 504)
+- **Archivo:** [`backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js`](../../backend/src/adapters/persistence/postgres/repositories/PgGraduateRepository.js#L512) (Línea 512)
 - **Descripción:** Uso de plantilla literal (template string) con variables interpoladas dentro de query SQL en lugar de consultas parametrizadas ($1, $2, etc.).
 - **Código detectado:**
 ```javascript

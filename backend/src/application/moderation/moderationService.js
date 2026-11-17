@@ -38,7 +38,7 @@ export function makeModerationService({
       // Notificar a todos los administradores
       const admins = await userRepository.listAdmins();
       const graduateName = `${graduate.firstName} ${graduate.lastName}`;
-      const reviewLink = `/perfil.html?codigo=${encodeURIComponent(graduate.registrationCode)}`;
+      const reviewLink = `/perfil?codigo=${encodeURIComponent(graduate.registrationCode)}`;
 
       for (const admin of admins) {
         await notificationRepository.create({
@@ -107,7 +107,7 @@ export function makeModerationService({
           }).catch(console.error);
         }
 
-        const notifyLink = `/dashboard.html`;
+        const notifyLink = `/dashboard`;
         await notificationRepository.create({
           userId: graduate.userId,
           title: "Observaciones en tu ficha profesional",
@@ -159,7 +159,7 @@ export function makeModerationService({
           }).catch(console.error);
         }
 
-        const notifyLink = `/perfil.html?codigo=${encodeURIComponent(graduate.registrationCode)}`;
+        const notifyLink = `/perfil?codigo=${encodeURIComponent(graduate.registrationCode)}`;
         await notificationRepository.create({
           userId: graduate.userId,
           title: isPublic ? "¡Tu ficha profesional ha sido publicada!" : "Ficha profesional aprobada",

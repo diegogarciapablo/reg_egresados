@@ -90,4 +90,28 @@ export class PgUserRepository extends UserRepository {
     );
     return rows.map(toUser);
   }
+
+  async createPasswordResetToken(userId, tokenHash, expiresAt) {
+    await this.pool.query("DELETE FROM password_reset_tokens WHERE user_id = $1 OR expires_at < NOW()", [userId]);
+    await this.pool.query(
+      `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
+       VALUES ($1, $2, $3)`,
+      [userId, tokenHash, expiresAt]
+    );
+  }
+
+  async findPasswordResetToken(tokenHash) {
+    const { rows } = await this.pool.query(
+      `SELECT t.*, u.email, u.is_active
+       FROM password_reset_tokens t
+       JOIN users u ON u.id = t.user_id
+       WHERE t.token_hash = $1 AND t.expires_at > NOW()`,
+      [tokenHash]
+    );
+    return rows[0] || null;
+  }
+
+  async deletePasswordResetTokens(userId) {
+    await this.pool.query("DELETE FROM password_reset_tokens WHERE user_id = $1", [userId]);
+  }
 }

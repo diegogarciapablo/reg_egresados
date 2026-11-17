@@ -1,8 +1,8 @@
 # Reporte de Auditoría de Fuga de Secretos
 
-**Fecha de Ejecución:** 13/11/2026, 9:04:27 p. m.
+**Fecha de Ejecución:** 17/11/2026, 1:37:10 a. m.
 **Proyecto:** Registro y Directorio de Egresados Informática UAJMS
-**Archivos analizados:** 85
+**Archivos analizados:** 90
 **Total de Hallazgos:** 0
 
 ## Resumen de Estado

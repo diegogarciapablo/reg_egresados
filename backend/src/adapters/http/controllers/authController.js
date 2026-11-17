@@ -1,6 +1,16 @@
 import { UnauthorizedError } from "../../../shared/errors/AppError.js";
 
-export function makeAuthController({ registerUser, loginUser, getCurrentUser, changePassword, requestEmailVerification, verifyEmail, userRepository }) {
+export function makeAuthController({
+  registerUser,
+  loginUser,
+  getCurrentUser,
+  changePassword,
+  requestEmailVerification,
+  verifyEmail,
+  requestPasswordReset,
+  resetPassword,
+  userRepository,
+}) {
   return {
     async register(req, res, next) {
       try {
@@ -74,6 +84,24 @@ export function makeAuthController({ registerUser, loginUser, getCurrentUser, ch
         const user = await userRepository.acceptTerms(req.session.userId);
         if (!user) throw new UnauthorizedError("Sesion invalida");
         res.json({ success: true, user: user.toSafeObject() });
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async forgotPassword(req, res, next) {
+      try {
+        const result = await requestPasswordReset(req.validatedBody);
+        res.json(result);
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async resetPassword(req, res, next) {
+      try {
+        const result = await resetPassword(req.validatedBody);
+        res.json(result);
       } catch (err) {
         next(err);
       }

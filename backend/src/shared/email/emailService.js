@@ -100,6 +100,46 @@ class EmailService {
       html,
     });
   }
+
+  async sendPasswordResetEmail({ to, name, resetUrl }) {
+    if (!this.hasSmtp) {
+      console.log("\n==================================================");
+      console.log(`[SIMULACIÓN DE CORREO] Restablecimiento de Contraseña`);
+      console.log(`Para: ${name} <${to}>`);
+      console.log(`Enlace de restablecimiento: ${resetUrl}`);
+      console.log("==================================================\n");
+      return { simulated: true };
+    }
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <div style="background-color: #0f2744; padding: 18px 24px; border-radius: 6px 6px 0 0; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 20px;">Directorio de Egresados UAJMS</h1>
+        </div>
+        <div style="padding: 24px 16px; color: #334155; line-height: 1.6;">
+          <p>Hola <strong>${name}</strong>,</p>
+          <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en la Red Alumni de Ingeniería Informática UAJMS.</p>
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${resetUrl}" style="background-color: #0f2744; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+              🔑 Restablecer mi contraseña
+            </a>
+          </div>
+          <p style="font-size: 0.9rem; color: #64748b;">Este enlace es válido por las próximas 2 horas. Si tú no solicitaste este cambio, puedes ignorar este mensaje y tu contraseña permanecerá segura.</p>
+          <p style="font-size: 0.85rem; color: #94a3b8; word-break: break-all;">Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:<br><a href="${resetUrl}">${resetUrl}</a></p>
+        </div>
+        <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 0.8rem; color: #94a3b8; text-align: center;">
+          © ${new Date().getFullYear()} Ingeniería Informática · UAJMS
+        </div>
+      </div>
+    `;
+
+    return this.transporter.sendMail({
+      from: env.smtp.from,
+      to,
+      subject: "Restablecimiento de contraseña - Directorio UAJMS",
+      html,
+    });
+  }
 }
 
 export const emailService = new EmailService();

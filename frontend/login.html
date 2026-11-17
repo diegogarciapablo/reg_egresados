@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Iniciar sesion - Registro de Egresados</title>
-  <link rel="stylesheet" href="/styles.css?v=20261114f" />
+  <link rel="stylesheet" href="/styles.css?v=20261117c" />
 </head>
 <body>
   <header class="topbar" id="topbar"></header>
@@ -16,14 +16,22 @@
       <form id="loginForm">
         <div class="form-group">
           <label for="email">Correo electronico</label>
-          <input type="email" id="email" required />
+          <input type="email" id="email" required autocomplete="email" />
         </div>
         <div class="form-group">
-          <label for="password">Contrasena</label>
-          <input type="password" id="password" required />
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <label for="password" style="margin-bottom: 0;">Contrasena</label>
+            <a href="/recuperar-password.html" style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">¿Olvidaste tu contraseña?</a>
+          </div>
+          <input type="password" id="password" required autocomplete="current-password" />
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%;">Ingresar</button>
       </form>
+      <div style="margin-top: 14px; text-align: center;">
+        <a href="/recuperar-password.html" class="btn btn-secondary" style="width: 100%; display: inline-flex; justify-content: center; align-items: center; gap: 6px; font-size: 0.9rem;">
+          🔑 Restablecer contraseña
+        </a>
+      </div>
       <p class="hint" style="margin-top:14px; text-align: center;">
         ¿No tienes cuenta? <a href="/registro.html">Crea una aqui</a>
       </p>
@@ -33,8 +41,8 @@
     </div>
   </main>
 
-  <script src="/js/api.js?v=20261114f"></script>
-  <script src="/js/ui.js?v=20261114f"></script>
-  <script src="/js/login.js?v=20261114f"></script>
+  <script src="/js/api.js?v=20261117c"></script>
+  <script src="/js/ui.js?v=20261117c"></script>
+  <script src="/js/login.js?v=20261117c"></script>
 </body>
 </html>

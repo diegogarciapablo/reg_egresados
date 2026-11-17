@@ -9,6 +9,7 @@
     "start": "node backend/src/server.js",
     "migrate": "node backend/scripts/migrate.js",
     "seed": "node backend/scripts/seed.js",
+    "seed:admin": "node backend/scripts/seed_admin.js",
     "seed:more": "node backend/scripts/seed_more_profiles.js",
     "test": "vitest run",
     "audit:deps": "node pruebas_desarrollo/scripts/auditar_dependencias.js",

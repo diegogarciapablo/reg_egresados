@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mi ficha - Registro de Egresados</title>
-  <link rel="stylesheet" href="/styles.css?v=20261114f" />
+  <link rel="stylesheet" href="/styles.css?v=20261117c" />
 </head>
 <body>
   <header class="topbar" id="topbar"></header>
@@ -91,7 +91,7 @@
         </div>
 
         <div class="social-links-block" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
-          <div class="flex-between">
+          <div class="flex-between" style="flex-wrap: wrap; gap: 8px;">
             <div>
               <h3 style="margin-bottom: 4px; font-size: 1.1rem; color: var(--primary);">Redes y Enlaces Profesionales</h3>
               <p class="hint" style="margin-top: 0;">Agrega tus enlaces (LinkedIn, GitHub, Portafolio, GitLab, Kaggle, etc.). El tipo de red define el estilo y color del botón público.</p>
@@ -99,24 +99,26 @@
             <button id="addSocialLinkBtn" type="button" class="btn btn-secondary">+ Agregar red profesional</button>
           </div>
           <div id="socialLinksList" style="margin-top: 12px;"></div>
+          <div class="section-footer-actions" style="margin-top: 12px;">
+            <button type="submit" class="btn btn-primary">Guardar información</button>
+            <button id="addSocialLinkBottomBtn" type="button" class="btn btn-secondary">+ Agregar red profesional</button>
+          </div>
         </div>
-
-        <button type="submit" class="btn btn-primary" style="margin-top: 16px;">Guardar información</button>
       </form>
     </section>
 
     <section class="card">
       <div class="section-title"><h2>Habilidades técnicas</h2></div>
-      <p class="hint">Selecciona todas las habilidades técnicas que dominas.</p>
-      <div id="technologiesChips" class="chip-group"></div>
-      <button id="saveTechnologiesBtn" class="btn btn-secondary" style="margin-top:12px;">Guardar habilidades técnicas</button>
+      <p class="hint">Elige las habilidades que dominas desde el selector de cada especialidad. Al seleccionarla se agregará como botón y podrás quitarla cuando desees.</p>
+      <div id="technologiesChips"></div>
+      <button id="saveTechnologiesBtn" class="btn btn-primary" style="margin-top:12px;">Guardar habilidades técnicas</button>
     </section>
 
     <section class="card">
       <div class="section-title"><h2>Habilidades Personales</h2></div>
-      <p class="hint">Selecciona todas las habilidades personales que te representan.</p>
-      <div id="softSkillsChips" class="chip-group"></div>
-      <button id="saveSoftSkillsBtn" class="btn btn-secondary" style="margin-top:12px;">Guardar habilidades personales</button>
+      <p class="hint">Elige las habilidades personales que te representan desde la lista desplegable.</p>
+      <div id="softSkillsChips"></div>
+      <button id="saveSoftSkillsBtn" class="btn btn-primary" style="margin-top:12px;">Guardar habilidades personales</button>
     </section>
 
     <section class="card">
@@ -126,11 +128,14 @@
       </div>
       <p class="hint">Selecciona los idiomas que dominas y tu nivel de fluidez.</p>
       <div id="languagesList" style="margin-top: 12px;"></div>
-      <button id="saveLanguagesBtn" class="btn btn-secondary" style="margin-top: 14px;">Guardar idiomas</button>
+      <div class="section-footer-actions" style="margin-top: 14px;">
+        <button id="saveLanguagesBtn" class="btn btn-primary" type="button">Guardar idiomas</button>
+        <button id="addLanguageBottomBtn" class="btn btn-secondary" type="button">+ Agregar idioma</button>
+      </div>
     </section>
 
     <section class="card">
-      <div class="section-title flex-between">
+      <div class="section-title flex-between" style="flex-wrap: wrap; gap: 8px;">
         <h2>Experiencias</h2>
         <div class="experience-add-buttons">
           <button id="addWorkExpBtn" class="btn btn-secondary" type="button">+ Experiencia Laboral</button>
@@ -144,41 +149,56 @@
         <h3 style="margin-bottom: 4px; font-size: 1.1rem; color: var(--primary);">1. Experiencia Laboral</h3>
         <p class="hint" style="margin-top: 0; margin-bottom: 12px;">Empleos formales, consultorías, proyectos profesionales independientes y pasantías laborales.</p>
         <div id="experiencesWorkList"></div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+          <button id="addWorkExpBottomBtn" class="btn btn-secondary" type="button">+ Agregar experiencia laboral</button>
+        </div>
       </div>
 
       <div class="experience-subgroup" style="margin-top: 24px;">
         <h3 style="margin-bottom: 4px; font-size: 1.1rem; color: var(--primary);">2. Experiencia Académica</h3>
         <p class="hint" style="margin-top: 0; margin-bottom: 12px;">Docencia universitaria, estancias de investigación, ponencias, publicaciones y proyectos académicos.</p>
         <div id="experiencesAcademicList"></div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+          <button id="addAcademicExpBottomBtn" class="btn btn-secondary" type="button">+ Agregar experiencia académica</button>
+        </div>
       </div>
 
       <div class="experience-subgroup" style="margin-top: 24px;">
         <h3 style="margin-bottom: 4px; font-size: 1.1rem; color: var(--primary);">3. Experiencia Pre-egreso (Vida Universitaria)</h3>
         <p class="hint" style="margin-top: 0; margin-bottom: 12px;">Ayudantías estudiantiles de cátedra, sociedades científicas, voluntariados, olimpiadas y logros destacados durante tu formación en la carrera.</p>
         <div id="experiencesPreGraduateList"></div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+          <button id="addPreGraduateExpBottomBtn" class="btn btn-secondary" type="button">+ Agregar experiencia pre-egreso</button>
+        </div>
       </div>
 
-      <button id="saveExperiencesBtn" class="btn btn-primary" style="margin-top:16px;">Guardar experiencias</button>
+      <div class="section-footer-actions" style="margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px;">
+        <button id="saveExperiencesBtn" class="btn btn-primary" type="button">Guardar experiencias</button>
+      </div>
     </section>
 
     <section class="card">
-      <div class="section-title flex-between">
+      <div class="section-title flex-between" style="flex-wrap: wrap; gap: 8px;">
         <h2>Proyectos realizados</h2>
-        <button id="addProjectBtn" class="btn btn-secondary" type="button">Agregar proyecto</button>
+        <button id="addProjectBtn" class="btn btn-secondary" type="button">+ Agregar proyecto</button>
       </div>
       <div id="projectsList"></div>
-      <button id="saveProjectsBtn" class="btn btn-primary" style="margin-top:12px;">Guardar proyectos</button>
+      <div class="section-footer-actions" style="margin-top: 14px;">
+        <button id="saveProjectsBtn" class="btn btn-primary" type="button">Guardar proyectos</button>
+        <button id="addProjectBottomBtn" class="btn btn-secondary" type="button">+ Agregar proyecto</button>
+      </div>
     </section>
 
     <section class="card">
-      <div class="section-title">
+      <div class="section-title flex-between" style="flex-wrap: wrap; gap: 8px;">
         <h2>Formación Académica</h2>
+        <button id="addCertificateTopBtn" class="btn btn-secondary" type="button">+ Agregar formación académica</button>
       </div>
       <p class="hint">Registra tus títulos de grado, postgrado, diplomados y cursos/certificaciones con su certificado digital (PDF o imagen, máx. 10 MB). Se organizarán por nivel académico y fecha más reciente.</p>
       <div id="certificatesList"></div>
-      <div class="certificates-actions">
-        <button id="addCertificateBtn" class="btn btn-secondary" type="button">+ Agregar formación académica</button>
+      <div class="section-footer-actions" style="margin-top: 14px;">
         <button id="saveCertificatesBtn" class="btn btn-primary" type="button">Guardar formación académica</button>
+        <button id="addCertificateBtn" class="btn btn-secondary" type="button">+ Agregar formación académica</button>
       </div>
     </section>
 
@@ -186,7 +206,7 @@
     <section class="card" style="margin-top: 24px; padding: 22px; background: #f8fafc; border: 2px dashed #0f2744; text-align: center; border-radius: 8px;">
       <h3 style="margin-top: 0; color: #0f2744; font-size: 1.15rem;">💾 Guardado Completo de la Ficha</h3>
       <p style="margin: 8px auto 16px auto; color: #475569; font-size: 0.95rem; max-width: 640px;">
-        Si realizaste cambios en varias secciones o quieres asegurarte de no olvidar guardar nada, pulsa este botón. Guardará toda la información personal, habilidades, idiomas, experiencias, proyectos y certificados de una sola vez, dejándola lista para solicitar su publicación.
+        Si realizaste cambios en varias secciones o quieres asegurarte de no olvidar guardar nada, pulsa este botón. Podrás elegir entre guardar y solicitar revisión para publicar tu ficha o guardarla manteniéndola como privada.
       </p>
       <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
         <button id="saveAllSectionsBtn" class="btn btn-primary" type="button" style="padding: 12px 28px; font-size: 1.05rem; font-weight: 700; box-shadow: 0 4px 6px -1px rgba(15, 39, 68, 0.2);">
@@ -195,6 +215,38 @@
       </div>
     </section>
   </main>
+
+  <!-- Modal de Opciones al Guardar Ficha Completa -->
+  <div id="saveOptionsModal" class="admin-dialog" hidden>
+    <section class="admin-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="saveOptionsTitle" style="max-width: 520px;">
+      <div class="flex-between admin-dialog-heading">
+        <h2 id="saveOptionsTitle">Guardar modificaciones de tu ficha</h2>
+        <button id="closeSaveOptionsModalBtn" class="admin-icon-button" type="button" aria-label="Cerrar">✕</button>
+      </div>
+      <p class="hint" style="margin-top: 0; margin-bottom: 18px; color: #334155; font-size: 0.95rem;">
+        Selecciona cómo deseas proceder con el guardado de tu ficha profesional:
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <button id="confirmSaveAndPublishBtn" class="btn btn-primary" type="button" style="padding: 14px 18px; font-size: 0.98rem; text-align: left; display: flex; align-items: center; gap: 10px; justify-content: flex-start;">
+          <span style="font-size: 1.3rem;">🚀</span>
+          <div>
+            <div style="font-weight: 700;">Guardar y solicitar revisión para publicar tu ficha</div>
+            <div style="font-size: 0.82rem; opacity: 0.9; font-weight: normal;">Guarda toda tu información y envía la solicitud al administrador para su publicación en el directorio.</div>
+          </div>
+        </button>
+        <button id="confirmSavePrivateBtn" class="btn btn-secondary" type="button" style="padding: 14px 18px; font-size: 0.98rem; text-align: left; display: flex; align-items: center; gap: 10px; justify-content: flex-start; border: 1px solid #cbd5e1;">
+          <span style="font-size: 1.3rem;">🔒</span>
+          <div>
+            <div style="font-weight: 700; color: #0f2744;">Guardar y mantener la ficha como privada</div>
+            <div style="font-size: 0.82rem; color: #64748b; font-weight: normal;">Guarda todos tus cambios como borrador privado sin solicitar publicación todavía.</div>
+          </div>
+        </button>
+      </div>
+      <div class="admin-dialog-actions" style="margin-top: 18px; display: flex; justify-content: flex-end;">
+        <button id="cancelSaveOptionsBtn" class="btn btn-secondary" type="button">Cancelar</button>
+      </div>
+    </section>
+  </div>
 
   <div id="changePasswordModal" class="admin-dialog" hidden>
     <section class="admin-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="changePasswordTitle" style="max-width: 480px;">
@@ -265,9 +317,9 @@
     </section>
   </div>
 
-  <script src="/js/api.js?v=20261114f"></script>
-  <script src="/js/ui.js?v=20261114f"></script>
-  <script src="/js/cv-exporter.js?v=20261114f"></script>
-  <script src="/js/dashboard.js?v=20261114f"></script>
+  <script src="/js/api.js?v=20261117c"></script>
+  <script src="/js/ui.js?v=20261117c"></script>
+  <script src="/js/cv-exporter.js?v=20261117c"></script>
+  <script src="/js/dashboard.js?v=20261117c"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Directorio de Egresados - Ingenieria Informatica UAJMS</title>
-  <link rel="stylesheet" href="/styles.css?v=20261114f" />
+  <link rel="stylesheet" href="/styles.css?v=20261117c" />
 </head>
 <body>
   <header class="topbar" id="topbar"></header>
@@ -45,10 +45,10 @@
         <label for="q">Buscar</label>
         <input type="text" id="q" name="q" placeholder="Nombre, cargo, tecnologia..." />
       </div>
-      <div class="form-group">
-        <label for="technology">Tecnologia</label>
-        <select id="technology" name="technology">
-          <option value="">Todas</option>
+      <div class="form-group" style="min-width: 240px;">
+        <label for="technology">Habilidades/Tecnologías <span id="selectedTechsCount" style="font-size: 0.78rem; color: var(--muted); font-weight: normal;">(0/3)</span></label>
+        <select id="technology">
+          <option value="">Todas (0/3)</option>
         </select>
       </div>
       <div class="form-group">
@@ -71,8 +71,8 @@
     <div id="pagination" class="pagination"></div>
   </main>
 
-  <script src="/js/api.js?v=20261114f"></script>
-  <script src="/js/ui.js?v=20261114f"></script>
-  <script src="/js/directory.js?v=20261114f"></script>
+  <script src="/js/api.js?v=20261117c"></script>
+  <script src="/js/ui.js?v=20261117c"></script>
+  <script src="/js/directory.js?v=20261117c"></script>
 </body>
 </html>

@@ -1,15 +1,118 @@
 let currentPage = 1;
 const LIMIT = 9;
+const MAX_FILTER_TECHS = 3;
+let allDirectoryTechnologies = [];
+const selectedFilterTechs = new Map(); // slug -> name
+
+function renderTechnologyFilterState() {
+  const select = document.getElementById("technology");
+  const countLabel = document.getElementById("selectedTechsCount");
+  if (!select) return;
+
+  if (countLabel) {
+    countLabel.textContent = `(${selectedFilterTechs.size}/${MAX_FILTER_TECHS})`;
+  }
+
+  select.innerHTML = "";
+  const selectedNames = Array.from(selectedFilterTechs.values());
+  const summaryText =
+    selectedNames.length > 0
+      ? `✓ ${selectedNames.join(", ")} (${selectedNames.length}/${MAX_FILTER_TECHS})`
+      : `Todas las habilidades (0/${MAX_FILTER_TECHS})`;
+
+  const summaryOpt = el("option", { value: "", text: summaryText });
+  if (selectedNames.length > 0) {
+    summaryOpt.style.fontWeight = "700";
+    summaryOpt.style.color = "#0f2744";
+  }
+  select.appendChild(summaryOpt);
+
+  if (selectedFilterTechs.size > 0) {
+    const clearOpt = el("option", {
+      value: "__clear__",
+      text: "✕ Limpiar habilidades seleccionadas",
+    });
+    clearOpt.style.backgroundColor = "#fee2e2";
+    clearOpt.style.color = "#991b1b";
+    clearOpt.style.fontWeight = "600";
+    select.appendChild(clearOpt);
+  }
+
+  for (const tech of allDirectoryTechnologies) {
+    const isSelected = selectedFilterTechs.has(tech.slug);
+    const opt = el("option", {
+      value: tech.slug,
+      class: isSelected ? "tech-option-selected" : "",
+      text: isSelected ? `✓ ${tech.name} (Seleccionada)` : tech.name,
+    });
+    if (isSelected) {
+      opt.style.backgroundColor = "#dbeafe";
+      opt.style.color = "#1e3a8a";
+      opt.style.fontWeight = "700";
+    }
+    select.appendChild(opt);
+  }
+
+  // Mantener seleccionada la opción resumen para ver las activas y permitir marcar/desmarcar cualquiera
+  select.value = "";
+  if (selectedFilterTechs.size > 0) {
+    select.style.borderColor = "#2563eb";
+    select.style.backgroundColor = "#eff6ff";
+    select.style.color = "#1e3a8a";
+    select.style.fontWeight = "600";
+  } else {
+    select.style.borderColor = "";
+    select.style.backgroundColor = "";
+    select.style.color = "";
+    select.style.fontWeight = "";
+  }
+}
 
 async function loadTechnologiesFilter() {
   const select = document.getElementById("technology");
   try {
-    const technologies = await api.catalogs.technologies();
-    for (const tech of technologies) {
-      select.appendChild(el("option", { value: tech.slug, text: tech.name }));
-    }
+    allDirectoryTechnologies = (await api.catalogs.technologies()) || [];
   } catch {
-    // Si el catalogo falla, el filtro simplemente queda solo con "Todas".
+    allDirectoryTechnologies = [];
+  }
+  renderTechnologyFilterState();
+
+  if (select) {
+    select.addEventListener("change", () => {
+      const val = select.value;
+      if (!val) return;
+
+      if (val === "__clear__") {
+        selectedFilterTechs.clear();
+        renderTechnologyFilterState();
+        loadDirectory(1);
+        return;
+      }
+
+      // Si ya estaba seleccionada, al hacer clic nuevamente se desmarca
+      if (selectedFilterTechs.has(val)) {
+        selectedFilterTechs.delete(val);
+        renderTechnologyFilterState();
+        loadDirectory(1);
+        return;
+      }
+
+      if (selectedFilterTechs.size >= MAX_FILTER_TECHS) {
+        showToast(
+          "Solo puedes seleccionar un máximo de 3 habilidades. Selecciona una ya marcada en la lista para quitarla.",
+          "warning"
+        );
+        select.value = "";
+        return;
+      }
+
+      const found = allDirectoryTechnologies.find((t) => t.slug === val);
+      if (found) {
+        selectedFilterTechs.set(found.slug, found.name);
+        renderTechnologyFilterState();
+        loadDirectory(1);
+      }
+    });
   }
 }
 
@@ -128,9 +231,11 @@ async function loadDirectory(page = 1) {
     return;
   }
 
+  const techSlugs = Array.from(selectedFilterTechs.keys());
+
   const params = {
     q: formData.get("q") || undefined,
-    technology: formData.get("technology") || undefined,
+    technology: techSlugs.length > 0 ? techSlugs.join(",") : undefined,
     yearFrom,
     yearTo,
     page,

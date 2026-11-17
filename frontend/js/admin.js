@@ -29,8 +29,37 @@ function formatCellValue(value, column) {
   return String(value);
 }
 
+function getTableColumnsForActiveEntity() {
+  if (!activeDefinition) return [];
+  if (activeDefinition.key === "graduates") {
+    return [
+      { key: "full_name", label: "Nombre", type: "text" },
+      { key: "account_email", label: "Correo", type: "text" },
+      { key: "preview_link", label: "Ficha Pública", type: "link", linkText: "👁️ Revisar Ficha" },
+    ];
+  }
+  return activeDefinition.columns || [];
+}
+
 function renderCellContent(row, column) {
-  const value = row[column.key];
+  let value = row[column.key];
+
+  if (activeDefinition && activeDefinition.key === "graduates") {
+    if (column.key === "full_name") {
+      return row.full_name || [row.first_name, row.last_name].filter(Boolean).join(" ") || "-";
+    }
+    if (column.key === "account_email") {
+      return row.account_email || row.personal_email || "-";
+    }
+    if (column.key === "preview_link") {
+      value =
+        row.preview_link ||
+        (row.registration_code
+          ? `/perfil.html?codigo=${encodeURIComponent(row.registration_code)}&preview=true`
+          : "");
+    }
+  }
+
   if (activeDefinition.key === "users" && column.key === "role") {
     const isAdmin = value === "admin";
     return el("span", {
@@ -54,6 +83,24 @@ function renderCellContent(row, column) {
       rel: "noopener noreferrer",
       class: "certificate-file-link",
       text: "Abrir enlace",
+    });
+  }
+  if (
+    value &&
+    (column.type === "link" ||
+      column.key === "link" ||
+      column.key === "preview_link" ||
+      (typeof value === "string" && (value.startsWith("/perfil") || value.startsWith("/dashboard"))))
+  ) {
+    const safeHref = typeof normalizeInternalUrl === "function" ? normalizeInternalUrl(value) : String(value);
+    const defaultLabel = column.key === "preview_link" ? "👁️ Revisar Ficha" : "Abrir destino ↗";
+    return el("a", {
+      href: safeHref,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      class: "certificate-file-link",
+      style: "font-weight: 600; display: inline-flex; align-items: center; gap: 4px;",
+      text: column.linkText || defaultLabel,
     });
   }
   return formatCellValue(value, column);
@@ -98,9 +145,11 @@ function selectEntity(entity) {
   const createBtn = document.getElementById("createEntityBtn");
   if (activeDefinition.creatable) {
     createBtn.hidden = false;
+    createBtn.style.display = "inline-flex";
     createBtn.textContent = `+ Agregar ${activeDefinition.singularLabel || "registro"}`;
   } else {
     createBtn.hidden = true;
+    createBtn.style.display = "none";
   }
 
   renderEntityTabs();
@@ -114,7 +163,9 @@ function renderTable(rows) {
   head.replaceChildren();
   body.replaceChildren();
 
-  for (const column of activeDefinition.columns) {
+  const tableColumns = getTableColumnsForActiveEntity();
+
+  for (const column of tableColumns) {
     head.appendChild(el("th", { scope: "col", text: column.label }));
   }
   head.appendChild(el("th", { scope: "col", class: "admin-actions-heading", text: "Estado / Acciones" }));
@@ -124,7 +175,7 @@ function renderTable(rows) {
 
   for (const row of rows) {
     const tableRow = el("tr", { class: row.is_active ? "" : "admin-inactive-row" });
-    for (const column of activeDefinition.columns) {
+    for (const column of tableColumns) {
       const cellContent = renderCellContent(row, column);
       tableRow.appendChild(el("td", {}, [cellContent]));
     }

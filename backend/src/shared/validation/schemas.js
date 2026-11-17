@@ -41,6 +41,18 @@ export const changePasswordSchema = z.object({
     .max(72, "La nueva contraseña no puede superar los 72 caracteres"),
 });
 
+export const requestPasswordResetSchema = z.object({
+  email: z.string().email("Correo electrónico inválido").max(254),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Token inválido o ausente"),
+  newPassword: z
+    .string()
+    .min(8, "La nueva contraseña debe tener al menos 8 caracteres")
+    .max(72, "La nueva contraseña no puede superar los 72 caracteres"),
+});
+
 export const professionalLinkSchema = z.object({
   type: z.enum([
     "linkedin",
@@ -201,7 +213,7 @@ export const coverLetterSchema = z.object({
 export const directoryQuerySchema = z
   .object({
     q: z.string().max(100).optional(),
-    technology: z.string().max(80).optional(),
+    technology: z.string().max(240).optional(),
     year: z.coerce.number().int().min(1950).max(2100).optional(),
     yearFrom: z.coerce.number().int().min(1950).max(2100).optional(),
     yearTo: z.coerce.number().int().min(1950).max(2100).optional(),

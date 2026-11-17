@@ -519,30 +519,69 @@ function renderSpecializedTechChips(container, items, selectedSet) {
 
   for (const [key, list] of Object.entries(groups)) {
     if (!list.length) continue;
-    const groupBlock = el("div", { class: "tech-specialty-group", style: "margin-bottom: 16px;" });
+    const available = list.filter((item) => !selectedSet.has(item.id));
+    const selected = list.filter((item) => selectedSet.has(item.id));
+
+    const groupBlock = el("div", { class: "tech-specialty-group", style: "margin-bottom: 18px;" });
     groupBlock.appendChild(el("h4", { class: "tech-specialty-title", text: specialtyNames[key] || key }));
-    const chipsWrap = el("div", { class: "chip-group" });
 
-    for (const item of list) {
-      const isSelected = selectedSet.has(item.id);
-      const chip = el("button", {
-        type: "button",
-        class: `chip ${isSelected ? "selected" : ""}`,
-        text: item.name,
-      });
+    const select = el("select", { class: "category-skill-select" });
+    select.appendChild(
+      el("option", {
+        value: "",
+        text:
+          available.length > 0
+            ? `+ Agregar habilidad de ${specialtyNames[key].replace(/^[^\s]+\s/, "")}...`
+            : "Todas las habilidades de esta categoría fueron agregadas",
+      })
+    );
+    for (const item of available) {
+      select.appendChild(el("option", { value: item.id, text: item.name }));
+    }
+    select.disabled = available.length === 0;
 
-      chip.addEventListener("click", () => {
-        if (!selectedSet.has(item.id)) {
-          selectedSet.add(item.id);
-        } else {
-          selectedSet.delete(item.id);
-        }
+    select.addEventListener("change", () => {
+      if (select.value) {
+        selectedSet.add(select.value);
         clearAlert(document.getElementById("generalAlert"));
         renderSpecializedTechChips(container, items, selectedSet);
-      });
+      }
+    });
 
-      chipsWrap.appendChild(chip);
+    groupBlock.appendChild(select);
+
+    const chipsWrap = el("div", { class: "chip-group", style: "margin-top: 10px;" });
+    if (selected.length === 0) {
+      chipsWrap.appendChild(
+        el("span", {
+          class: "hint",
+          style: "font-size: 0.84rem;",
+          text: "Ninguna habilidad seleccionada en esta categoría.",
+        })
+      );
+    } else {
+      for (const item of selected) {
+        const chip = el(
+          "button",
+          {
+            type: "button",
+            class: "chip selected skill-chip-removable",
+            title: `Quitar ${item.name}`,
+          },
+          [
+            el("span", { text: item.name }),
+            el("span", { class: "chip-remove-icon", text: "✕" }),
+          ]
+        );
+        chip.addEventListener("click", () => {
+          selectedSet.delete(item.id);
+          clearAlert(document.getElementById("generalAlert"));
+          renderSpecializedTechChips(container, items, selectedSet);
+        });
+        chipsWrap.appendChild(chip);
+      }
     }
+
     groupBlock.appendChild(chipsWrap);
     container.appendChild(groupBlock);
   }
@@ -550,26 +589,66 @@ function renderSpecializedTechChips(container, items, selectedSet) {
 
 function renderChips(container, items, selectedSet) {
   container.innerHTML = "";
-  for (const item of items) {
-    const isSelected = selectedSet.has(item.id);
-    const chip = el("button", {
-      type: "button",
-      class: `chip ${isSelected ? "selected" : ""}`,
-      text: item.name,
-    });
+  const available = items.filter((item) => !selectedSet.has(item.id));
+  const selected = items.filter((item) => selectedSet.has(item.id));
 
-    chip.addEventListener("click", () => {
-      if (!selectedSet.has(item.id)) {
-        selectedSet.add(item.id);
-      } else {
-        selectedSet.delete(item.id);
-      }
+  const select = el("select", { class: "category-skill-select" });
+  select.appendChild(
+    el("option", {
+      value: "",
+      text:
+        available.length > 0
+          ? "+ Agregar habilidad personal..."
+          : "Todas las habilidades personales fueron agregadas",
+    })
+  );
+  for (const item of available) {
+    select.appendChild(el("option", { value: item.id, text: item.name }));
+  }
+  select.disabled = available.length === 0;
+
+  select.addEventListener("change", () => {
+    if (select.value) {
+      selectedSet.add(select.value);
       clearAlert(document.getElementById("generalAlert"));
       renderChips(container, items, selectedSet);
-    });
+    }
+  });
 
-    container.appendChild(chip);
+  container.appendChild(select);
+
+  const chipsWrap = el("div", { class: "chip-group", style: "margin-top: 10px;" });
+  if (selected.length === 0) {
+    chipsWrap.appendChild(
+      el("span", {
+        class: "hint",
+        style: "font-size: 0.84rem;",
+        text: "Ninguna habilidad personal seleccionada aún.",
+      })
+    );
+  } else {
+    for (const item of selected) {
+      const chip = el(
+        "button",
+        {
+          type: "button",
+          class: "chip selected skill-chip-removable",
+          title: `Quitar ${item.name}`,
+        },
+        [
+          el("span", { text: item.name }),
+          el("span", { class: "chip-remove-icon", text: "✕" }),
+        ]
+      );
+      chip.addEventListener("click", () => {
+        selectedSet.delete(item.id);
+        clearAlert(document.getElementById("generalAlert"));
+        renderChips(container, items, selectedSet);
+      });
+      chipsWrap.appendChild(chip);
+    }
   }
+  container.appendChild(chipsWrap);
 }
 
 const EXPERIENCE_MONTHS = [
@@ -1111,12 +1190,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // --- Redes profesionales dinámicas ---
   const addSocialBtn = document.getElementById("addSocialLinkBtn");
+  const addSocialBottomBtn = document.getElementById("addSocialLinkBottomBtn");
   const socialList = document.getElementById("socialLinksList");
-  if (addSocialBtn && socialList) {
-    addSocialBtn.addEventListener("click", () => {
-      socialList.appendChild(socialLinkRow({ type: "linkedin", url: "" }));
-    });
-  }
+  const appendSocialRow = () => {
+    if (socialList) socialList.appendChild(socialLinkRow({ type: "linkedin", url: "" }));
+  };
+  addSocialBtn?.addEventListener("click", appendSocialRow);
+  addSocialBottomBtn?.addEventListener("click", appendSocialRow);
 
   // --- Informacion general ---
   document.getElementById("profileForm").addEventListener("submit", async (e) => {
@@ -1191,9 +1271,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       languagesList.appendChild(languageRow({}));
     }
 
-    addLanguageBtn?.addEventListener("click", () => {
+    const appendLangRow = () => {
       languagesList.appendChild(languageRow({}));
-    });
+    };
+    addLanguageBtn?.addEventListener("click", appendLangRow);
+    document.getElementById("addLanguageBottomBtn")?.addEventListener("click", appendLangRow);
 
     saveLanguagesBtn?.addEventListener("click", async () => {
       clearAlert(generalAlert);
@@ -1233,15 +1315,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  document.getElementById("addWorkExpBtn").addEventListener("click", () => {
-    workList.appendChild(experienceRow({}, "work"));
-  });
-  document.getElementById("addAcademicExpBtn").addEventListener("click", () => {
-    academicList.appendChild(experienceRow({}, "academic"));
-  });
-  document.getElementById("addPreGraduateExpBtn").addEventListener("click", () => {
-    preGraduateList.appendChild(experienceRow({}, "pre_graduate"));
-  });
+  const addWorkExp = () => workList.appendChild(experienceRow({}, "work"));
+  const addAcademicExp = () => academicList.appendChild(experienceRow({}, "academic"));
+  const addPreGraduateExp = () => preGraduateList.appendChild(experienceRow({}, "pre_graduate"));
+
+  document.getElementById("addWorkExpBtn")?.addEventListener("click", addWorkExp);
+  document.getElementById("addWorkExpBottomBtn")?.addEventListener("click", addWorkExp);
+  document.getElementById("addAcademicExpBtn")?.addEventListener("click", addAcademicExp);
+  document.getElementById("addAcademicExpBottomBtn")?.addEventListener("click", addAcademicExp);
+  document.getElementById("addPreGraduateExpBtn")?.addEventListener("click", addPreGraduateExp);
+  document.getElementById("addPreGraduateExpBottomBtn")?.addEventListener("click", addPreGraduateExp);
 
   document.getElementById("saveExperiencesBtn").addEventListener("click", async () => {
     clearAlert(generalAlert);
@@ -1285,9 +1368,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   for (const project of graduate.projects || []) {
     projectsList.appendChild(projectRow(project));
   }
-  document.getElementById("addProjectBtn").addEventListener("click", () => {
-    projectsList.appendChild(projectRow());
-  });
+  const appendProject = () => projectsList.appendChild(projectRow());
+  document.getElementById("addProjectBtn")?.addEventListener("click", appendProject);
+  document.getElementById("addProjectBottomBtn")?.addEventListener("click", appendProject);
+
   document.getElementById("saveProjectsBtn").addEventListener("click", async () => {
     const projects = [...projectsList.children].map((row) => row._getData());
     try {
@@ -1310,9 +1394,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     certificatesList.appendChild(certificateRow({}, generalAlert));
   }
 
-  document.getElementById("addCertificateBtn").addEventListener("click", () => {
-    certificatesList.appendChild(certificateRow({}, generalAlert));
-  });
+  const appendCertificate = () => certificatesList.appendChild(certificateRow({}, generalAlert));
+  document.getElementById("addCertificateBtn")?.addEventListener("click", appendCertificate);
+  document.getElementById("addCertificateTopBtn")?.addEventListener("click", appendCertificate);
 
   document.getElementById("saveCertificatesBtn").addEventListener("click", async () => {
     const rowsData = [...certificatesList.children].map((row) => row._getData());
@@ -1334,113 +1418,157 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // --- Botón de Guardado Global de Todas las Modificaciones ---
+  // --- Modal y Guardado Global de Todas las Modificaciones ---
   const saveAllSectionsBtn = document.getElementById("saveAllSectionsBtn");
-  if (saveAllSectionsBtn) {
-    saveAllSectionsBtn.addEventListener("click", async () => {
-      clearAlert(generalAlert);
-      saveAllSectionsBtn.disabled = true;
-      const originalText = saveAllSectionsBtn.textContent;
-      saveAllSectionsBtn.textContent = "⏳ Guardando toda la ficha...";
+  const saveOptionsModal = document.getElementById("saveOptionsModal");
+  const closeSaveOptionsModalBtn = document.getElementById("closeSaveOptionsModalBtn");
+  const cancelSaveOptionsBtn = document.getElementById("cancelSaveOptionsBtn");
+  const confirmSaveAndPublishBtn = document.getElementById("confirmSaveAndPublishBtn");
+  const confirmSavePrivateBtn = document.getElementById("confirmSavePrivateBtn");
 
-      try {
-        // 1. Datos generales y canales de contacto
-        const phone = document.getElementById("contactPhone").value.trim() || null;
-        const personalEmail = document.getElementById("personalEmail").value.trim();
-        const institutionalEmail = document.getElementById("institutionalEmail").value.trim() || null;
+  const closeSaveModal = () => {
+    if (saveOptionsModal) saveOptionsModal.hidden = true;
+  };
 
-        if (!personalEmail) {
-          throw new Error("El correo personal / profesional es obligatorio en Información General.");
-        }
+  if (saveAllSectionsBtn && saveOptionsModal) {
+    saveAllSectionsBtn.addEventListener("click", () => {
+      saveOptionsModal.hidden = false;
+    });
+    closeSaveOptionsModalBtn?.addEventListener("click", closeSaveModal);
+    cancelSaveOptionsBtn?.addEventListener("click", closeSaveModal);
+    saveOptionsModal.addEventListener("click", (e) => {
+      if (e.target === saveOptionsModal) closeSaveModal();
+    });
+  }
 
-        const socialRows = [...socialList.children].map((row) => row._getData && row._getData()).filter(Boolean);
+  async function executeGlobalSave({ requestReview = false } = {}) {
+    closeSaveModal();
+    clearAlert(generalAlert);
+    if (saveAllSectionsBtn) saveAllSectionsBtn.disabled = true;
+    const originalText = saveAllSectionsBtn ? saveAllSectionsBtn.textContent : "";
+    if (saveAllSectionsBtn) {
+      saveAllSectionsBtn.textContent = requestReview
+        ? "⏳ Guardando y solicitando revisión..."
+        : "⏳ Guardando toda la ficha...";
+    }
 
-        await api.profile.update({
-          firstName: document.getElementById("firstName").value,
-          lastName: document.getElementById("lastName").value,
-          graduationYear: Number(document.getElementById("graduationYear").value) || undefined,
-          currentRole: document.getElementById("currentRole").value || null,
-          professionalSummary: document.getElementById("professionalSummary").value || null,
-          phone,
-          personalEmail,
-          institutionalEmail,
-          professionalLinks: socialRows,
-          technologyIds: [...selectedTechnologies],
-          softSkillIds: [...selectedSoftSkills],
-        });
+    try {
+      // 1. Datos generales y canales de contacto
+      const phone = document.getElementById("contactPhone").value.trim() || null;
+      const personalEmail = document.getElementById("personalEmail").value.trim();
+      const institutionalEmail = document.getElementById("institutionalEmail").value.trim() || null;
 
-        // 2. Habilidades
-        await Promise.all([
-          api.profile.setTechnologies([...selectedTechnologies]),
-          api.profile.setSoftSkills([...selectedSoftSkills]),
-        ]);
+      if (!personalEmail) {
+        throw new Error("El correo personal / profesional es obligatorio en Información General.");
+      }
 
-        // 3. Idiomas
-        if (languagesList) {
-          const langRows = [...languagesList.children].map((row) => row._getData && row._getData()).filter(Boolean);
-          const uniqueLangs = new Set();
-          for (const item of langRows) {
-            if (uniqueLangs.has(item.languageId)) {
-              throw new Error("No puedes agregar el mismo idioma más de una vez.");
-            }
-            uniqueLangs.add(item.languageId);
+      const socialRows = [...socialList.children].map((row) => row._getData && row._getData()).filter(Boolean);
+
+      await api.profile.update({
+        firstName: document.getElementById("firstName").value,
+        lastName: document.getElementById("lastName").value,
+        graduationYear: Number(document.getElementById("graduationYear").value) || undefined,
+        currentRole: document.getElementById("currentRole").value || null,
+        professionalSummary: document.getElementById("professionalSummary").value || null,
+        phone,
+        personalEmail,
+        institutionalEmail,
+        professionalLinks: socialRows,
+        technologyIds: [...selectedTechnologies],
+        softSkillIds: [...selectedSoftSkills],
+      });
+
+      // 2. Habilidades
+      await Promise.all([
+        api.profile.setTechnologies([...selectedTechnologies]),
+        api.profile.setSoftSkills([...selectedSoftSkills]),
+      ]);
+
+      // 3. Idiomas
+      if (languagesList) {
+        const langRows = [...languagesList.children].map((row) => row._getData && row._getData()).filter(Boolean);
+        const uniqueLangs = new Set();
+        for (const item of langRows) {
+          if (uniqueLangs.has(item.languageId)) {
+            throw new Error("No puedes agregar el mismo idioma más de una vez.");
           }
-          await api.profile.setLanguages(langRows);
+          uniqueLangs.add(item.languageId);
         }
+        await api.profile.setLanguages(langRows);
+      }
 
-        // 4. Experiencias
-        const allExpRows = [
-          ...workList.children,
-          ...academicList.children,
-          ...preGraduateList.children,
-        ];
-        const rawExpRows = allExpRows.map((row) => row._getData && row._getData()).filter(Boolean);
-        const nonEmptyExpRows = rawExpRows.filter(
-          (exp) => exp.position || exp.organization || exp.startDate || exp.endDate || exp.description || exp._incompleteDate
-        );
-        for (const exp of nonEmptyExpRows) {
-          if (!exp.position || !exp.organization) {
-            throw new Error("En cada experiencia debes indicar tanto el puesto o rol como la organización.");
-          }
-          if (exp._incompleteDate) {
-            throw new Error("Si usas el formato Mes / Año en experiencia, debes seleccionar tanto el mes como el año.");
-          }
-          if (exp.startDate && exp.endDate && exp.endDate < exp.startDate) {
-            throw new Error("La fecha de fin no puede ser anterior a la fecha de inicio en la experiencia.");
-          }
+      // 4. Experiencias
+      const allExpRows = [
+        ...workList.children,
+        ...academicList.children,
+        ...preGraduateList.children,
+      ];
+      const rawExpRows = allExpRows.map((row) => row._getData && row._getData()).filter(Boolean);
+      const nonEmptyExpRows = rawExpRows.filter(
+        (exp) => exp.position || exp.organization || exp.startDate || exp.endDate || exp.description || exp._incompleteDate
+      );
+      for (const exp of nonEmptyExpRows) {
+        if (!exp.position || !exp.organization) {
+          throw new Error("En cada experiencia debes indicar tanto el puesto o rol como la organización.");
         }
-        const experiencesToSave = nonEmptyExpRows.map(({ _incompleteDate, ...rest }) => rest);
-        await api.profile.setExperiences(experiencesToSave);
-
-        // 5. Proyectos
-        const projectRows = [...projectsList.children].map((row) => row._getData && row._getData()).filter(Boolean);
-        await api.profile.setProjects(projectRows);
-
-        // 6. Certificados
-        const certRows = [...certificatesList.children].map((row) => row._getData && row._getData()).filter(Boolean);
-        const nonEmptyCertRows = certRows.filter(
-          (c) => c.title || c.issuer || c.issueDate || c.credentialUrl || c.fileUrl
-        );
-        const missingTitle = nonEmptyCertRows.find((c) => !c.title);
-        if (missingTitle) {
-          throw new Error("Cada certificado de Formación Académica debe tener un título o nombre.");
+        if (exp._incompleteDate) {
+          throw new Error("Si usas el formato Mes / Año en experiencia, debes seleccionar tanto el mes como el año.");
         }
-        await api.profile.setCertificates(nonEmptyCertRows);
+        if (exp.startDate && exp.endDate && exp.endDate < exp.startDate) {
+          throw new Error("La fecha de fin no puede ser anterior a la fecha de inicio en la experiencia.");
+        }
+      }
+      const experiencesToSave = nonEmptyExpRows.map(({ _incompleteDate, ...rest }) => rest);
+      await api.profile.setExperiences(experiencesToSave);
 
-        // 7. Marcar como borrador y activar botón de solicitar publicación
+      // 5. Proyectos
+      const projectRows = [...projectsList.children].map((row) => row._getData && row._getData()).filter(Boolean);
+      await api.profile.setProjects(projectRows);
+
+      // 6. Certificados
+      const certRows = [...certificatesList.children].map((row) => row._getData && row._getData()).filter(Boolean);
+      const nonEmptyCertRows = certRows.filter(
+        (c) => c.title || c.issuer || c.issueDate || c.credentialUrl || c.fileUrl
+      );
+      const missingTitle = nonEmptyCertRows.find((c) => !c.title);
+      if (missingTitle) {
+        throw new Error("Cada certificado de Formación Académica debe tener un título o nombre.");
+      }
+      await api.profile.setCertificates(nonEmptyCertRows);
+
+      // 7. Si eligió solicitar revisión para publicar, disparar requestPublish()
+      if (requestReview) {
+        const res = await api.profile.requestPublish();
+        graduate.visibility = "private";
+        graduate.moderationStatus = "pending_review";
+        renderVisibilityToggle(graduate);
+        const msg =
+          res.message ||
+          "¡Ficha guardada por completo y enviada a revisión del administrador para su publicación!";
+        showAlert(generalAlert, msg, "success");
+        showToast(msg, "success", 6000);
+      } else {
         markProfileAsDraft();
+        const msg = "¡Ficha guardada exitosamente y mantenida como privada!";
+        showAlert(generalAlert, msg, "success");
+        showToast(msg, "success", 5000);
+      }
 
-        showAlert(generalAlert, "¡Todas las modificaciones de tu ficha han sido guardadas con éxito! Ahora puedes solicitar publicar tu ficha cuando lo desees.", "success");
-        showToast("Ficha completa guardada. Ya puedes solicitar la publicación.", "success", 6000);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } catch (err) {
-        showAlert(generalAlert, err.message || "Error al guardar todas las secciones.");
-      } finally {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      const errMsg = err.message || "Error al guardar todas las secciones.";
+      showAlert(generalAlert, errMsg);
+      showToast(errMsg, "error", 5000);
+    } finally {
+      if (saveAllSectionsBtn) {
         saveAllSectionsBtn.disabled = false;
         saveAllSectionsBtn.textContent = originalText;
       }
-    });
+    }
   }
+
+  confirmSaveAndPublishBtn?.addEventListener("click", () => executeGlobalSave({ requestReview: true }));
+  confirmSavePrivateBtn?.addEventListener("click", () => executeGlobalSave({ requestReview: false }));
 
   // --- Modal de Cambio de Contraseña ---
   const changePasswordModal = document.getElementById("changePasswordModal");

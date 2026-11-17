@@ -27,6 +27,7 @@ import { makeLoginUser } from "./application/auth/loginUser.js";
 import { makeGetCurrentUser } from "./application/auth/getCurrentUser.js";
 import { makeChangePassword } from "./application/auth/changePassword.js";
 import { makeRequestEmailVerification, makeVerifyEmail } from "./application/auth/emailVerification.js";
+import { makeRequestPasswordReset, makeResetPassword } from "./application/auth/passwordReset.js";
 import { emailService } from "./shared/email/emailService.js";
 import { makeListTechnologies, makeListSoftSkills, makeListLanguages } from "./application/catalog/getCatalogs.js";
 import { makeGetDirectory } from "./application/graduate/getDirectory.js";
@@ -112,6 +113,8 @@ export function createApp() {
   const changePassword = makeChangePassword({ userRepository });
   const requestEmailVerification = makeRequestEmailVerification({ userRepository, graduateRepository, emailService });
   const verifyEmail = makeVerifyEmail({ userRepository });
+  const requestPasswordReset = makeRequestPasswordReset({ userRepository, graduateRepository, emailService });
+  const resetPassword = makeResetPassword({ userRepository });
   const moderationService = makeModerationService({
     graduateRepository,
     userRepository,
@@ -155,7 +158,17 @@ export function createApp() {
   const setAdminEntityActive = makeSetAdminEntityActive({ adminEntityRepository });
 
   // --- Controladores ---
-  const authController = makeAuthController({ registerUser, loginUser, getCurrentUser, changePassword, requestEmailVerification, verifyEmail, userRepository });
+  const authController = makeAuthController({
+    registerUser,
+    loginUser,
+    getCurrentUser,
+    changePassword,
+    requestEmailVerification,
+    verifyEmail,
+    requestPasswordReset,
+    resetPassword,
+    userRepository,
+  });
   const notificationController = makeNotificationController({ notificationService });
   const directoryController = makeDirectoryController({
     getDirectory,
@@ -242,6 +255,8 @@ export function createApp() {
 
   app.use("/api/auth/login", loginLimiter);
   app.use("/api/auth/register", registerLimiter);
+  app.use("/api/auth/forgot-password", registerLimiter);
+  app.use("/api/auth/reset-password", loginLimiter);
   app.use("/api/graduates/:id/recommendations", recommendationLimiter);
 
   // --- Rutas API ---
@@ -251,8 +266,8 @@ export function createApp() {
   app.use("/api/notifications", notificationRoutes(notificationController));
   app.use("/api/admin", adminRoutes(adminController, profileController));
 
-  // --- Frontend estatico ---
-  app.use(express.static(path.join(__dirname, "..", "..", "frontend")));
+  // --- Frontend estatico (con soporte para rutas limpias sin .html) ---
+  app.use(express.static(path.join(__dirname, "..", "..", "frontend"), { extensions: ["html"] }));
 
   app.use("/api", notFoundHandler);
   app.use(errorHandler);
