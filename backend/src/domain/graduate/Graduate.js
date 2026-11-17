@@ -33,6 +33,7 @@ export class Graduate {
     moderationStatus = "draft",
     moderationObservations = null,
     moderationUpdatedAt = null,
+    technologies = [],
   }) {
     if (!firstName || !lastName) {
       throw new AppError("El egresado debe tener nombre y apellido");
@@ -62,6 +63,7 @@ export class Graduate {
     this.moderationStatus = moderationStatus;
     this.moderationObservations = moderationObservations;
     this.moderationUpdatedAt = moderationUpdatedAt;
+    this.technologies = Array.isArray(technologies) ? technologies : [];
   }
 
   isPublic() {

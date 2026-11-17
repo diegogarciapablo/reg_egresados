@@ -80,7 +80,7 @@ export const adminEntities = {
       {
         key: "preview_link",
         label: "Ficha Pública",
-        sql: "concat('/perfil?codigo=', g.registration_code, '&preview=true')",
+        sql: "concat('/perfil.html?codigo=', g.registration_code, '&preview=true')",
         type: "link",
         linkText: "👁️ Revisar Ficha",
         editable: false,

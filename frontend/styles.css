@@ -13,6 +13,14 @@
   --danger: #ef4444;
   --success: #22c55e;
   --shadow: rgba(15, 23, 42, 0.08);
+
+  /* Paleta Institucional UAJMS */
+  --uajms-red: #C8102E;
+  --uajms-red-hover: #a60d26;
+  --uajms-blue: #003366;
+  --uajms-blue-accent: #005596;
+  --uajms-white: #FFFFFF;
+  --uajms-dark: #1A1A1A;
 }
 
 * {
@@ -155,19 +163,59 @@ p {
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 22px;
 }
 
+/* ==========================================================================
+   TARJETAS DE PERFIL ESTILO FRAMER (PALETA INSTITUCIONAL UAJMS)
+   Inspirado en https://cmsprofilecards.framer.website/
+   ========================================================================== */
+
 .graduate-card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 1px 3px var(--shadow);
-  padding: 18px;
+  background: #ffffff;
+  border: 1.5px solid rgba(0, 51, 102, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px -2px rgba(0, 51, 102, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 22px 20px 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1),
+              box-shadow 0.35s cubic-bezier(0.23, 1, 0.32, 1),
+              border-color 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+
+/* Línea superior heráldica UAJMS (mitad izquierda Azul #003366, mitad derecha Rojo #C8102E) */
+.graduate-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  background: linear-gradient(90deg, #003366 50%, #C8102E 50%);
+  opacity: 0.85;
+  transition: opacity 0.3s ease, height 0.3s ease;
+  z-index: 2;
+}
+
+/* Hover lift interactivo y borde Rojo Institucional con resplandor suave */
+.graduate-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  border-color: #C8102E;
+  box-shadow: 0 16px 36px -6px rgba(0, 51, 102, 0.14),
+              0 0 0 1px #C8102E,
+              0 0 18px rgba(200, 16, 46, 0.16);
+}
+
+.graduate-card:hover::before {
+  opacity: 1;
+  height: 4.5px;
 }
 
 .graduate-card-header {
@@ -176,25 +224,259 @@ p {
   gap: 14px;
 }
 
-.graduate-card-meta {
-  min-width: 0;
+/* Avatar con anillo y micro-zoom */
+.graduate-avatar-container {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+}
+
+.graduate-avatar-wrapper {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2.5px solid rgba(0, 51, 102, 0.12);
+  overflow: hidden;
+  background: #eef3f9;
+  transition: border-color 0.35s ease;
+}
+
+.graduate-card:hover .graduate-avatar-wrapper {
+  border-color: #005596;
 }
 
 .graduate-avatar {
-  width: 60px;
-  height: 60px;
-  flex: 0 0 60px;
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border: 1px solid var(--border);
-  background: var(--panel-soft);
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.graduate-card:hover .graduate-avatar {
+  transform: scale(1.06);
 }
 
 .graduate-avatar-placeholder {
+  width: 100%;
+  height: 100%;
   display: grid;
   place-items: center;
   font-weight: 700;
-  color: var(--primary);
+  font-size: 1.1rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #003366, #005596);
+}
+
+.graduate-status-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Tipografía de la tarjeta */
+.graduate-card-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.graduate-card h3.graduate-name-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #003366;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.graduate-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.graduate-card .role {
+  color: #1A1A1A;
+  font-size: 0.86rem;
+  font-weight: 500;
+  margin-top: 2px;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.graduate-card .graduate-meta-sub {
+  font-size: 0.80rem;
+  color: #005596;
+  font-weight: 500;
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.graduate-card .graduate-meta-sub svg {
+  flex-shrink: 0;
+}
+
+.graduate-card .graduate-summary {
+  color: #4b5563;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  min-height: 2.6em;
+}
+
+/* Píldoras de habilidades (Tags) */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.tag {
+  background: rgba(0, 85, 150, 0.07);
+  color: #003366;
+  border-radius: 100px;
+  padding: 3.5px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(0, 85, 150, 0.16);
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  white-space: nowrap;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.graduate-card:hover .tag {
+  background: rgba(0, 85, 150, 0.12);
+  border-color: rgba(0, 85, 150, 0.28);
+}
+
+.tag:hover {
+  background: rgba(0, 85, 150, 0.20) !important;
+  transform: translateY(-1px);
+}
+
+/* Pie de tarjeta: Redes y Botón de Barrido */
+.graduate-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 51, 102, 0.08);
+}
+
+.graduate-socials-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.graduate-social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(0, 51, 102, 0.05);
+  color: #005596;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.graduate-social-btn:hover {
+  background: rgba(200, 16, 46, 0.10);
+  color: #C8102E;
+  transform: translateY(-2px);
+}
+
+/* Botón insignia de Framer con barrido de llenado en Rojo Institucional */
+.btn-framer-profile {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 100px;
+  border: 1.5px solid #C8102E;
+  background: transparent;
+  color: #C8102E;
+  font-weight: 600;
+  font-size: 0.84rem;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  overflow: hidden;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.28s cubic-bezier(0.23, 1, 0.32, 1),
+              box-shadow 0.28s ease,
+              transform 0.2s ease;
+  z-index: 1;
+}
+
+.btn-framer-profile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #C8102E;
+  border-radius: 100px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+  z-index: -1;
+}
+
+.btn-framer-profile:hover {
+  color: #FFFFFF !important;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(200, 16, 46, 0.28);
+  transform: translateY(-1px);
+}
+
+.btn-framer-profile:hover::before {
+  transform: scaleX(1);
+}
+
+.btn-framer-profile .cta-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.btn-framer-profile:hover .cta-arrow {
+  transform: translate(2px, -2px);
+}
+
+.btn-framer-profile .cta-arrow svg path {
+  stroke: currentColor;
 }
 
 .profile-public-header {
@@ -217,32 +499,6 @@ p {
 .profile-public-info {
   flex: 1;
   min-width: 220px;
-}
-
-.graduate-card h3 {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-.graduate-card .role {
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.tag-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.tag {
-  background: var(--panel-soft);
-  color: var(--primary-dark);
-  border-radius: 999px;
-  padding: 3px 10px;
-  font-size: 0.78rem;
-  border: 1px solid var(--border);
 }
 
 /* --- Textos extensos truncados con 'Ver más' --- */

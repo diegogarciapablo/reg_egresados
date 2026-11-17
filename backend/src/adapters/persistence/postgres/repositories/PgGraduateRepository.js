@@ -9,6 +9,12 @@ function toGraduate(row) {
       ? JSON.parse(row.professional_links)
       : row.professional_links;
   }
+  let parsedTechs = [];
+  if (row.technologies) {
+    parsedTechs = typeof row.technologies === "string"
+      ? JSON.parse(row.technologies)
+      : row.technologies;
+  }
   return new Graduate({
     id: row.id,
     userId: row.user_id,
@@ -31,6 +37,7 @@ function toGraduate(row) {
     moderationStatus: row.moderation_status,
     moderationObservations: row.moderation_observations,
     moderationUpdatedAt: row.moderation_updated_at,
+    technologies: Array.isArray(parsedTechs) ? parsedTechs : [],
   });
 }
 
@@ -255,7 +262,15 @@ export class PgGraduateRepository extends GraduateRepository {
     const dataValues = [...values, limit, offset];
 
     const { rows } = await this.pool.query(
-      `SELECT g.*, u.email_verified FROM graduates g
+      `SELECT g.*, u.email_verified,
+        COALESCE(
+          (SELECT json_agg(json_build_object('id', t.id, 'name', t.name, 'slug', t.slug, 'specialty', t.specialty) ORDER BY gt.display_order)
+           FROM graduate_technologies gt
+           JOIN technologies t ON t.id = gt.technology_id
+           WHERE gt.graduate_id = g.id AND t.is_active = TRUE),
+          '[]'::json
+        ) AS technologies
+       FROM graduates g
        JOIN users u ON u.id = g.user_id
        ${whereClause}
        ORDER BY g.graduation_year DESC, g.last_name ASC, g.first_name ASC

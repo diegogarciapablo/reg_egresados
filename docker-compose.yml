@@ -43,7 +43,7 @@ services:
       PORT: 3000
       DB_HOST: db
       DB_PORT: 5432
-      CORS_ORIGIN: http://localhost:8080
+      CORS_ORIGIN: http://localhost:8080,http://10.115.13.237:8080
     ports:
       - "3000:3000"
     volumes:

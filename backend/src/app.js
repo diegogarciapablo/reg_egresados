@@ -232,7 +232,17 @@ export function createApp() {
   );
   app.use(
     cors({
-      origin: env.corsOrigin ? env.corsOrigin.split(",").map((o) => o.trim()) : true,
+      origin: (origin, callback) => {
+        // Permitir solicitudes sin header Origin (como curl, proxies internos o carga directa)
+        if (!origin) return callback(null, true);
+        const configuredOrigins = env.corsOrigin ? env.corsOrigin.split(",").map((o) => o.trim()) : [];
+        // Permitir orígenes configurados o redes locales (localhost, 10.x.x.x, 192.168.x.x, 172.16-31.x.x)
+        const isLocalNetwork = /^https?:\/\/(localhost|127\.0\.0\.1|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3})(:\d+)?$/.test(origin);
+        if (configuredOrigins.includes(origin) || isLocalNetwork) {
+          return callback(null, true);
+        }
+        return callback(new Error(`CORS no permitido para el origen: ${origin}`));
+      },
       credentials: true,
     })
   );

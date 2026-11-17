@@ -31,14 +31,9 @@ function formatCellValue(value, column) {
 
 function getTableColumnsForActiveEntity() {
   if (!activeDefinition) return [];
-  if (activeDefinition.key === "graduates") {
-    return [
-      { key: "full_name", label: "Nombre", type: "text" },
-      { key: "account_email", label: "Correo", type: "text" },
-      { key: "preview_link", label: "Ficha Pública", type: "link", linkText: "👁️ Revisar Ficha" },
-    ];
-  }
-  return activeDefinition.columns || [];
+  const rawCols = activeDefinition.columns || [];
+  const visible = rawCols.filter((c) => !c.hiddenInTable);
+  return visible.length > 0 ? visible : rawCols;
 }
 
 function renderCellContent(row, column) {
@@ -50,6 +45,19 @@ function renderCellContent(row, column) {
     }
     if (column.key === "account_email") {
       return row.account_email || row.personal_email || "-";
+    }
+    if (column.key === "registration_code" || column.key === "codigo") {
+      if (value) {
+        return el("a", {
+          href: `/perfil.html?codigo=${encodeURIComponent(value)}&preview=true`,
+          target: "_blank",
+          rel: "noopener noreferrer",
+          class: "certificate-file-link",
+          style: "font-weight: 700; color: #005596; text-decoration: underline;",
+          text: `${value} ↗`,
+          title: "Abrir ficha pública en nueva pestaña",
+        });
+      }
     }
     if (column.key === "preview_link") {
       value =
@@ -82,25 +90,28 @@ function renderCellContent(row, column) {
       target: "_blank",
       rel: "noopener noreferrer",
       class: "certificate-file-link",
-      text: "Abrir enlace",
+      text: "Abrir enlace ↗",
     });
   }
   if (
     value &&
     (column.type === "link" ||
       column.key === "link" ||
+      column.key === "enlace" ||
       column.key === "preview_link" ||
-      (typeof value === "string" && (value.startsWith("/perfil") || value.startsWith("/dashboard"))))
+      (typeof value === "string" && (value.startsWith("/perfil") || value.startsWith("/dashboard") || value.startsWith("http"))))
   ) {
-    const safeHref = typeof normalizeInternalUrl === "function" ? normalizeInternalUrl(value) : String(value);
-    const defaultLabel = column.key === "preview_link" ? "👁️ Revisar Ficha" : "Abrir destino ↗";
+    const rawUrl = String(value);
+    const safeHref = typeof normalizeInternalUrl === "function" ? normalizeInternalUrl(rawUrl) : rawUrl;
+    const defaultLabel = column.key === "preview_link" ? "👁️ Revisar Ficha" : (rawUrl.length > 32 ? rawUrl.slice(0, 30) + "… ↗" : `${rawUrl} ↗`);
     return el("a", {
       href: safeHref,
       target: "_blank",
       rel: "noopener noreferrer",
       class: "certificate-file-link",
-      style: "font-weight: 600; display: inline-flex; align-items: center; gap: 4px;",
+      style: "font-weight: 600; color: #005596; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;",
       text: column.linkText || defaultLabel,
+      title: `Abrir ${safeHref}`,
     });
   }
   return formatCellValue(value, column);
