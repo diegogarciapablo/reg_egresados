@@ -23,7 +23,7 @@ function renderTechnologyFilterState() {
   const summaryOpt = el("option", { value: "", text: summaryText });
   if (selectedNames.length > 0) {
     summaryOpt.style.fontWeight = "700";
-    summaryOpt.style.color = "#0f2744";
+    summaryOpt.style.color = "var(--primary)";
   }
   select.appendChild(summaryOpt);
 
@@ -46,8 +46,8 @@ function renderTechnologyFilterState() {
       text: isSelected ? `✓ ${tech.name} (Seleccionada)` : tech.name,
     });
     if (isSelected) {
-      opt.style.backgroundColor = "#dbeafe";
-      opt.style.color = "#1e3a8a";
+      opt.style.backgroundColor = "var(--panel-soft)";
+      opt.style.color = "var(--primary)";
       opt.style.fontWeight = "700";
     }
     select.appendChild(opt);
@@ -56,9 +56,9 @@ function renderTechnologyFilterState() {
   // Mantener seleccionada la opción resumen para ver las activas y permitir marcar/desmarcar cualquiera
   select.value = "";
   if (selectedFilterTechs.size > 0) {
-    select.style.borderColor = "#2563eb";
-    select.style.backgroundColor = "#eff6ff";
-    select.style.color = "#1e3a8a";
+    select.style.borderColor = "var(--secondary)";
+    select.style.backgroundColor = "var(--panel-soft)";
+    select.style.color = "var(--primary)";
     select.style.fontWeight = "600";
   } else {
     select.style.borderColor = "";
@@ -397,20 +397,41 @@ async function loadDirectory(page = 1) {
     limit: LIMIT,
   };
 
-  grid.innerHTML = `<p class="muted">Cargando...</p>`;
+  grid.innerHTML = `
+    <div class="empty-state-loading" style="padding: 36px 16px; text-align: center;">
+      <span class="spinner-institutional"></span>
+      <p class="muted" style="margin-top: 10px;">Cargando directorio de profesionales...</p>
+    </div>
+  `;
   pagination.innerHTML = "";
 
   try {
     const result = await api.directory.list(params);
     grid.innerHTML = "";
 
+    const countBadge = document.getElementById("resultsCountBadge");
+
     if (result.items.length === 0) {
-      grid.appendChild(
-        el("div", { class: "empty-state" }, [
-          el("p", { text: "No se encontraron egresados con esos filtros." }),
-        ])
-      );
+      const searchSvg = typeof getSvgIcon === "function" ? getSvgIcon("search") : "🔍";
+      const emptyBox = el("div", { class: "card empty-state-box", style: "grid-column: 1 / -1; text-align: center; padding: 48px 20px;" }, [
+        el("div", { class: "empty-state-icon-wrap", html: searchSvg, style: "font-size: 2.2rem; color: var(--muted); margin-bottom: 12px;" }),
+        el("h3", { style: "color: var(--primary); margin-bottom: 8px; font-size: 1.15rem;", text: "No se encontraron profesionales egresados" }),
+        el("p", { class: "muted", style: "max-width: 460px; margin: 0 auto 18px;", text: "No hay registros que coincidan exactamente con los criterios de búsqueda o habilidades seleccionadas. Intenta ajustar el texto o restablecer los filtros." }),
+        el("button", {
+          type: "button",
+          class: "btn btn-secondary",
+          text: "Limpiar filtros de búsqueda",
+          onclick: () => {
+            form.reset();
+            selectedFilterTechs.clear();
+            renderTechnologyFilterState();
+            loadDirectory(1);
+          }
+        })
+      ]);
+      grid.appendChild(emptyBox);
       info.textContent = "";
+      if (countBadge) countBadge.textContent = "0 profesionales";
       return;
     }
 
@@ -420,6 +441,9 @@ async function loadDirectory(page = 1) {
 
     const totalPages = Math.max(1, Math.ceil(result.total / result.limit));
     info.textContent = `${result.total} egresado(s) encontrado(s) - página ${result.page} de ${totalPages}`;
+    if (countBadge) {
+      countBadge.textContent = `${result.total} profesional${result.total === 1 ? "" : "es"} registrado${result.total === 1 ? "" : "s"}`;
+    }
 
     renderPaginationControls(pagination, result.page, totalPages);
     currentPage = result.page;
@@ -526,6 +550,16 @@ function renderPaginationControls(paginationContainer, page, totalPages) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   await renderTopbar();
+
+  const capDetails = document.getElementById("capabilitiesDetails");
+  if (capDetails) {
+    if (window.innerWidth <= 860) {
+      capDetails.removeAttribute("open");
+    } else {
+      capDetails.setAttribute("open", "");
+    }
+  }
+
   populateYearFilters();
   await loadTechnologiesFilter();
   await loadDirectory(1);

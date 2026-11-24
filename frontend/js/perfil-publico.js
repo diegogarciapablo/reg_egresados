@@ -1,6 +1,12 @@
-function section(title, contentNode) {
-  const wrap = el("div", { class: "card" });
-  wrap.appendChild(el("h3", { text: title }));
+function section(title, contentNode, iconName = null) {
+  const wrap = el("div", { class: "card profile-section-card" });
+  const h3 = el("h3", { class: "profile-section-title" });
+  if (iconName && typeof getSvgIcon === "function") {
+    const iconSpan = el("span", { class: "section-title-icon", html: getSvgIcon(iconName) });
+    h3.appendChild(iconSpan);
+  }
+  h3.appendChild(document.createTextNode(title));
+  wrap.appendChild(h3);
   wrap.appendChild(contentNode);
   return wrap;
 }
@@ -14,6 +20,7 @@ function safeExternalLink(url, text) {
       href: parsed.href,
       target: "_blank",
       rel: "noopener noreferrer",
+      class: "profile-external-link",
       text,
     });
   } catch {
@@ -61,51 +68,71 @@ function buildProfileView(graduate, activeUser) {
   const container = document.getElementById("profileContainer");
   container.innerHTML = "";
 
-  const header = el("div", { class: "card page-header profile-public-header" });
+  // 1. Hero Header Universitario Contemporáneo
+  const heroCard = el("div", { class: "card profile-hero-card" });
+
+  // Banda superior heráldica institucional (Ink Navy + Burgundy)
+  const heroCover = el("div", { class: "profile-hero-cover" });
+  heroCard.appendChild(heroCover);
+
+  const heroBody = el("div", { class: "profile-hero-body" });
+
+  const avatarWrap = el("div", { class: "profile-hero-avatar-wrap" });
   if (graduate.photoUrl) {
-    header.appendChild(
+    avatarWrap.appendChild(
       el("img", {
         class: "profile-public-avatar",
         src: graduate.photoUrl,
-        alt: `Foto de ${graduate.firstName} ${graduate.lastName}`,
+        alt: `Fotografía profesional de ${graduate.firstName} ${graduate.lastName}`,
       })
     );
   } else {
     const initials = `${graduate.firstName?.[0] || ""}${graduate.lastName?.[0] || ""}`.toUpperCase();
-    header.appendChild(
-      el("div", { class: "profile-public-avatar graduate-avatar-placeholder", text: initials || "?" })
+    avatarWrap.appendChild(
+      el("div", { class: "profile-public-avatar profile-avatar-placeholder", text: initials || "?" })
     );
   }
+  heroBody.appendChild(avatarWrap);
 
-  const headerInfo = el("div", { class: "profile-public-info" });
-  const h1 = el("h1", { class: "profile-name-title" });
-  h1.appendChild(document.createTextNode(`${graduate.firstName} ${graduate.lastName}`));
+  const heroInfo = el("div", { class: "profile-hero-info" });
+  const nameH1 = el("h1", { class: "profile-hero-name" });
+  nameH1.appendChild(document.createTextNode(`${graduate.firstName} ${graduate.lastName}`));
   if (graduate.emailVerified && typeof createVerifiedBadge === "function") {
-    h1.appendChild(createVerifiedBadge());
+    nameH1.appendChild(createVerifiedBadge());
   }
-  headerInfo.appendChild(h1);
-  if (graduate.currentRole) headerInfo.appendChild(el("p", { text: graduate.currentRole }));
-  headerInfo.appendChild(el("p", { class: "muted", text: `Egresado ${graduate.graduationYear} - Codigo ${graduate.registrationCode}` }));
-  header.appendChild(headerInfo);
+  heroInfo.appendChild(nameH1);
 
-  const headerActions = el("div", { class: "profile-header-actions", style: "display: flex; gap: 8px; flex-wrap: wrap;" });
+  if (graduate.currentRole) {
+    heroInfo.appendChild(el("p", { class: "profile-hero-role", text: graduate.currentRole }));
+  }
 
-  // Si es el propio perfil del usuario autenticado, mostrar botón para volver al modo edición
+  const metaRow = el("div", { class: "profile-hero-meta-row" });
+  const academicSvg = typeof getSvgIcon === "function" ? getSvgIcon("academic") : "";
+  const gradBadge = el("span", { class: "profile-meta-badge", html: `${academicSvg} Promoción ${graduate.graduationYear} · UAJMS` });
+  const codeBadge = el("span", { class: "profile-meta-badge badge-code", text: `Código: ${graduate.registrationCode}` });
+  metaRow.appendChild(gradBadge);
+  metaRow.appendChild(codeBadge);
+  heroInfo.appendChild(metaRow);
+
+  heroBody.appendChild(heroInfo);
+
+  const heroActions = el("div", { class: "profile-hero-actions" });
+
   if (activeUser && (activeUser.id === graduate.userId || activeUser.email === graduate.personalEmail)) {
     const editModeBtn = el("a", {
       href: "/dashboard.html",
       class: "btn btn-primary",
       style: "display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;",
-      text: "✏️ Volver al modo edición",
+      html: `${typeof getSvgIcon === 'function' ? getSvgIcon("edit") : ''} Volver al modo edición`,
     });
-    headerActions.appendChild(editModeBtn);
+    heroActions.appendChild(editModeBtn);
   }
 
   const downloadCvBtn = el("button", {
     id: "downloadCvBtn",
     class: "btn btn-secondary",
     type: "button",
-    text: "📄 Descargar CV en PDF",
+    html: `${typeof getSvgIcon === 'function' ? getSvgIcon("file-pdf") : ''} Descargar CV en PDF`,
     style: "display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;",
   });
   downloadCvBtn.addEventListener("click", () => {
@@ -116,10 +143,11 @@ function buildProfileView(graduate, activeUser) {
       cvModal.hidden = false;
     }
   });
-  headerActions.appendChild(downloadCvBtn);
-  header.appendChild(headerActions);
+  heroActions.appendChild(downloadCvBtn);
+  heroBody.appendChild(heroActions);
 
-  container.appendChild(header);
+  heroCard.appendChild(heroBody);
+  container.appendChild(heroCard);
 
   // --- SECCIÓN CONTACTO Y REDES PROFESIONALES ---
   const contactButtons = [];
@@ -255,19 +283,19 @@ function buildProfileView(graduate, activeUser) {
     for (const btn of contactButtons) {
       contactGrid.appendChild(btn);
     }
-    container.appendChild(section("Contacto y Canales Profesionales", contactGrid));
+    container.appendChild(section("Canales de Contacto Directo", contactGrid, "briefcase"));
   }
 
   if (graduate.professionalSummary) {
-    container.appendChild(section("Perfil profesional", el("p", { text: graduate.professionalSummary })));
+    container.appendChild(section("Perfil Profesional", el("p", { class: "profile-summary-text", text: graduate.professionalSummary }), "document"));
   }
 
   if (graduate.technologies && graduate.technologies.length) {
     const specialtyNames = {
-      software: "💻 Software y Programación",
-      hardware: "🔌 Hardware y Ensamblaje",
-      networks: "🌐 Redes y Comunicaciones",
-      documentation: "📄 Documentación y Gestión",
+      software: "Software y Programación",
+      hardware: "Hardware y Ensamblaje",
+      networks: "Redes y Comunicaciones",
+      documentation: "Documentación y Gestión",
     };
 
     const groups = {
@@ -301,13 +329,13 @@ function buildProfileView(graduate, activeUser) {
       techContainer.appendChild(groupBlock);
     }
 
-    container.appendChild(section("Habilidades técnicas", techContainer));
+    container.appendChild(section("Habilidades Técnicas", techContainer, "edit"));
   }
 
   if (graduate.softSkills && graduate.softSkills.length) {
     const tags = el("div", { class: "tag-list" });
     for (const s of graduate.softSkills) tags.appendChild(el("span", { class: "tag", text: s.name }));
-    container.appendChild(section("Habilidades Personales", tags));
+    container.appendChild(section("Habilidades Personales", tags, "info"));
   }
 
   if (graduate.languages && graduate.languages.length) {
@@ -322,7 +350,7 @@ function buildProfileView(graduate, activeUser) {
       const label = `${l.name} (${levelLabels[l.level] || l.level})`;
       tags.appendChild(el("span", { class: "tag", text: label }));
     }
-    container.appendChild(section("Idiomas", tags));
+    container.appendChild(section("Idiomas", tags, "globe"));
   }
 
   if (graduate.experiences && graduate.experiences.length) {
@@ -339,19 +367,28 @@ function buildProfileView(graduate, activeUser) {
 
     const buildExperienceGroup = (title, hintText, items) => {
       if (!items || !items.length) return null;
-      const groupWrapper = el("div", { style: "margin-bottom: 20px;" });
-      groupWrapper.appendChild(el("h4", { text: title, style: "margin-bottom: 4px; color: var(--primary);" }));
+      const groupWrapper = el("div", { class: "trajectory-group-wrapper" });
+      groupWrapper.appendChild(el("h4", { class: "trajectory-group-title", text: title }));
       if (hintText) {
-        groupWrapper.appendChild(el("p", { class: "hint", text: hintText, style: "margin-top: 0; margin-bottom: 10px;" }));
+        groupWrapper.appendChild(el("p", { class: "trajectory-group-hint muted", text: hintText }));
       }
-      const list = el("div");
+      const list = el("div", { class: "trajectory-timeline-list" });
       for (const exp of items) {
-        const item = el("div", { class: "card", style: "margin-bottom:10px;" });
-        item.appendChild(el("strong", { text: `${exp.position} - ${exp.organization}` }));
+        const item = el("div", { class: "trajectory-item" });
+        const itemHeader = el("div", { class: "trajectory-header" });
+        const titleRow = el("div", { class: "trajectory-title-row" });
+        titleRow.appendChild(el("h5", { class: "trajectory-position", text: exp.position }));
+        titleRow.appendChild(el("span", { class: "trajectory-company", text: exp.organization }));
+        itemHeader.appendChild(titleRow);
+
         const startFormatted = formatExpDate(exp.start_date, exp.date_format);
         const endFormatted = exp.is_current ? "Actualidad" : formatExpDate(exp.end_date, exp.date_format);
-        const dates = [startFormatted, endFormatted].filter(Boolean).join(" a ");
-        if (dates) item.appendChild(el("div", { class: "muted", text: dates }));
+        const dates = [startFormatted, endFormatted].filter(Boolean).join(" — ");
+        if (dates) {
+          itemHeader.appendChild(el("span", { class: "trajectory-date-badge", text: dates }));
+        }
+        item.appendChild(itemHeader);
+
         if (exp.description) {
           const expDescNode = createExpandableText(exp.description);
           if (expDescNode) item.appendChild(expDescNode);
@@ -366,7 +403,7 @@ function buildProfileView(graduate, activeUser) {
     const academicItems = graduate.experiences.filter((e) => e.category === "academic");
     const preGraduateItems = graduate.experiences.filter((e) => e.category === "pre_graduate");
 
-    const expContainer = el("div");
+    const expContainer = el("div", { class: "trajectory-container" });
     const workBlock = buildExperienceGroup("Experiencia Laboral", "Empleos, consultorías y proyectos profesionales.", workItems);
     const academicBlock = buildExperienceGroup("Experiencia Académica", "Docencia, investigación, ponencias y proyectos académicos.", academicItems);
     const preGraduateBlock = buildExperienceGroup("Experiencia Pre-egreso", "Actividades, ayudantías y logros durante su estancia universitaria.", preGraduateItems);
@@ -376,7 +413,7 @@ function buildProfileView(graduate, activeUser) {
     if (preGraduateBlock) expContainer.appendChild(preGraduateBlock);
 
     if (expContainer.children.length > 0) {
-      container.appendChild(section("Experiencias", expContainer));
+      container.appendChild(section("Experiencias y Trayectoria", expContainer, "award"));
     }
   }
 
@@ -389,11 +426,11 @@ function buildProfileView(graduate, activeUser) {
         const projDescNode = createExpandableText(project.description);
         if (projDescNode) card.appendChild(projDescNode);
       }
-      const projLink = safeExternalLink(project.url, "Ver proyecto");
+      const projLink = safeExternalLink(project.url, "Ver proyecto ↗");
       if (projLink) card.appendChild(projLink);
       grid.appendChild(card);
     }
-    container.appendChild(section("Proyectos realizados", grid));
+    container.appendChild(section("Proyectos Destacados", grid, "rocket"));
   }
 
   if (graduate.certificates && graduate.certificates.length) {
@@ -417,37 +454,44 @@ function buildProfileView(graduate, activeUser) {
       "other",
     ];
 
-    const formationContainer = el("div");
+    const formationContainer = el("div", { class: "formation-container" });
 
     for (const type of formationHierarchy) {
       const itemsOfType = graduate.certificates.filter((c) => (c.formation_type || "courses") === type);
       if (!itemsOfType.length) continue;
 
-      const groupWrapper = el("div", { style: "margin-bottom: 18px;" });
-      groupWrapper.appendChild(el("h4", { text: formationLabels[type] || type, style: "margin-bottom: 8px; color: var(--primary);" }));
+      const groupWrapper = el("div", { class: "formation-group-wrapper" });
+      groupWrapper.appendChild(el("h4", { class: "formation-group-title", text: formationLabels[type] || type }));
 
-      const list = el("div");
+      const list = el("div", { class: "formation-list" });
       for (const cert of itemsOfType) {
-        const item = el("div", { class: "card", style: "margin-bottom:10px;" });
-        item.appendChild(el("strong", { text: cert.title }));
+        const item = el("div", { class: "card formation-item-card" });
+        item.appendChild(el("h5", { class: "formation-item-title", text: cert.title }));
         const meta = [cert.issuer, cert.issue_date ? String(cert.issue_date).slice(0, 10) : null]
           .filter(Boolean)
           .join(" · ");
-        if (meta) item.appendChild(el("div", { class: "muted", text: meta }));
+        if (meta) item.appendChild(el("div", { class: "formation-meta muted", text: meta }));
 
-        const certLinks = el("div", { class: "tag-list", style: "margin-top:8px;" });
+        const certLinks = el("div", { class: "formation-links", style: "margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;" });
         if (cert.file_url && cert.file_url.startsWith("/api/graduates/certificates/")) {
           certLinks.appendChild(
             el("a", {
               href: cert.file_url,
               target: "_blank",
               rel: "noopener noreferrer",
+              class: "btn btn-secondary",
+              style: "font-size: 0.85rem; padding: 6px 12px;",
               text: cert.file_name ? `Ver documento digital (${cert.file_name})` : "Ver documento digital",
             })
           );
         }
-        const extLink = safeExternalLink(cert.credential_url, "Ver credencial externa");
-        if (extLink) certLinks.appendChild(extLink);
+        const extLink = safeExternalLink(cert.credential_url, "Ver credencial externa ↗");
+        if (extLink) {
+          extLink.className = "btn btn-secondary";
+          extLink.style.fontSize = "0.85rem";
+          extLink.style.padding = "6px 12px";
+          certLinks.appendChild(extLink);
+        }
         if (certLinks.children.length > 0) item.appendChild(certLinks);
 
         list.appendChild(item);
@@ -457,23 +501,28 @@ function buildProfileView(graduate, activeUser) {
       formationContainer.appendChild(groupWrapper);
     }
 
-    container.appendChild(section("Formación Académica", formationContainer));
+    container.appendChild(section("Formación Continua y Certificaciones", formationContainer, "academic"));
   }
 
-  const recommendations = el("div");
+  const recommendations = el("div", { class: "recommendations-wrapper" });
   if (graduate.recommendations && graduate.recommendations.length) {
     for (const rec of graduate.recommendations) {
-      const item = el("div", { class: "card", style: "margin-bottom:10px;" });
-      item.appendChild(el("p", { text: `"${rec.message}"` }));
-      item.appendChild(el("div", { class: "muted", text: `- ${rec.author_name}${rec.author_role ? ", " + rec.author_role : ""}` }));
+      const item = el("div", { class: "card testimonial-card" });
+      item.appendChild(el("blockquote", { class: "testimonial-quote", text: `“${rec.message}”` }));
+      const authorLine = el("div", { class: "testimonial-author-line" });
+      authorLine.appendChild(el("strong", { text: rec.author_name }));
+      if (rec.author_role) {
+        authorLine.appendChild(el("span", { class: "muted", text: ` · ${rec.author_role}` }));
+      }
+      item.appendChild(authorLine);
       recommendations.appendChild(item);
     }
   } else {
-    recommendations.appendChild(el("p", { class: "muted", text: "Aún no hay comentarios publicados." }));
+    recommendations.appendChild(el("div", { class: "empty-state-notice", text: "Aún no hay comentarios o recomendaciones públicas para este perfil." }));
   }
-  container.appendChild(section("Comentarios", recommendations));
+  container.appendChild(section("Comentarios y Recomendaciones", recommendations, "message"));
 
-  container.appendChild(section("Dejar un Comentario", buildRecommendationForm(graduate.id)));
+  container.appendChild(section("Dejar un Comentario", buildRecommendationForm(graduate.id), "edit"));
 }
 
 function buildRecommendationForm(graduateId) {
@@ -525,10 +574,10 @@ function buildRecommendationForm(graduateId) {
 }
 
 function buildAdminModerationSection(graduate) {
-  const wrap = el("div", { class: "card admin-moderation-panel", style: "border: 2px solid var(--primary-dark); margin-top: 32px; background: #f8fafc;" });
+  const wrap = el("div", { class: "card admin-moderation-panel", style: "border: 2px solid var(--primary); margin-top: 32px; background: var(--panel-soft);" });
 
-  const titleRow = el("div", { class: "flex-between", style: "border-bottom: 1.5px solid #cbd5e1; padding-bottom: 8px; margin-bottom: 14px;" }, [
-    el("h3", { style: "margin: 0; color: #0f2744;", text: "🛡️ Panel de Moderación de Ficha (Solo Administrador)" }),
+  const titleRow = el("div", { class: "flex-between", style: "border-bottom: 1.5px solid var(--border); padding-bottom: 8px; margin-bottom: 14px;" }, [
+    el("h3", { style: "margin: 0; color: var(--primary);", text: "Panel de Moderación de Ficha (Solo Administrador)" }),
     el("span", {
       id: "adminStatusBadge",
       class: `badge ${graduate.visibility === "public" ? "badge-public" : "badge-private"}`,
@@ -552,7 +601,7 @@ function buildAdminModerationSection(graduate) {
       type: "button",
       class: "btn btn-secondary",
       style: "margin-top: 8px; background: #f59e0b; color: #ffffff; border: none;",
-      text: "⚠️ Enviar observación al egresado",
+      text: "Enviar observación al egresado",
       onclick: async () => {
         const input = document.getElementById("adminObsInput");
         if (!input.value.trim()) {
@@ -583,8 +632,8 @@ function buildAdminModerationSection(graduate) {
   wrap.appendChild(obsBlock);
 
   // Parte 2: Switch de Aprobación y Publicación
-  const approveBlock = el("div", { style: "border-top: 1px dashed #cbd5e1; padding-top: 14px;" }, [
-    el("h4", { style: "margin-top: 0; margin-bottom: 8px; color: #0f2744;", text: "Aprobación y Visibilidad Pública" }),
+  const approveBlock = el("div", { style: "border-top: 1px dashed var(--border); padding-top: 14px;" }, [
+    el("h4", { style: "margin-top: 0; margin-bottom: 8px; color: var(--primary);", text: "Aprobación y Visibilidad Pública" }),
     el("p", { class: "hint", text: "Al activar este switch y presionar Aprobar, el perfil se publicará en el directorio público y se notificará al egresado." }),
     el("div", { style: "display: flex; align-items: center; gap: 12px; margin-top: 10px;" }, [
       el("label", { style: "display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;" }, [
@@ -599,7 +648,7 @@ function buildAdminModerationSection(graduate) {
         type: "button",
         class: "btn btn-primary",
         style: "background: #10b981; border: none;",
-        text: "✅ Guardar y Aprobar Ficha",
+        text: "Guardar y Aprobar Ficha",
         onclick: async () => {
           const isPublic = document.getElementById("adminMakePublicSwitch").checked;
           clearAlert(alertBox);
@@ -637,8 +686,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   const container = document.getElementById("profileContainer");
 
   if (!code) {
-    container.innerHTML = "";
-    showAlert(container, "No se especifico ningun egresado.");
+    container.innerHTML = `
+      <div class="card empty-state-box">
+        <div class="empty-state-icon-wrap">${typeof getSvgIcon === 'function' ? getSvgIcon('user') : ''}</div>
+        <h3 class="empty-state-title">No se especificó ningún egresado</h3>
+        <p class="empty-state-desc muted">Selecciona un profesional desde el directorio público para consultar su perfil académico y trayectoria.</p>
+        <a href="/" class="btn btn-primary" style="margin-top: 14px; display: inline-flex; align-items: center; gap: 6px;">
+          ${typeof getSvgIcon === 'function' ? getSvgIcon('search') : ''} Explorar Directorio
+        </a>
+      </div>
+    `;
     return;
   }
 
@@ -650,8 +707,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       container.appendChild(buildAdminModerationSection(graduate));
     }
   } catch (err) {
-    container.innerHTML = "";
-    showAlert(container, err.message || "No se encontro la ficha solicitada.");
+    container.innerHTML = `
+      <div class="card empty-state-box">
+        <div class="empty-state-icon-wrap">${typeof getSvgIcon === 'function' ? getSvgIcon('info') : ''}</div>
+        <h3 class="empty-state-title">Ficha no disponible</h3>
+        <p class="empty-state-desc muted">${escapeHtml(err.message || "No se encontró la ficha solicitada o actualmente no se encuentra pública.")}</p>
+        <a href="/" class="btn btn-primary" style="margin-top: 14px; display: inline-flex; align-items: center; gap: 6px;">
+          ${typeof getSvgIcon === 'function' ? getSvgIcon('search') : ''} Volver al Directorio
+        </a>
+      </div>
+    `;
   }
 
   // --- Modal CV Listeners ---

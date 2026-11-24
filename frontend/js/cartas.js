@@ -48,7 +48,7 @@ function generarCarta() {
   const carrera = valorOPlaceholder("career", "CARRERA");
   const universidad = valorOPlaceholder("university", "UNIVERSIDAD");
   const specialty = document.getElementById("specialty").value.trim();
-  const specialtyPhrase = specialty ? `, con especializacion en ${specialty},` : "";
+  const specialtyPhrase = specialty ? `, con especialización en ${specialty},` : "";
 
   const tecnicas = catalogTechnologies
     .filter((t) => letterTechSelected.has(t.id))
@@ -73,11 +73,11 @@ ${saludo}
 
 Me dirijo a usted para postular al puesto de ${puesto}, publicado en ${fuente}. Como egresado/a de ${carrera} en ${universidad}${specialtyPhrase} me interesa iniciar mi trayectoria profesional aportando mis conocimientos al equipo de ${empresa}.
 
-Durante mi formacion desarrollé conocimientos en ${listaTecnicas}, que reforcé a través de ${experiencia}. Entre mis habilidades personales destacan ${listaBlandas}.
+Durante mi formación desarrollé conocimientos en ${listaTecnicas}, que reforcé a través de ${experiencia}. Entre mis habilidades personales destacan ${listaBlandas}.
 
 Me motiva especialmente ${motivacion} y considero que puedo aportar ${valor} a su equipo.
 
-Adjunto mi currículum con más detalle sobre mi formacion y habilidades. Quedo a su disposición para una entrevista donde pueda ampliar esta información.
+Adjunto mi currículum con más detalle sobre mi formación y habilidades. Quedo a su disposición para una entrevista donde pueda ampliar esta información.
 
 Atentamente,
 ${nombre}`;
@@ -226,15 +226,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     profileDefaults = {
       fullName: [graduate.firstName, graduate.lastName].filter(Boolean).join(" "),
       email: user.email || "",
-      career: "Ingenieria Informatica",
-      university: "Universidad Autonoma Juan Misael Saracho",
+      career: "Ingeniería Informática",
+      university: "Universidad Autónoma Juan Misael Saracho",
     };
   } catch {
     profileDefaults = {
       fullName: "",
       email: user.email || "",
-      career: "Ingenieria Informatica",
-      university: "Universidad Autonoma Juan Misael Saracho",
+      career: "Ingeniería Informática",
+      university: "Universidad Autónoma Juan Misael Saracho",
     };
   }
 

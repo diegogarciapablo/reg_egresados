@@ -4,21 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Verificación de Correo - Registro de Egresados UAJMS</title>
-  <link rel="stylesheet" href="/styles.css?v=20261117d" />
+  <link rel="stylesheet" href="/styles.css?v=20261124_colores" />
 </head>
 <body>
   <header class="topbar" id="topbar"></header>
 
-  <main class="container" style="max-width: 600px; margin-top: 48px;">
-    <section class="card" id="verificationCard" style="text-align: center; padding: 40px 24px;">
+  <main class="container auth-page-container">
+    <section class="auth-center-card card" id="verificationCard" style="text-align: center; padding: 40px 28px;">
       <div id="loadingState">
-        <p class="muted">Verificando tu enlace...</p>
+        <div class="auth-loading-spinner" aria-hidden="true"></div>
+        <h2 style="font-size: 1.2rem; margin-top: 16px;">Verificando tu enlace institucional...</h2>
+        <p class="muted">Por favor espera un momento mientras procesamos la validación.</p>
       </div>
 
       <div id="resultState" hidden>
-        <div id="resultIcon" style="margin-bottom: 16px;"></div>
-        <h2 id="resultTitle" style="margin-bottom: 8px;"></h2>
-        <p id="resultMessage" class="muted" style="margin-bottom: 24px; line-height: 1.6;"></p>
+        <div id="resultIcon" style="margin-bottom: 18px;"></div>
+        <h2 id="resultTitle" style="margin-bottom: 10px; font-size: 1.4rem;"></h2>
+        <p id="resultMessage" class="muted" style="margin-bottom: 24px; line-height: 1.6; max-width: 480px; margin-left: auto; margin-right: auto;"></p>
         <div id="resultActions" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;"></div>
       </div>
     </section>
@@ -43,9 +45,16 @@
       if (!token) {
         loadingState.hidden = true;
         resultState.hidden = false;
-        resultIcon.innerHTML = `<span style="font-size: 3rem;">⚠️</span>`;
+        resultIcon.innerHTML = `
+          <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: #fef3c7;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 36px; height: 36px;">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+        `;
         resultTitle.textContent = "Enlace incompleto";
-        resultMessage.textContent = "No se proporcionó un token de verificación en el enlace.";
+        resultMessage.textContent = "No se proporcionó un token de verificación válido en el enlace recibido.";
         resultActions.innerHTML = `<a href="/index.html" class="btn btn-primary">Ir al Directorio</a>`;
         return;
       }
@@ -57,14 +66,14 @@
 
         resultIcon.innerHTML = `
           <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: #d1fae5;">
-            <svg viewBox="0 0 20 20" fill="none" style="width: 40px; height: 40px;" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0z" fill="#10b981"/>
+            <svg viewBox="0 0 20 20" fill="none" style="width: 36px; height: 36px;" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0z" fill="#059669"/>
               <path d="M6 10.2l2.6 2.6L14.2 7" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
         `;
         resultTitle.textContent = "¡Correo Verificado!";
-        resultMessage.textContent = response.message || "Tu correo electrónico ha sido verificado con éxito. Tu perfil ahora cuenta con la insignia de verificado.";
+        resultMessage.textContent = response.message || "Tu correo institucional ha sido verificado con éxito. Tu ficha profesional ahora cuenta con la insignia de verificado.";
         resultActions.innerHTML = `
           <a href="/dashboard.html" class="btn btn-primary">Ir a Mi Ficha</a>
           <a href="/index.html" class="btn btn-secondary">Ver Directorio</a>
@@ -73,9 +82,17 @@
         loadingState.hidden = true;
         resultState.hidden = false;
 
-        resultIcon.innerHTML = `<span style="font-size: 3rem;">❌</span>`;
+        resultIcon.innerHTML = `
+          <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: #fee2e2;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 36px; height: 36px;">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+          </div>
+        `;
         resultTitle.textContent = "Verificación fallida";
-        resultMessage.textContent = err.message || "El enlace no es válido o ya ha expirado.";
+        resultMessage.textContent = err.message || "El enlace no es válido o ha expirado. Por favor solicita uno nuevo desde tu ficha.";
         resultActions.innerHTML = `
           <a href="/dashboard.html" class="btn btn-primary">Solicitar nuevo enlace en Mi Ficha</a>
           <a href="/index.html" class="btn btn-secondary">Ir al Directorio</a>

@@ -3,58 +3,126 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crear cuenta - Registro de Egresados</title>
-  <link rel="stylesheet" href="/styles.css?v=20261117d" />
+  <title>Crear cuenta - Registro de Egresados UAJMS</title>
+  <link rel="stylesheet" href="/styles.css?v=20261124_colores" />
 </head>
 <body>
   <header class="topbar" id="topbar"></header>
 
-  <main class="container" style="max-width: 460px;">
-    <div class="card">
-      <h1>Crear cuenta de egresado</h1>
-      <div id="alertBox"></div>
-      <form id="registerForm">
-        <div class="form-group">
-          <label for="firstName">Nombres</label>
-          <input type="text" id="firstName" required />
+  <main class="container auth-page-container">
+    <div class="auth-split-layout">
+      <!-- Columna Izquierda: Identidad Institucional UAJMS -->
+      <aside class="auth-split-visual" aria-hidden="true">
+        <div class="auth-visual-inner">
+          <div class="auth-visual-badge">
+            <svg class="auth-visual-emblem" viewBox="0 0 48 48" width="40" height="40" fill="none">
+              <circle cx="24" cy="24" r="22" stroke="rgba(231,227,220,0.3)" stroke-width="2"/>
+              <circle cx="24" cy="24" r="18" fill="rgba(231,227,220,0.08)"/>
+              <path d="M24 10L36 17V26C36 32.5 24 38 24 38C24 38 12 32.5 12 26V17L24 10Z" stroke="#E7E3DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M20 23L23 26L28 20" stroke="#E7E3DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="auth-visual-univ">UAJMS • YACUIBA</span>
+          </div>
+
+          <div class="auth-visual-content">
+            <h2 class="auth-visual-title">Únete a la Red de Egresados</h2>
+            <p class="auth-visual-subtitle">
+              Forma parte del directorio profesional de Ingeniería Informática y accede a beneficios institucionales.
+            </p>
+            <div class="auth-visual-features">
+              <div class="auth-feature-item">
+                <span class="auth-feature-icon">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
+                <span>Visibilidad ante reclutadores y empresas</span>
+              </div>
+              <div class="auth-feature-item">
+                <span class="auth-feature-icon">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                </span>
+                <span>Registro y validación de trayectoria académica</span>
+              </div>
+              <div class="auth-feature-item">
+                <span class="auth-feature-icon">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </span>
+                <span>Generación y descarga de cartas formales</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="auth-visual-footer">
+            <span>Universidad Autónoma Juan Misael Saracho</span>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="lastName">Apellidos</label>
-          <input type="text" id="lastName" required />
+      </aside>
+
+      <!-- Columna Derecha: Formulario de Registro -->
+      <section class="auth-split-form-col">
+        <div class="auth-form-header">
+          <h1>Crear cuenta de egresado</h1>
+          <p class="muted">Completa tus datos básicos para registrarte en la plataforma.</p>
         </div>
-        <div class="form-group">
-          <label for="graduationYear">Año de egreso</label>
-          <select id="graduationYear" required>
-            <option value="">Selecciona tu año de egreso</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="email">Correo electronico</label>
-          <input type="email" id="email" required />
-        </div>
-        <div class="form-group">
-          <label for="password">Contrasena</label>
-          <input type="password" id="password" minlength="8" required />
-          <div class="hint">Minimo 8 caracteres.</div>
-        </div>
-        <div class="form-group" style="margin: 18px 0;">
-          <label style="display: flex; align-items: flex-start; gap: 8px; font-weight: normal; cursor: pointer;">
-            <input type="checkbox" id="termsAccepted" required style="margin-top: 3px;" />
-            <span style="font-size: 0.88rem; color: #334155; line-height: 1.4;">
-              He leído, entiendo y acepto los <a href="#" id="viewTermsLink" style="font-weight: 600; color: var(--primary); text-decoration: underline;">Términos y Condiciones de la Red Alumni</a>
-            </span>
-          </label>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width:100%;">Crear cuenta</button>
-      </form>
-      <p class="hint" style="margin-top:14px;">
-        ¿Ya tienes cuenta? <a href="/login.html">Inicia sesion</a>
-      </p>
+
+        <div id="alertBox"></div>
+
+        <form id="registerForm">
+          <div class="form-columns">
+            <div class="form-group">
+              <label for="firstName">Nombres</label>
+              <input type="text" id="firstName" required placeholder="Ej: Juan Carlos" />
+            </div>
+            <div class="form-group">
+              <label for="lastName">Apellidos</label>
+              <input type="text" id="lastName" required placeholder="Ej: Pérez García" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="graduationYear">Año de egreso</label>
+            <select id="graduationYear" required>
+              <option value="">Selecciona tu año de egreso</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Correo electrónico</label>
+            <input type="email" id="email" required placeholder="tu.correo@ejemplo.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <div class="password-input-wrapper">
+              <input type="password" id="password" minlength="8" required placeholder="Mínimo 8 caracteres" />
+              <button type="button" id="togglePasswordBtn" class="password-toggle-btn" aria-label="Mostrar contraseña" title="Mostrar contraseña">
+                <svg class="icon-eye" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+            <div class="hint">Mínimo 8 caracteres de seguridad.</div>
+          </div>
+
+          <div class="form-group terms-form-group">
+            <label class="terms-checkbox-label">
+              <input type="checkbox" id="termsAccepted" class="terms-checkbox-input" required />
+              <span class="terms-checkbox-text">
+                He leído, entiendo y acepto los <a href="#" id="viewTermsLink" class="terms-link">Términos y Condiciones de la Red Alumni</a>
+              </span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Crear mi cuenta</button>
+        </form>
+
+        <p class="hint" style="margin-top: 18px; text-align: center;">
+          ¿Ya tienes cuenta? <a href="/login.html" style="font-weight: 600; color: var(--secondary);">Inicia sesión aquí</a>
+        </p>
+      </section>
     </div>
   </main>
 
   <script src="/js/api.js?v=20261117c"></script>
   <script src="/js/ui.js?v=20261117c"></script>
-  <script src="/js/registro.js?v=20261117c"></script>
+  <script src="/js/registro.js?v=20261124_colores"></script>
 </body>
 </html>

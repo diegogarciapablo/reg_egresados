@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cartas de presentacion - Registro de Egresados</title>
-  <link rel="stylesheet" href="/styles.css?v=20261117d" />
+  <title>Cartas de presentación - Registro de Egresados</title>
+  <link rel="stylesheet" href="/styles.css?v=20261124_colores" />
   <style>
     .letter-editor-container {
       display: grid;
@@ -12,12 +12,6 @@
       align-items: start;
       gap: 20px;
       margin-top: 24px;
-    }
-
-    @media (max-width: 860px) {
-      .letter-editor-container {
-        grid-template-columns: 1fr;
-      }
     }
 
     .letter-form-panel {
@@ -36,6 +30,26 @@
       overflow-y: auto;
       position: sticky;
       top: 16px;
+    }
+
+    @media (max-width: 860px) {
+      .letter-editor-container {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .letter-form-panel {
+        max-height: none;
+        overflow-y: visible;
+        padding-right: 0;
+      }
+
+      .letter-preview-panel {
+        max-height: none;
+        overflow-y: visible;
+        position: static;
+        margin-top: 10px;
+      }
     }
 
     .letter-preview {
@@ -243,7 +257,7 @@
   <main class="container">
     <div class="page-header flex-between">
       <div>
-        <h1>Cartas de presentacion</h1>
+        <h1>Cartas de presentación</h1>
         <p class="muted">Crea y edita tus cartas para postular a distintas empresas.</p>
       </div>
       <button id="newLetterBtn" class="btn btn-primary">Nueva carta</button>
@@ -263,14 +277,14 @@
                   <input type="text" id="fullName" required />
                 </div>
                 <div class="form-group">
-                  <label for="phone">Telefono</label>
+                  <label for="phone">Teléfono</label>
                   <input type="text" id="phone" />
                 </div>
               </div>
 
               <div class="form-columns">
                 <div class="form-group">
-                  <label for="cityCountry">Ciudad, pais</label>
+                  <label for="cityCountry">Ciudad, país</label>
                   <input type="text" id="cityCountry" />
                 </div>
                 <div class="form-group">
@@ -279,10 +293,10 @@
                 </div>
               </div>
 
-              <div class="section-title">Ciudad y fecha de envio</div>
+              <div class="section-title">Ciudad y fecha de envío</div>
               <div class="form-columns">
                 <div class="form-group">
-                  <label for="sendingCity">Ciudad de envio</label>
+                  <label for="sendingCity">Ciudad de envío</label>
                   <input type="text" id="sendingCity" />
                 </div>
                 <div class="form-group">
@@ -310,7 +324,7 @@
                 </div>
               </div>
 
-              <div class="section-title">Puesto y busqueda</div>
+              <div class="section-title">Puesto y búsqueda</div>
               <div class="form-columns">
                 <div class="form-group">
                   <label for="targetPosition">Puesto al que aplicas *</label>
@@ -322,7 +336,7 @@
                 </div>
               </div>
 
-              <div class="section-title">Formacion academica</div>
+              <div class="section-title">Formación académica</div>
               <div class="form-columns">
                 <div class="form-group">
                   <label for="career">Carrera</label>
@@ -338,7 +352,7 @@
                 </div>
               </div>
 
-              <div class="section-title">Experiencia y motivacion</div>
+              <div class="section-title">Experiencia y motivación</div>
               <div class="form-group">
                 <label for="relevantExperience">Experiencia relevante / Proyecto</label>
                 <textarea id="relevantExperience" rows="2"></textarea>

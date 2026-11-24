@@ -15,10 +15,47 @@ function slugifyClient(text) {
     .replace(/^-+|-+$/g, "");
 }
 
+const LABEL_FIXES = {
+  "Formacion Academica": "Formación académica",
+  "formacion academica": "formación académica",
+  "Cartas de presentacion": "Cartas de presentación",
+  "carta de presentacion": "carta de presentación",
+  "tecnologia": "tecnología",
+  "Usuario estandar": "Usuario estándar",
+  "Ultimo acceso": "Último acceso",
+  "Descripcion": "Descripción",
+  "Categoria": "Categoría",
+  "Nivel / Categoria": "Nivel / Categoría",
+  "Titulo o Programa": "Título o Programa",
+  "Titulo o programa": "Título o programa",
+  "Institucion": "Institución",
+  "Titulo": "Título",
+  "Organizacion": "Organización",
+  "Codigo": "Código",
+  "Telefono": "Teléfono",
+  "Ciudad y pais": "Ciudad y país",
+  "Ciudad de envio": "Ciudad de envío",
+  "Fecha de envio": "Fecha de envío",
+  "Motivacion": "Motivación",
+  "Leida": "Leída",
+  "No leida": "No leída",
+  "Publico": "Público",
+  "Experiencia academica": "Experiencia académica",
+  "Dia/Mes/Año": "Día/Mes/Año",
+  "Maestria": "Maestría",
+  "notificacion": "notificación",
+  "Notificacion": "Notificación",
+};
+
+function fixLabel(str) {
+  if (!str) return str;
+  return LABEL_FIXES[str] || str;
+}
+
 function formatCellValue(value, column) {
   if (value === null || value === undefined || value === "") return "-";
   if (column.optionLabels && column.optionLabels[value]) {
-    return column.optionLabels[value];
+    return fixLabel(column.optionLabels[value]);
   }
   if (column.type === "date") return String(value).slice(0, 10);
   if (column.type === "datetime") {
@@ -53,7 +90,7 @@ function renderCellContent(row, column) {
           target: "_blank",
           rel: "noopener noreferrer",
           class: "certificate-file-link",
-          style: "font-weight: 700; color: #005596; text-decoration: underline;",
+          style: "font-weight: 700; color: var(--secondary); text-decoration: underline;",
           text: `${value} ↗`,
           title: "Abrir ficha pública en nueva pestaña",
         });
@@ -103,14 +140,17 @@ function renderCellContent(row, column) {
   ) {
     const rawUrl = String(value);
     const safeHref = typeof normalizeInternalUrl === "function" ? normalizeInternalUrl(rawUrl) : rawUrl;
-    const defaultLabel = column.key === "preview_link" ? "👁️ Revisar Ficha" : (rawUrl.length > 32 ? rawUrl.slice(0, 30) + "… ↗" : `${rawUrl} ↗`);
+    const defaultLabel = column.key === "preview_link" ? "Revisar Ficha" : (rawUrl.length > 32 ? rawUrl.slice(0, 30) + "… ↗" : `${rawUrl} ↗`);
+    const linkContent = column.key === "preview_link" && typeof getSvgIcon === "function"
+      ? `${getSvgIcon("eye")} ${column.linkText || defaultLabel}`
+      : (column.linkText || defaultLabel);
     return el("a", {
       href: safeHref,
       target: "_blank",
       rel: "noopener noreferrer",
       class: "certificate-file-link",
-      style: "font-weight: 600; color: #005596; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;",
-      text: column.linkText || defaultLabel,
+      style: "font-weight: 600; color: var(--secondary); text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;",
+      html: linkContent,
       title: `Abrir ${safeHref}`,
     });
   }
@@ -123,21 +163,42 @@ function entityFromUrl() {
 
 function renderEntityTabs() {
   const tabsContainer = document.getElementById("entityTabs");
-  if (!tabsContainer) return;
-  tabsContainer.replaceChildren();
+  const selectMobile = document.getElementById("entitySelectMobile");
+  if (tabsContainer) tabsContainer.replaceChildren();
+  if (selectMobile) selectMobile.replaceChildren();
 
   for (const def of entityDefinitions) {
     const isSelected = activeDefinition && activeDefinition.key === def.key;
-    const chip = el("button", {
-      type: "button",
-      class: `chip ${isSelected ? "selected" : ""}`,
-      text: def.label,
-    });
-    chip.addEventListener("click", () => {
+    const labelText = fixLabel(def.label);
+    if (tabsContainer) {
+      const chip = el("button", {
+        type: "button",
+        class: `chip ${isSelected ? "selected" : ""}`,
+        text: labelText,
+      });
+      chip.addEventListener("click", () => {
+        clearAlert(document.getElementById("adminAlert"));
+        selectEntity(def.key);
+      });
+      tabsContainer.appendChild(chip);
+    }
+
+    if (selectMobile) {
+      const opt = el("option", {
+        value: def.key,
+        text: labelText,
+        selected: isSelected,
+      });
+      selectMobile.appendChild(opt);
+    }
+  }
+
+  if (selectMobile && !selectMobile._hasListener) {
+    selectMobile._hasListener = true;
+    selectMobile.addEventListener("change", (e) => {
       clearAlert(document.getElementById("adminAlert"));
-      selectEntity(def.key);
+      selectEntity(e.target.value);
     });
-    tabsContainer.appendChild(chip);
   }
 }
 
@@ -149,8 +210,8 @@ function selectEntity(entity) {
   const url = new URL(window.location.href);
   url.searchParams.set("entity", activeDefinition.key);
   window.history.replaceState({}, "", url);
-  document.getElementById("entityTitle").textContent = `Seccion actual: ${activeDefinition.label}`;
-  document.getElementById("tableTitle").textContent = activeDefinition.label;
+  document.getElementById("entityTitle").textContent = `Sección actual: ${fixLabel(activeDefinition.label)}`;
+  document.getElementById("tableTitle").textContent = fixLabel(activeDefinition.label);
   document.getElementById("entitySearch").value = "";
 
   const createBtn = document.getElementById("createEntityBtn");
@@ -164,22 +225,51 @@ function selectEntity(entity) {
   }
 
   renderEntityTabs();
+  const scrollContainer = document.querySelector(".admin-table-scroll");
+  if (scrollContainer) scrollContainer.scrollLeft = 0;
   loadEntityRows();
+}
+
+function updateAdminScrollHint() {
+  const scrollContainer = document.querySelector(".admin-table-scroll");
+  const hint = document.querySelector(".admin-scroll-hint");
+  if (!scrollContainer || !hint) return;
+  const hasOverflow = scrollContainer.scrollWidth > scrollContainer.clientWidth + 2;
+  hint.classList.toggle("is-visible", hasOverflow);
+  hint.setAttribute("aria-hidden", hasOverflow ? "false" : "true");
 }
 
 function renderTable(rows) {
   const head = document.getElementById("entityTableHead");
   const body = document.getElementById("entityTableBody");
   const emptyState = document.getElementById("emptyState");
+  const tableEl = document.querySelector(".admin-table");
+  if (tableEl && activeDefinition) {
+    tableEl.setAttribute("data-entity", activeDefinition.key);
+  }
   head.replaceChildren();
   body.replaceChildren();
 
   const tableColumns = getTableColumnsForActiveEntity();
 
   for (const column of tableColumns) {
-    head.appendChild(el("th", { scope: "col", text: column.label }));
+    head.appendChild(
+      el("th", {
+        scope: "col",
+        "data-col": column.key,
+        "data-type": column.type || "text",
+        text: fixLabel(column.label),
+      })
+    );
   }
-  head.appendChild(el("th", { scope: "col", class: "admin-actions-heading", text: "Estado / Acciones" }));
+  head.appendChild(
+    el("th", {
+      scope: "col",
+      class: "admin-actions-heading",
+      "data-col": "actions",
+      text: "Estado / Acciones",
+    })
+  );
 
   emptyState.hidden = rows.length > 0;
   emptyState.textContent = rows.length ? "" : "No se encontraron registros.";
@@ -188,10 +278,10 @@ function renderTable(rows) {
     const tableRow = el("tr", { class: row.is_active ? "" : "admin-inactive-row" });
     for (const column of tableColumns) {
       const cellContent = renderCellContent(row, column);
-      tableRow.appendChild(el("td", {}, [cellContent]));
+      tableRow.appendChild(el("td", { "data-col": column.key, "data-type": column.type || "text" }, [cellContent]));
     }
 
-    const actionCell = el("td", { class: "admin-actions-cell" });
+    const actionCell = el("td", { class: "admin-actions-cell", "data-col": "actions" });
     const actions = el("div", { class: "admin-row-actions" });
 
     if (activeDefinition.readOnly) {
@@ -227,9 +317,9 @@ function renderTable(rows) {
       const roleButton = el("button", {
         type: "button",
         class: "btn btn-secondary admin-edit-button",
-        text: isAdmin ? "Pasar a estandar" : "Hacer admin",
+        text: isAdmin ? "Pasar a estándar" : "Hacer admin",
         title: isAdmin
-          ? "Cambiar rol a usuario estandar"
+          ? "Cambiar rol a usuario estándar"
           : "Asignar como administrador",
       });
       roleButton.addEventListener("click", () => toggleUserRole(row, roleButton));
@@ -248,6 +338,9 @@ function renderTable(rows) {
     tableRow.appendChild(actionCell);
     body.appendChild(tableRow);
   }
+
+  updateAdminScrollHint();
+  requestAnimationFrame(() => updateAdminScrollHint());
 }
 
 async function loadEntityRows() {
@@ -292,8 +385,8 @@ async function toggleUserRole(row, button) {
     showAlert(
       document.getElementById("adminAlert"),
       nextRole === "admin"
-        ? `Se asigno el rol de Administrador a ${row.email}.`
-        : `${row.email} ahora tiene rol de Usuario estandar.`,
+        ? `Se asignó el rol de Administrador a ${row.email}.`
+        : `${row.email} ahora tiene rol de Usuario estándar.`,
       "success",
     );
     await loadEntityRows();
@@ -422,6 +515,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   selectEntity(entityFromUrl());
+  window.addEventListener("resize", updateAdminScrollHint);
+  if (typeof ResizeObserver !== "undefined") {
+    const scrollEl = document.querySelector(".admin-table-scroll");
+    const tableEl = document.querySelector(".admin-table");
+    const ro = new ResizeObserver(() => updateAdminScrollHint());
+    if (scrollEl) ro.observe(scrollEl);
+    if (tableEl) ro.observe(tableEl);
+  }
   document.getElementById("createEntityBtn").addEventListener("click", openCreateDialog);
   document.getElementById("entitySearch").addEventListener("input", () => {
     clearTimeout(searchTimer);

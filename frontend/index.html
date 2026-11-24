@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Directorio de Egresados - Ingenieria Informatica UAJMS</title>
-  <link rel="stylesheet" href="/styles.css?v=20261117d" />
+  <title>Directorio de Egresados - Ingeniería Informática UAJMS</title>
+  <link rel="stylesheet" href="/styles.css?v=20261124_colores" />
 </head>
 <body>
   <header class="topbar" id="topbar"></header>
@@ -12,58 +12,155 @@
   <main class="container">
     <div class="page-header">
       <h1>Directorio de egresados</h1>
-      <p class="muted">Explora las fichas profesionales de egresados de Ingenieria Informatica, UAJMS.</p>
+      <p class="muted">Explora las fichas profesionales de egresados de Ingeniería Informática, UAJMS.</p>
     </div>
 
-    <!-- Introducción y Capacidades Principales del Portal -->
-    <section class="card intro-card" style="margin-bottom: 24px; border-left: 4px solid var(--primary); background: linear-gradient(to right, #f8fafc, #ffffff);">
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        <h2 style="font-size: 1.25rem; color: #0f2744; margin: 0; display: flex; align-items: center; gap: 8px;">
-          <span>🎓</span> Bienvenido a la Red Alumni e Inserción Laboral
-        </h2>
-        <p style="margin: 0; color: #475569; font-size: 0.95rem; line-height: 1.5;">
-          Plataforma oficial de la carrera de <strong>Ingeniería Informática (UAJMS)</strong> diseñada para conectar a la comunidad universitaria con el sector productivo, promover el talento de nuestros profesionales y respaldar su inserción en el mercado laboral.
-        </p>
-        <div style="margin-top: 6px;">
-          <h3 style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px; color: #1e3a8a; margin: 0 0 8px 0; font-weight: 700;">
-            ¿Qué puedes hacer en esta plataforma?
-          </h3>
-          <ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 0.92rem; line-height: 1.6; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px 24px;">
-            <li><strong>🔍 Explorar el Directorio:</strong> Buscar y filtrar egresados por tecnologías, roles y años de graduación.</li>
-            <li><strong>💼 Contacto Profesional:</strong> Acceder directamente a canales validados (WhatsApp, correo personal y redes).</li>
-            <li><strong>📝 Gestionar tu Ficha Profesional:</strong> Registrar tu perfil, experiencia laboral, proyectos y certificaciones con respaldo de la carrera.</li>
-            <li><strong>📄 Exportar CV en PDF:</strong> Descargar o imprimir tu currículum vitae en formato estandarizado y moderno.</li>
-            <li><strong>✉️ Cartas de Presentación:</strong> Redactar y administrar cartas de presentación para postulaciones laborales.</li>
-            <li><strong>🔔 Oportunidades y Notificaciones:</strong> Recibir alertas sobre convocatorias y ofertas acordes a tus habilidades.</li>
-          </ul>
+    <!-- Bloque Institucional de Bienvenida Rediseñado (Ink Navy, Compacto, 6 Capacidades) -->
+    <section class="welcome-hero-banner">
+      <div class="welcome-hero-header-row">
+        <div class="welcome-hero-text-col">
+          <div class="welcome-hero-badge">
+            <svg class="icon-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            <span>Ingeniería Informática · UAJMS</span>
+          </div>
+          <h2 class="welcome-hero-title">Red Alumni e Inserción Laboral</h2>
+          <p class="welcome-hero-desc">
+            Plataforma oficial para conectar el talento de nuestros profesionales con el sector productivo y respaldar su inserción en el mercado laboral.
+          </p>
         </div>
+        <!-- Elemento gráfico abstracto institucional en SVG (redes e informática UAJMS) -->
+        <div class="welcome-hero-art" aria-hidden="true">
+          <svg class="welcome-hero-art-svg" viewBox="0 0 200 200" width="140" height="140" fill="none" aria-hidden="true">
+            <circle cx="160" cy="40" r="100" stroke="#7A1F2B" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.45"/>
+            <circle cx="160" cy="40" r="60" stroke="#FFFFFF" stroke-width="1" opacity="0.2"/>
+            <path d="M30 160 L90 105 L150 145 L185 65" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>
+            <circle cx="30" cy="160" r="5" fill="#7A1F2B"/>
+            <circle cx="90" cy="105" r="4" fill="#FFFFFF" opacity="0.7"/>
+            <circle cx="150" cy="145" r="5" fill="#7A1F2B"/>
+            <circle cx="185" cy="65" r="6" fill="#FFFFFF" opacity="0.9"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Presentación resumida y cuadrícula compacta de las 6 capacidades esenciales -->
+      <div class="welcome-capabilities-wrapper">
+        <details id="capabilitiesDetails" class="welcome-capabilities-details" open>
+          <summary class="welcome-capabilities-summary">
+            <span class="summary-title">Servicios de la plataforma</span>
+            <span class="summary-pill">6 funcionalidades disponibles</span>
+            <span class="summary-chevron" aria-hidden="true">▾</span>
+          </summary>
+          <div class="welcome-capabilities-grid">
+            <div class="capability-item">
+              <div class="capability-icon-box">
+                <svg class="icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
+              <div class="capability-text-wrap">
+                <h3 class="capability-title">1. Explorar el Directorio</h3>
+                <p class="capability-desc">Buscar y filtrar egresados por tecnologías, roles y años de graduación.</p>
+              </div>
+            </div>
+            <div class="capability-item">
+              <div class="capability-icon-box">
+                <svg class="icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              </div>
+              <div class="capability-text-wrap">
+                <h3 class="capability-title">2. Contacto Profesional</h3>
+                <p class="capability-desc">Acceder a canales validados: WhatsApp, correo personal y redes.</p>
+              </div>
+            </div>
+            <div class="capability-item">
+              <div class="capability-icon-box">
+                <svg class="icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </div>
+              <div class="capability-text-wrap">
+                <h3 class="capability-title">3. Gestionar tu Ficha Profesional</h3>
+                <p class="capability-desc">Registrar perfil, experiencia laboral, proyectos y certificaciones.</p>
+              </div>
+            </div>
+            <div class="capability-item">
+              <div class="capability-icon-box">
+                <svg class="icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+              </div>
+              <div class="capability-text-wrap">
+                <h3 class="capability-title">4. Exportar CV en PDF</h3>
+                <p class="capability-desc">Descargar o imprimir currículum en formato estandarizado formal.</p>
+              </div>
+            </div>
+            <div class="capability-item">
+              <div class="capability-icon-box">
+                <svg class="icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <div class="capability-text-wrap">
+                <h3 class="capability-title">5. Cartas de Presentación</h3>
+                <p class="capability-desc">Redactar y administrar cartas formales para postulaciones.</p>
+              </div>
+            </div>
+            <div class="capability-item">
+              <div class="capability-icon-box">
+                <svg class="icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              </div>
+              <div class="capability-text-wrap">
+                <h3 class="capability-title">6. Oportunidades y Notificaciones</h3>
+                <p class="capability-desc">Recibir notificaciones sobre convocatorias y avisos institucionales.</p>
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
     </section>
 
+    <!-- Buscador y Filtros con Jerarquía Visual Refinada -->
     <form id="filtersForm" class="card filters-bar">
-      <div class="form-group">
-        <label for="q">Buscar</label>
-        <input type="text" id="q" name="q" placeholder="Nombre, cargo, tecnologia..." />
+      <div class="filters-header-row">
+        <div class="filters-header-title">
+          <svg class="icon-svg filter-title-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span class="filters-header-title-text">
+            <span class="filters-title-full">Búsqueda y Filtros de Egresados</span>
+            <span class="filters-title-compact">Filtros de búsqueda</span>
+          </span>
+        </div>
+        <div id="resultsCountBadge" class="results-count-badge">Directorio oficial</div>
       </div>
-      <div class="form-group" style="min-width: 240px;">
-        <label for="technology">Habilidades/Tecnologías <span id="selectedTechsCount" style="font-size: 0.78rem; color: var(--muted); font-weight: normal;">(0/3)</span></label>
-        <select id="technology">
-          <option value="">Todas (0/3)</option>
-        </select>
+
+      <div class="filters-fields-grid">
+        <div class="form-group filter-field-search">
+          <label for="q">Buscar por texto</label>
+          <div class="input-with-icon">
+            <svg class="input-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="q" name="q" placeholder="Nombre, cargo, tecnología..." autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="form-group filter-field-tech">
+          <label for="technology">Habilidades / Tecnologías <span id="selectedTechsCount" style="font-size: 0.78rem; color: var(--muted); font-weight: normal;">(0/3)</span></label>
+          <select id="technology">
+            <option value="">Todas (0/3)</option>
+          </select>
+        </div>
+
+        <div class="form-group filter-field-year">
+          <label for="yearFrom">Año desde</label>
+          <select id="yearFrom" name="yearFrom">
+            <option value="">Todos</option>
+          </select>
+        </div>
+
+        <div class="form-group filter-field-year">
+          <label for="yearTo">Año hasta</label>
+          <select id="yearTo" name="yearTo">
+            <option value="">Todos</option>
+          </select>
+        </div>
+
+        <div class="form-group filter-field-action">
+          <label class="sr-only" for="btnFilterSubmit" style="visibility:hidden;">Filtrar</label>
+          <button id="btnFilterSubmit" type="submit" class="btn btn-primary btn-filter-submit">
+            <svg class="icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Buscar</span>
+          </button>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="yearFrom">Año de egreso (desde)</label>
-        <select id="yearFrom" name="yearFrom">
-          <option value="">Todos</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="yearTo">Año de egreso (hasta)</label>
-        <select id="yearTo" name="yearTo">
-          <option value="">Todos</option>
-        </select>
-      </div>
-      <button type="submit" class="btn btn-primary">Filtrar</button>
     </form>
 
     <div id="resultsInfo" class="hint" style="margin-bottom: 12px;"></div>
@@ -71,8 +168,8 @@
     <div id="pagination" class="pagination"></div>
   </main>
 
-  <script src="/js/api.js?v=20261117c"></script>
-  <script src="/js/ui.js?v=20261117c"></script>
-  <script src="/js/directory.js?v=20261117d"></script>
+  <script src="/js/api.js?v=20261124_colores"></script>
+  <script src="/js/ui.js?v=20261124_colores"></script>
+  <script src="/js/directory.js?v=20261124_colores"></script>
 </body>
 </html>

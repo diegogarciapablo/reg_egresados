@@ -28,6 +28,56 @@ function normalizeInternalUrl(rawUrl) {
   return queryPart ? `${cleanBase}?${queryPart}` : cleanBase;
 }
 
+function getSvgIcon(name, extraClass = "") {
+  const cls = `icon-svg ${extraClass}`.trim();
+  switch (name) {
+    case "academic":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`;
+    case "bell":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
+    case "lock":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+    case "key":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2l-2 2m-1.5 1.5L14 9l-1.5-1.5-1.5 1.5 1.5 1.5L11 13H8v3H5v3H2v-3.5L13.5 4a3.5 3.5 0 1 1 5 5z"/></svg>`;
+    case "eye":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    case "file-pdf":
+    case "document":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>`;
+    case "save":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`;
+    case "printer":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`;
+    case "rocket":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`;
+    case "search":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
+    case "briefcase":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`;
+    case "edit":
+    case "pencil":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
+    case "mail":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`;
+    case "globe":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
+    case "info":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+    case "user":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+    case "message":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
+    case "award":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>`;
+    case "check":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>`;
+    case "close":
+      return `<svg class="${cls}" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+    default:
+      return "";
+  }
+}
+
 function el(tag, attrs = {}, children = []) {
   if (Array.isArray(attrs) || attrs instanceof Node || typeof attrs === "string" || typeof attrs === "number") {
     children = attrs;
@@ -37,6 +87,7 @@ function el(tag, attrs = {}, children = []) {
   for (const [key, value] of Object.entries(attrs || {})) {
     if (key === "class") node.className = value;
     else if (key === "text") node.textContent = value;
+    else if (key === "html") node.innerHTML = value;
     else if (key.startsWith("on") && typeof value === "function") {
       node.addEventListener(key.slice(2).toLowerCase(), value);
     } else if (value === true) {
@@ -99,6 +150,7 @@ function createVerifiedBadge(title = "Correo electrónico verificado") {
 /**
  * Construye la barra de navegacion superior y actualiza sus enlaces
  * segun si hay una sesion activa (llama a /api/auth/me).
+ * Implementa navegación responsive con menú hamburguesa para móviles.
  */
 async function renderTopbar(activeUser) {
   const bar = document.getElementById("topbar");
@@ -115,63 +167,41 @@ async function renderTopbar(activeUser) {
   }
 
   bar.innerHTML = "";
-  bar.appendChild(el("a", { class: "brand", href: "/index.html", text: "Registro de Egresados" }));
 
-  const nav = el("nav");
-  nav.appendChild(el("a", { href: "/index.html", text: "Directorio" }));
+  // 1. Contenedor principal de la barra (marca a la izquierda, acciones a la derecha)
+  const topbarMain = el("div", { class: "topbar-main" });
 
-  if (user) {
-    nav.appendChild(el("a", { href: "/dashboard.html", text: "Mi ficha" }));
-    nav.appendChild(el("a", { href: "/cartas.html", text: "Cartas de presentacion" }));
-    if (user.role === "admin") {
-      const adminLinks = [
-        ["users", "Usuarios y roles"],
-        ["technologies", "Habilidades técnicas"],
-        ["soft_skills", "Habilidades Personales"],
-        ["graduates", "Perfiles"],
-        ["projects", "Proyectos"],
-        ["experiences", "Experiencias"],
-        ["certificates", "Certificados"],
-        ["recommendations", "Comentarios"],
-        ["cover_letters", "Cartas de presentacion"],
-        ["notifications", "Notificaciones"],
-        ["audit_logs", "Registro de Auditoría"],
-      ];
-      const creditsBtn = el("a", {
-        href: "#",
-        text: "ℹ️ Créditos del proyecto",
-        style: "border-top: 1px solid #e2e8f0; font-weight: 600; color: #1e40af;",
-        onclick: (e) => {
-          e.preventDefault();
-          showCreditsModal();
-        }
-      });
+  const brandLink = el("a", { class: "brand-container", href: "/index.html" }, [
+    el("div", { class: "brand-icon-wrap", html: getSvgIcon("academic") }),
+    el("div", { class: "brand-text-wrap" }, [
+      el("span", { class: "brand-title" }, [
+        el("span", { class: "brand-title-full", text: "Registro de Egresados" }),
+        el("span", { class: "brand-title-compact", text: "Red de Egresados" }),
+      ]),
+      el("span", { class: "brand-subtitle" }, [
+        el("span", { class: "brand-sub-full", text: "Ingeniería Informática · UAJMS" }),
+        el("span", { class: "brand-sub-compact", text: "UAJMS · INFORMÁTICA" })
+      ])
+    ])
+  ]);
+  topbarMain.appendChild(brandLink);
 
-      const dropdownChildren = adminLinks.map(([entity, label]) =>
-        el("a", { href: `/admin.html?entity=${entity}`, text: label })
-      );
-      dropdownChildren.push(creditsBtn);
+  const topbarActions = el("div", { class: "topbar-actions" });
 
-      const menu = el("details", { class: "admin-nav-menu" }, [
-        el("summary", { text: "Gestion" }),
-        el("div", { class: "admin-nav-dropdown" }, dropdownChildren),
-      ]);
-      nav.appendChild(menu);
-    }
-
-    // Botón de Campana de Notificaciones
-    const notifContainer = el("div", { class: "notif-bell-container" });
+  // 2. Función constructora de campana de notificaciones (reutilizable para móvil y escritorio)
+  const createNotifWidget = (extraClass = "") => {
+    const notifContainer = el("div", { class: `notif-bell-container ${extraClass}`.trim() });
     const bellBtn = el("button", {
       type: "button",
       class: "notif-bell-btn",
       title: "Notificaciones",
       "aria-label": "Notificaciones",
     }, [
-      el("span", { class: "notif-bell-icon", text: "🔔" }),
-      el("span", { id: "notifBadge", class: "notif-badge", style: "display:none;" })
+      el("span", { class: "notif-bell-icon", html: getSvgIcon("bell") }),
+      el("span", { class: "notif-badge", style: "display:none;" })
     ]);
 
-    const notifDropdown = el("div", { id: "notifDropdown", class: "notif-dropdown", hidden: true, style: "display:none;" });
+    const notifDropdown = el("div", { class: "notif-dropdown", hidden: true, style: "display:none;" });
     notifContainer.appendChild(bellBtn);
     notifContainer.appendChild(notifDropdown);
 
@@ -193,19 +223,93 @@ async function renderTopbar(activeUser) {
       await toggleNotifications();
     });
 
+    return notifContainer;
+  };
+
+  // Listener global único para cerrar desplegables de notificaciones al hacer clic fuera
+  if (!window._notifDropdownListenerAttached) {
+    window._notifDropdownListenerAttached = true;
     document.addEventListener("click", (e) => {
-      if (!notifContainer.contains(e.target)) {
-        toggleNotifications(true);
+      if (!e.target.closest(".notif-bell-container")) {
+        document.querySelectorAll(".notif-dropdown").forEach((d) => {
+          d.setAttribute("hidden", "");
+          d.style.display = "none";
+        });
       }
     });
+  }
 
-    nav.addEventListener("click", (e) => {
-      if (!notifContainer.contains(e.target)) {
-        toggleNotifications(true);
-      }
-    });
+  // En móvil: campana dentro de topbarActions, accesible junto a la hamburguesa
+  if (user) {
+    topbarActions.appendChild(createNotifWidget("notif-container-mobile"));
+  }
 
-    nav.appendChild(notifContainer);
+  // 3. Botón Hamburguesa móvil
+  const hamburgerBtn = el("button", {
+    type: "button",
+    id: "mobileMenuToggle",
+    class: "topbar-hamburger-btn",
+    "aria-label": "Abrir menú de navegación",
+    "aria-expanded": "false",
+    "aria-controls": "topbarNav",
+  }, [
+    el("span", { class: "hamburger-icon", "aria-hidden": "true" }, [
+      el("span", { class: "bar" }),
+      el("span", { class: "bar" }),
+      el("span", { class: "bar" })
+    ])
+  ]);
+  topbarActions.appendChild(hamburgerBtn);
+
+  topbarMain.appendChild(topbarActions);
+  bar.appendChild(topbarMain);
+
+  // 4. Navegación (inline en escritorio, cajón colapsable en móvil)
+  const nav = el("nav", { id: "topbarNav", class: "topbar-nav", "aria-label": "Navegación principal" });
+  nav.appendChild(el("a", { class: "topbar-nav-link", href: "/index.html", text: "Directorio" }));
+
+  if (user) {
+    nav.appendChild(el("a", { class: "topbar-nav-link", href: "/dashboard.html", text: "Mi ficha" }));
+    nav.appendChild(el("a", { class: "topbar-nav-link", href: "/cartas.html", text: "Cartas de presentación" }));
+    if (user.role === "admin") {
+      const adminLinks = [
+        ["users", "Usuarios y roles"],
+        ["technologies", "Habilidades técnicas"],
+        ["soft_skills", "Habilidades Personales"],
+        ["graduates", "Perfiles"],
+        ["projects", "Proyectos"],
+        ["experiences", "Experiencias"],
+        ["certificates", "Certificados"],
+        ["recommendations", "Comentarios"],
+        ["cover_letters", "Cartas de presentación"],
+        ["notifications", "Notificaciones"],
+        ["audit_logs", "Registro de Auditoría"],
+      ];
+      const creditsBtn = el("a", {
+        href: "#",
+        class: "admin-credits-link",
+        html: `${getSvgIcon("info")} Créditos del proyecto`,
+        style: "border-top: 1px solid var(--border); font-weight: 600; color: var(--secondary);",
+        onclick: (e) => {
+          e.preventDefault();
+          showCreditsModal();
+        }
+      });
+
+      const dropdownChildren = adminLinks.map(([entity, label]) =>
+        el("a", { href: `/admin.html?entity=${entity}`, text: label })
+      );
+      dropdownChildren.push(creditsBtn);
+
+      const menu = el("details", { class: "admin-nav-menu" }, [
+        el("summary", { text: "Gestión" }),
+        el("div", { class: "admin-nav-dropdown" }, dropdownChildren),
+      ]);
+      nav.appendChild(menu);
+    }
+
+    // En escritorio: campana junto a las opciones de navegación, antes de Cerrar sesión
+    nav.appendChild(createNotifWidget("notif-container-desktop"));
 
     const logoutBtn = el("button", { class: "btn btn-logout-topbar", text: "Cerrar sesión" });
     logoutBtn.addEventListener("click", async () => {
@@ -214,14 +318,64 @@ async function renderTopbar(activeUser) {
     });
     nav.appendChild(logoutBtn);
   } else {
-    nav.appendChild(el("a", { href: "/login.html", text: "Iniciar sesion" }));
-    nav.appendChild(el("a", { class: "btn btn-primary", href: "/registro.html", text: "Crear cuenta" }));
+    nav.appendChild(el("a", { class: "topbar-link-login", href: "/login.html", text: "Iniciar sesión" }));
+    nav.appendChild(el("a", { class: "btn btn-primary topbar-btn-register", href: "/registro.html", text: "Crear cuenta" }));
   }
 
   bar.appendChild(nav);
 
-  // El badge debe consultarse DESPUES de insertar la barra en el documento;
-  // antes de appendChild(getElementById("notifBadge")) devuelve null.
+  // 5. Interactividad del menú hamburguesa
+  const toggleMobileMenu = (forceClose = false) => {
+    const isExpanded = hamburgerBtn.getAttribute("aria-expanded") === "true";
+    const nextState = forceClose ? false : !isExpanded;
+    hamburgerBtn.setAttribute("aria-expanded", String(nextState));
+    hamburgerBtn.setAttribute("aria-label", nextState ? "Cerrar menú de navegación" : "Abrir menú de navegación");
+    if (nextState) {
+      nav.classList.add("is-open");
+      hamburgerBtn.classList.add("is-active");
+    } else {
+      nav.classList.remove("is-open");
+      hamburgerBtn.classList.remove("is-active");
+    }
+  };
+
+  hamburgerBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleMobileMenu();
+  });
+
+  // Cerrar al pulsar un enlace de navegación
+  nav.querySelectorAll("a, button").forEach((item) => {
+    item.addEventListener("click", () => {
+      if (window.innerWidth <= 860) {
+        toggleMobileMenu(true);
+      }
+    });
+  });
+
+  // Cerrar al pulsar fuera del topbar
+  document.addEventListener("click", (e) => {
+    if (!bar.contains(e.target)) {
+      toggleMobileMenu(true);
+    }
+  });
+
+  // Cerrar con tecla Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && nav.classList.contains("is-open")) {
+      toggleMobileMenu(true);
+      hamburgerBtn.focus();
+    }
+  });
+
+  // Cerrar automáticamente si la ventana se amplía a modo escritorio
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 860 && nav.classList.contains("is-open")) {
+      toggleMobileMenu(true);
+    }
+  });
+
+  // El badge debe consultarse DESPUES de insertar la barra en el documento
   if (user) {
     checkUnreadNotifications();
     if (!window._notifPollInterval) {
@@ -233,24 +387,28 @@ async function renderTopbar(activeUser) {
 }
 
 async function checkUnreadNotifications() {
-  const badge = document.getElementById("notifBadge");
-  if (!badge) return;
+  const badges = document.querySelectorAll(".notif-badge");
+  if (!badges || !badges.length) return;
   try {
     const data = await api.notifications.list(5);
     const unread = Number(data?.unreadCount || 0);
-    if (unread > 0) {
-      // Se muestra como maximo "5+" para no saturar el boton
-      badge.textContent = unread > 5 ? "5+" : String(unread);
-      badge.style.display = "inline-flex";
-      badge.removeAttribute("hidden");
-    } else {
-      badge.textContent = "";
+    badges.forEach((badge) => {
+      if (unread > 0) {
+        // Se muestra como maximo "5+" para no saturar el boton
+        badge.textContent = unread > 5 ? "5+" : String(unread);
+        badge.style.display = "inline-flex";
+        badge.removeAttribute("hidden");
+      } else {
+        badge.textContent = "";
+        badge.style.display = "none";
+        badge.setAttribute("hidden", "");
+      }
+    });
+  } catch {
+    badges.forEach((badge) => {
       badge.style.display = "none";
       badge.setAttribute("hidden", "");
-    }
-  } catch {
-    badge.style.display = "none";
-    badge.setAttribute("hidden", "");
+    });
   }
 }
 
@@ -321,8 +479,8 @@ function showCreditsModal() {
 
   const modal = el("div", { id: "creditsModal", class: "cv-dialog" }, [
     el("div", { class: "cv-preview-panel", style: "max-width: 520px; width: 100%; text-align: center; padding: 28px 24px;", role: "dialog", "aria-modal": "true" }, [
-      el("div", { class: "cv-preview-header", style: "justify-content: center; position: relative; padding: 0 0 16px 0; border-bottom: 2px solid #0f2744;" }, [
-        el("h2", { style: "margin: 0; color: #0f2744; font-size: 1.3rem;", text: "Créditos del Proyecto" }),
+      el("div", { class: "cv-preview-header", style: "justify-content: center; position: relative; padding: 0 0 16px 0; border-bottom: 2px solid var(--primary);" }, [
+        el("h2", { style: "margin: 0; color: var(--primary); font-size: 1.3rem;", text: "Créditos del Proyecto" }),
         el("button", {
           type: "button",
           class: "admin-icon-button",
@@ -331,24 +489,24 @@ function showCreditsModal() {
           onclick: () => modal.remove()
         })
       ]),
-      el("div", { style: "padding: 24px 12px 16px 12px; line-height: 1.8; color: #1e293b; font-size: 1rem;" }, [
-        el("div", { style: "background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; margin-bottom: 16px; text-align: left;" }, [
+      el("div", { style: "padding: 24px 12px 16px 12px; line-height: 1.8; color: var(--text); font-size: 1rem;" }, [
+        el("div", { style: "background: var(--panel-soft); border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 16px; text-align: left;" }, [
           el("div", { style: "margin-bottom: 12px;" }, [
-            el("span", { style: "font-weight: 700; color: #0f2744; display: block; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px;", text: "Supervisión del Proyecto:" }),
+            el("span", { style: "font-weight: 700; color: var(--primary); display: block; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px;", text: "Supervisión del Proyecto:" }),
             el("span", { style: "font-size: 1.05rem; font-weight: 600;", text: "Yovana Luisa Sánchez Sánchez" })
           ]),
           el("div", { style: "margin-bottom: 12px;" }, [
-            el("span", { style: "font-weight: 700; color: #0f2744; display: block; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px;", text: "Desarrollador 1:" }),
+            el("span", { style: "font-weight: 700; color: var(--primary); display: block; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px;", text: "Desarrollador 1:" }),
             el("span", { style: "font-size: 1.05rem; font-weight: 600;", text: "Ing. Diego Garcia Pablo" })
           ]),
           el("div", {}, [
-            el("span", { style: "font-weight: 700; color: #0f2744; display: block; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px;", text: "Capataz:" }),
+            el("span", { style: "font-weight: 700; color: var(--primary); display: block; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px;", text: "Capataz:" }),
             el("span", { style: "font-size: 1.05rem; font-weight: 600;", text: "Ing. Daniel Cruz Zarate" })
           ])
         ]),
-        el("p", { style: "font-size: 0.85rem; color: #64748b; margin: 0;", text: "Carrera de Ingeniería Informática — Sede Yacuiba\nUniversidad Autónoma Juan Misael Saracho" })
+        el("p", { style: "font-size: 0.85rem; color: var(--muted); margin: 0;", text: "Carrera de Ingeniería Informática — Sede Yacuiba\nUniversidad Autónoma Juan Misael Saracho" })
       ]),
-      el("div", { style: "padding-top: 12px; border-top: 1px solid #e2e8f0;" }, [
+      el("div", { style: "padding-top: 12px; border-top: 1px solid var(--border);" }, [
         el("button", {
           class: "btn btn-primary",
           type: "button",

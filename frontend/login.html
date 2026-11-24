@@ -3,46 +3,116 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Iniciar sesion - Registro de Egresados</title>
-  <link rel="stylesheet" href="/styles.css?v=20261117d" />
+  <title>Iniciar sesión - Registro de Egresados UAJMS</title>
+  <link rel="stylesheet" href="/styles.css?v=20261124_colores" />
 </head>
 <body>
   <header class="topbar" id="topbar"></header>
 
-  <main class="container" style="max-width: 420px;">
-    <div class="card">
-      <h1>Iniciar sesion</h1>
-      <div id="alertBox"></div>
-      <form id="loginForm">
-        <div class="form-group">
-          <label for="email">Correo electronico</label>
-          <input type="email" id="email" required autocomplete="email" />
-        </div>
-        <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-            <label for="password" style="margin-bottom: 0;">Contrasena</label>
-            <a href="/recuperar-password.html" style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">¿Olvidaste tu contraseña?</a>
+  <main class="container auth-page-container">
+    <div class="auth-split-layout">
+      <!-- Columna Izquierda: Identidad Institucional UAJMS -->
+      <aside class="auth-split-visual" aria-hidden="true">
+        <div class="auth-visual-inner">
+          <div class="auth-visual-badge">
+            <svg class="auth-visual-emblem" viewBox="0 0 48 48" width="40" height="40" fill="none">
+              <circle cx="24" cy="24" r="22" stroke="rgba(231,227,220,0.3)" stroke-width="2"/>
+              <circle cx="24" cy="24" r="18" fill="rgba(231,227,220,0.08)"/>
+              <path d="M24 10L36 17V26C36 32.5 24 38 24 38C24 38 12 32.5 12 26V17L24 10Z" stroke="#E7E3DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M20 23L23 26L28 20" stroke="#E7E3DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="auth-visual-univ">UAJMS • YACUIBA</span>
           </div>
-          <input type="password" id="password" required autocomplete="current-password" />
+
+          <div class="auth-visual-content">
+            <h2 class="auth-visual-title">Registro Oficial de Egresados</h2>
+            <p class="auth-visual-subtitle">
+              Carrera de Ingeniería Informática<br/>
+              Facultad de Ciencias Integradas de Yacuiba
+            </p>
+            <div class="auth-visual-features">
+              <div class="auth-feature-item">
+                <span class="auth-feature-icon">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
+                <span>Ficha profesional y presencia pública</span>
+              </div>
+              <div class="auth-feature-item">
+                <span class="auth-feature-icon">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </span>
+                <span>Generador oficial de CV en PDF</span>
+              </div>
+              <div class="auth-feature-item">
+                <span class="auth-feature-icon">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                </span>
+                <span>Red de vinculación académica y laboral</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="auth-visual-footer">
+            <span>Universidad Autónoma Juan Misael Saracho</span>
+          </div>
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%;">Ingresar</button>
-      </form>
-      <div style="margin-top: 14px; text-align: center;">
-        <a href="/recuperar-password.html" class="btn btn-secondary" style="width: 100%; display: inline-flex; justify-content: center; align-items: center; gap: 6px; font-size: 0.9rem;">
-          🔑 Restablecer contraseña
-        </a>
-      </div>
-      <p class="hint" style="margin-top:14px; text-align: center;">
-        ¿No tienes cuenta? <a href="/registro.html">Crea una aqui</a>
-      </p>
-      <p class="hint" style="margin-top:8px; text-align: center;">
-        <a href="#" id="viewTermsLinkLogin" style="font-size:0.85rem; color:#64748b; text-decoration: underline;">Consultar Términos y Condiciones</a>
-      </p>
+      </aside>
+
+      <!-- Columna Derecha: Formulario de Acceso -->
+      <section class="auth-split-form-col">
+        <div class="auth-form-header">
+          <h1>Iniciar sesión</h1>
+          <p class="muted">Ingresa a tu cuenta para gestionar tu ficha profesional.</p>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="email">Correo electrónico</label>
+            <input type="email" id="email" required autocomplete="email" placeholder="tu.correo@ejemplo.com" />
+          </div>
+
+          <div class="form-group">
+            <div class="password-label-row">
+              <label for="password" style="margin-bottom: 0;">Contraseña</label>
+              <a href="/recuperar-password.html" class="auth-link-secondary">¿Olvidaste tu contraseña?</a>
+            </div>
+            <div class="password-input-wrapper">
+              <input type="password" id="password" required autocomplete="current-password" placeholder="Ingresa tu contraseña" />
+              <button type="button" id="togglePasswordBtn" class="password-toggle-btn" aria-label="Mostrar contraseña" title="Mostrar contraseña">
+                <svg class="icon-eye" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" style="margin-top: 6px;">Ingresar al sistema</button>
+        </form>
+
+        <div class="auth-divider">
+          <span>o</span>
+        </div>
+
+        <div>
+          <a href="/recuperar-password.html" class="btn btn-secondary btn-block" style="display: inline-flex; justify-content: center; align-items: center; gap: 8px;">
+            <svg class="icon-svg" viewBox="0 0 24 24" width="16" height="16"><path d="M21 2l-2 2m-1.5 1.5L14 9l-1.5-1.5-1.5 1.5 1.5 1.5L11 13H8v3H5v3H2v-3.5L13.5 4a3.5 3.5 0 1 1 5 5z"/></svg> Restablecer contraseña
+          </a>
+        </div>
+
+        <p class="hint" style="margin-top: 18px; text-align: center;">
+          ¿No tienes cuenta? <a href="/registro.html" style="font-weight: 600; color: var(--secondary);">Crea una aquí</a>
+        </p>
+
+        <p class="hint" style="margin-top: 8px; text-align: center;">
+          <a href="#" id="viewTermsLinkLogin" class="terms-link-subtle">Consultar Términos y Condiciones</a>
+        </p>
+      </section>
     </div>
   </main>
 
   <script src="/js/api.js?v=20261117c"></script>
   <script src="/js/ui.js?v=20261117c"></script>
-  <script src="/js/login.js?v=20261117c"></script>
+  <script src="/js/login.js?v=20261124_colores"></script>
 </body>
 </html>

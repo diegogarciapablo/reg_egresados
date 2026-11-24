@@ -408,7 +408,7 @@ function renderVisibilityToggle(graduate) {
     if (graduate.moderationStatus === "observed" && graduate.moderationObservations) {
       moderationAlertBox.appendChild(
         el("div", { class: "alert alert-warning", style: "margin-bottom: 20px; border-left: 4px solid #f59e0b;" }, [
-          el("strong", { text: "⚠️ Observaciones del Administrador: " }),
+          el("strong", { text: "Observaciones del Administrador: " }),
           el("p", { style: "margin: 6px 0 0 0; white-space: pre-line;", text: graduate.moderationObservations })
         ])
       );
@@ -436,16 +436,21 @@ function renderVisibilityToggle(graduate) {
   });
   box.appendChild(badge);
 
+  const previewProfileBtnText = document.getElementById("previewProfileBtnText");
+  if (previewProfileBtnText) {
+    previewProfileBtnText.textContent = graduate.visibility === "public" ? "Ver ficha pública" : "Previsualizar ficha";
+  }
+
   // Botón "Solicitar publicar ficha"
   const isPending = graduate.moderationStatus === "pending_review";
   const isPublic = graduate.visibility === "public";
   const isObserved = graduate.moderationStatus === "observed";
 
-  let btnText = "📢 Solicitar publicar ficha";
+  let btnText = "Solicitar publicar ficha";
   if (isPublic) {
-    btnText = "👁️ Ocultar ficha del directorio";
+    btnText = "Ocultar ficha del directorio";
   } else if (isObserved) {
-    btnText = "📢 Re-enviar para revisión";
+    btnText = "Re-enviar para revisión";
   }
 
   // Importante: aunque la ficha esté en revisión, el egresado puede volver a
@@ -888,8 +893,8 @@ function experienceRow(exp = {}, defaultCategory = "work") {
 function projectRow(project = {}) {
   const row = el("div", { class: "card", style: "margin-bottom:10px;" });
 
-  const titleInput = el("input", { type: "text", placeholder: "Titulo", value: project.title || "" });
-  const descInput = el("textarea", { placeholder: "Descripcion" });
+  const titleInput = el("input", { type: "text", placeholder: "Título", value: project.title || "" });
+  const descInput = el("textarea", { placeholder: "Descripción" });
   descInput.value = project.description || "";
   const urlInput = el("input", { type: "url", placeholder: "https://...", value: project.url || "" });
   const repoInput = el("input", { type: "url", placeholder: "https://github.com/...", value: project.repository_url || "" });
@@ -897,8 +902,8 @@ function projectRow(project = {}) {
   const removeBtn = el("button", { type: "button", class: "btn btn-danger", text: "Eliminar" });
   removeBtn.addEventListener("click", () => row.remove());
 
-  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Titulo" }), titleInput]));
-  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Descripcion" }), descInput]));
+  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Título" }), titleInput]));
+  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Descripción" }), descInput]));
   row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "URL" }), urlInput]));
   row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Repositorio" }), repoInput]));
   row.appendChild(removeBtn);
@@ -1710,9 +1715,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // --- Estado de Verificación de Correo ---
   const emailVerificationStatusBox = document.getElementById("emailVerificationStatusBox");
-  if (emailVerificationStatusBox) {
-    if (user.emailVerified) {
-      emailVerificationStatusBox.innerHTML = `
+  const emailVerifiedBadge = document.getElementById("emailVerifiedBadge");
+  if (user.emailVerified) {
+    if (emailVerifiedBadge) {
+      emailVerifiedBadge.innerHTML = `
         <span class="email-verified-pill" title="Tu correo electrónico está verificado">
           <svg viewBox="0 0 20 20" fill="none" class="verified-icon" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px;">
             <path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0z" fill="#10b981"/>
@@ -1721,12 +1727,19 @@ document.addEventListener("DOMContentLoaded", async () => {
           Correo verificado
         </span>
       `;
-    } else {
+    }
+    if (emailVerificationStatusBox) {
+      emailVerificationStatusBox.innerHTML = "";
+    }
+  } else {
+    if (emailVerifiedBadge) {
+      emailVerifiedBadge.innerHTML = "";
+    }
+    if (emailVerificationStatusBox) {
       const verifyBtn = el("button", {
         type: "button",
-        class: "btn btn-secondary",
-        style: "display: inline-flex; align-items: center; gap: 6px;",
-        text: "✉️ Verificar correo",
+        class: "btn btn-secondary dashboard-quick-btn",
+        html: `${typeof getSvgIcon === 'function' ? getSvgIcon("mail") : ''} <span>Verificar correo</span>`,
       });
       verifyBtn.addEventListener("click", async () => {
         try {
@@ -1739,7 +1752,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           showAlert(generalAlert, "Error al solicitar verificación: " + (err.message || err));
         } finally {
           verifyBtn.disabled = false;
-          verifyBtn.textContent = "✉️ Reenviar verificación";
+          verifyBtn.innerHTML = `${typeof getSvgIcon === 'function' ? getSvgIcon("mail") : ''} <span>Reenviar verificación</span>`;
         }
       });
       emailVerificationStatusBox.innerHTML = "";

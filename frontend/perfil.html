@@ -4,13 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ficha del egresado</title>
-  <link rel="stylesheet" href="/styles.css?v=20261117d" />
+  <link rel="stylesheet" href="/styles.css?v=20261124_fase3_1" />
 </head>
 <body>
   <header class="topbar" id="topbar"></header>
 
   <main class="container" id="profileContainer">
-    <p class="muted">Cargando ficha...</p>
+    <div class="card empty-state-loading" style="text-align: center; padding: 48px 24px;">
+      <span class="spinner-institutional" aria-hidden="true"></span>
+      <p class="muted" style="margin-top: 14px; font-weight: 500;">Cargando ficha profesional del egresado...</p>
+    </div>
   </main>
 
   <div id="cvPreviewModal" class="cv-dialog" hidden>
@@ -22,7 +25,7 @@
       <div class="cv-preview-toolbar">
         <span class="hint" style="margin: 0;">Presiona imprimir y selecciona <strong>Guardar como PDF</strong> en tu navegador.</span>
         <button id="printCvBtn" class="btn btn-primary" type="button" style="display: inline-flex; align-items: center; gap: 6px;">
-          🖨️ Imprimir / Guardar en PDF
+          <svg class="icon-svg" viewBox="0 0 24 24" width="16" height="16"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Imprimir / Guardar en PDF
         </button>
       </div>
       <div class="cv-preview-scroll-area">
@@ -31,9 +34,9 @@
     </section>
   </div>
 
-  <script src="/js/api.js?v=20261117c"></script>
-  <script src="/js/ui.js?v=20261117c"></script>
-  <script src="/js/cv-exporter.js?v=20261117c"></script>
-  <script src="/js/perfil-publico.js?v=20261117c"></script>
+  <script src="/js/api.js?v=20261124_fase3_1"></script>
+  <script src="/js/ui.js?v=20261124_fase3_1"></script>
+  <script src="/js/cv-exporter.js?v=20261124_fase3_1"></script>
+  <script src="/js/perfil-publico.js?v=20261124_fase3_1"></script>
 </body>
 </html>
