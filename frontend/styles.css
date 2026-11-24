@@ -550,15 +550,13 @@ p {
    Inspirado en https://cmsprofilecards.framer.website/
    ========================================================================== */
 
-/* Animación sutil de entrada de tarjetas */
+/* Animación sutil de entrada de tarjetas (solo opacidad para no bloquear transform en :hover por cascada CSS) */
 @keyframes cardFadeIn {
   from {
     opacity: 0;
-    transform: translateY(4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -572,13 +570,14 @@ p {
   flex-direction: column;
   gap: 12px;
   position: relative;
+  z-index: 1;
   overflow: hidden;
   cursor: default;
-  transition: transform 0.28s cubic-bezier(0.23, 1, 0.32, 1),
-              box-shadow 0.28s cubic-bezier(0.23, 1, 0.32, 1),
-              border-color 0.28s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1),
+              box-shadow 0.35s cubic-bezier(0.23, 1, 0.32, 1),
+              border-color 0.35s cubic-bezier(0.23, 1, 0.32, 1);
   will-change: transform;
-  animation: cardFadeIn 200ms ease-out both;
+  animation: cardFadeIn 220ms ease-out;
 }
 
 /* Línea superior heráldica UAJMS (mitad izquierda Ink Navy #14213D, mitad derecha Burgundy #7A1F2B) */
@@ -598,29 +597,66 @@ p {
 /* Hover lift interactivo únicamente en dispositivos con puntero fino (evita hover persistente en pantallas táctiles) */
 @media (hover: hover) and (pointer: fine) {
   .graduate-card:hover {
-    transform: translateY(-2px);
+    z-index: 3;
+    transform: translateY(-6px) scale(1.04);
     border-color: var(--secondary);
-    box-shadow: 0 8px 24px -4px rgba(20, 33, 61, 0.12),
-                0 2px 6px -1px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 16px 36px -6px rgba(20, 33, 61, 0.14),
+                0 0 0 1px var(--secondary),
+                0 0 18px rgba(122, 31, 43, 0.16);
   }
 
   .graduate-card:hover::before {
     opacity: 1;
-    height: 4px;
+    height: 4.5px;
   }
 
   .graduate-card:hover .graduate-avatar-wrapper {
-    border-color: #202F4D;
+    border-color: var(--primary-hover);
   }
 
-  .graduate-card:hover .graduate-avatar {
+  .graduate-card:hover .graduate-avatar,
+  .graduate-card:hover .graduate-avatar-placeholder {
     transform: scale(1.06);
+  }
+
+  .graduate-card:hover .tag {
+    background: rgba(20, 33, 61, 0.11);
+    border-color: rgba(20, 33, 61, 0.26);
+  }
+
+  .tag:hover {
+    background: rgba(122, 31, 43, 0.10) !important;
+    color: #7A1F2B !important;
+    border-color: rgba(122, 31, 43, 0.30) !important;
+    transform: translateY(-1px);
+  }
+
+  .graduate-social-btn:hover {
+    background: rgba(122, 31, 43, 0.10);
+    color: #7A1F2B;
+    transform: translateY(-2px);
+  }
+
+  .btn-framer-profile:hover {
+    color: #FFFFFF !important;
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(122, 31, 43, 0.28);
+    transform: translateY(-1px);
+  }
+
+  .btn-framer-profile:hover::before {
+    transform: scaleX(1);
+  }
+
+  .btn-framer-profile:hover .cta-arrow {
+    transform: translate(2px, -2px);
   }
 }
 
 .graduate-card:focus-within {
+  z-index: 3;
   border-color: var(--secondary);
-  box-shadow: 0 8px 24px -4px rgba(20, 33, 61, 0.12), var(--focus-ring);
+  box-shadow: 0 12px 28px -6px rgba(20, 33, 61, 0.14), var(--focus-ring);
 }
 
 .graduate-card-header {
@@ -629,7 +665,7 @@ p {
   gap: 14px;
 }
 
-/* Avatar con anillo */
+/* Avatar con anillo y micro-zoom */
 .graduate-avatar-container {
   position: relative;
   width: 56px;
@@ -641,10 +677,10 @@ p {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 2px solid var(--border);
+  border: 2.5px solid var(--border);
   overflow: hidden;
   background: var(--bg-stone);
-  transition: border-color 0.3s ease;
+  transition: border-color 0.35s ease;
 }
 
 .graduate-avatar {
@@ -665,6 +701,7 @@ p {
   font-size: 1.15rem;
   color: var(--primary);
   background: var(--bg-stone);
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .graduate-status-dot {
@@ -772,19 +809,7 @@ p {
   letter-spacing: 0.01em;
   line-height: 1.3;
   white-space: nowrap;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-}
-
-.graduate-card:hover .tag {
-  background: rgba(20, 33, 61, 0.10);
-  border-color: rgba(20, 33, 61, 0.25);
-}
-
-.tag:hover {
-  background: rgba(122, 31, 43, 0.10) !important;
-  color: #7A1F2B !important;
-  border-color: rgba(122, 31, 43, 0.30) !important;
-  transform: translateY(-1px);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 /* Pie de tarjeta: Redes y Botón de Barrido */
@@ -814,13 +839,14 @@ p {
   background: rgba(20, 33, 61, 0.05);
   color: #202F4D;
   text-decoration: none;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.graduate-social-btn:hover {
+.graduate-social-btn:focus-visible {
+  outline: none;
   background: rgba(122, 31, 43, 0.10);
   color: #7A1F2B;
-  transform: translateY(-2px);
+  box-shadow: var(--focus-ring);
 }
 
 /* Botón insignia de Framer con barrido de llenado en Burgundy Institucional */
@@ -860,14 +886,14 @@ p {
   z-index: -1;
 }
 
-.btn-framer-profile:hover {
+.btn-framer-profile:focus-visible {
+  outline: none;
   color: #FFFFFF !important;
   text-decoration: none;
-  box-shadow: 0 4px 14px rgba(122, 31, 43, 0.28);
-  transform: translateY(-1px);
+  box-shadow: var(--focus-ring), 0 4px 14px rgba(122, 31, 43, 0.28);
 }
 
-.btn-framer-profile:hover::before {
+.btn-framer-profile:focus-visible::before {
   transform: scaleX(1);
 }
 
@@ -878,7 +904,7 @@ p {
   transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.btn-framer-profile:hover .cta-arrow {
+.btn-framer-profile:focus-visible .cta-arrow {
   transform: translate(2px, -2px);
 }
 
@@ -3899,6 +3925,16 @@ select#technology option.tech-option-selected {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .graduate-card:hover,
+  .graduate-card:hover .graduate-avatar,
+  .graduate-card:hover .graduate-avatar-placeholder,
+  .tag:hover,
+  .graduate-social-btn:hover,
+  .btn-framer-profile:hover,
+  .btn-framer-profile:hover .cta-arrow {
+    transform: none !important;
   }
 }
 
