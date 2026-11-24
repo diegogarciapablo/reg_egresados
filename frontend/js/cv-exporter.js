@@ -255,15 +255,17 @@ function buildFormalCvHtml(graduate) {
     for (const type of formationHierarchy) {
       const items = certificates.filter((c) => (c.formation_type || c.formationType || "courses") === type);
       for (const item of items) {
-        const dateStr = item.issue_date || item.issueDate ? String(item.issue_date || item.issueDate).slice(0, 10) : "";
+        const hasDate = Boolean(item.issue_date || item.issueDate);
+        const dateStr = hasDate ? String(item.issue_date || item.issueDate).slice(0, 10) : "(En curso)";
         eduEntries += `
           <div class="cv-entry-block">
             <div class="cv-entry-title-line">
               <span class="cv-entry-position">${escape(item.title)}</span>
+              ${!hasDate ? `<span class="cv-entry-period" style="color: #005596; font-weight: 600; margin-left: 8px;">(En curso)</span>` : ""}
             </div>
             <div class="cv-entry-subline">
               <span class="cv-entry-org">${escape(item.issuer || "Universidad Autónoma Juan Misael Saracho")}</span>
-              ${dateStr ? `<span class="cv-entry-sep">|</span><span class="cv-entry-period">${escape(dateStr)}</span>` : ""}
+              <span class="cv-entry-sep">|</span><span class="cv-entry-period">${escape(dateStr)}</span>
             </div>
           </div>
         `;

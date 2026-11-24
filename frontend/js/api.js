@@ -48,8 +48,11 @@ async function request(path, { method = "GET", body, params } = {}) {
   }
 
   if (!response.ok) {
-    const message = (data && data.error) || "Ocurrio un error inesperado. Intenta de nuevo.";
-    throw new ApiError(message, response.status);
+    const message = (data && data.error) || "Ocurrió un error inesperado. Intenta de nuevo.";
+    const err = new ApiError(message, response.status);
+    err.details = data?.details || null;
+    err.issues = data?.issues || null;
+    throw err;
   }
 
   return data;

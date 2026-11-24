@@ -2258,7 +2258,15 @@ th {
 }
 .toast-info { border-left-color: var(--primary); }
 .toast-warning { border-left-color: #f59e0b; }
-.toast-error { border-left-color: #ef4444; }
+.toast-error,
+.toast-danger {
+  border-left-color: #C8102E;
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+  box-shadow: 0 10px 25px -5px rgba(200, 16, 46, 0.22), 0 8px 10px -6px rgba(200, 16, 46, 0.12);
+  font-weight: 600;
+}
 
 .toast-close {
   background: transparent;
@@ -3753,6 +3761,24 @@ select#technology option.tech-option-selected {
   font-size: 0.92rem;
   font-weight: 700;
   color: var(--primary);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge-in-progress {
+  font-size: 0.72rem;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(0, 85, 150, 0.10);
+  color: #005596;
+  border: 1px solid rgba(0, 85, 150, 0.28);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  letter-spacing: 0.02em;
 }
 
 .formation-meta {

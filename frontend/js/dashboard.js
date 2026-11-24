@@ -48,8 +48,8 @@ function socialLinkRow(link = {}) {
   typeSelect.value = link.type || "linkedin";
 
   const urlInput = el("input", {
-    type: "url",
-    placeholder: "https://...",
+    type: "text",
+    placeholder: "https://... o http://...",
     value: link.url || "",
     style: "flex: 1;",
   });
@@ -893,26 +893,42 @@ function experienceRow(exp = {}, defaultCategory = "work") {
 function projectRow(project = {}) {
   const row = el("div", { class: "card", style: "margin-bottom:10px;" });
 
-  const titleInput = el("input", { type: "text", placeholder: "Título", value: project.title || "" });
-  const descInput = el("textarea", { placeholder: "Descripción" });
+  const titleInput = el("input", { type: "text", placeholder: "Título del proyecto", value: project.title || "" });
+  const descInput = el("textarea", { placeholder: "Descripción de lo realizado en el proyecto" });
   descInput.value = project.description || "";
-  const urlInput = el("input", { type: "url", placeholder: "https://...", value: project.url || "" });
-  const repoInput = el("input", { type: "url", placeholder: "https://github.com/...", value: project.repository_url || "" });
+  const urlInput = el("input", {
+    type: "text",
+    placeholder: "http://... o https://... (admite URLs sin certificación SSL)",
+    value: project.url || "",
+  });
+  const repoInput = el("input", {
+    type: "text",
+    placeholder: "http://... o https://github.com/...",
+    value: project.repository_url || project.repositoryUrl || "",
+  });
 
   const removeBtn = el("button", { type: "button", class: "btn btn-danger", text: "Eliminar" });
   removeBtn.addEventListener("click", () => row.remove());
 
-  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Título" }), titleInput]));
+  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Título *" }), titleInput]));
   row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Descripción" }), descInput]));
-  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "URL" }), urlInput]));
-  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Repositorio" }), repoInput]));
+  row.appendChild(el("div", { class: "form-group" }, [
+    el("label", { text: "URL del proyecto (demo / sitio web)" }),
+    urlInput,
+    el("small", {
+      class: "hint",
+      style: "font-size: 0.76rem; color: #64748b; display: block; margin-top: 3px;",
+      text: "ℹ️ Admite enlaces con http:// (sin certificado SSL), https:// o dominios directos.",
+    }),
+  ]));
+  row.appendChild(el("div", { class: "form-group" }, [el("label", { text: "Repositorio de código" }), repoInput]));
   row.appendChild(removeBtn);
 
   row._getData = () => ({
-    title: titleInput.value,
-    description: descInput.value || null,
-    url: urlInput.value || null,
-    repositoryUrl: repoInput.value || null,
+    title: titleInput.value.trim(),
+    description: descInput.value.trim() || null,
+    url: urlInput.value.trim() || null,
+    repositoryUrl: repoInput.value.trim() || null,
   });
 
   return row;
@@ -948,8 +964,8 @@ function certificateRow(cert = {}, generalAlert) {
   const issueDateValue = cert.issue_date ? String(cert.issue_date).slice(0, 10) : cert.issueDate || "";
   const issueDateInput = el("input", { type: "date", value: issueDateValue });
   const credentialUrlInput = el("input", {
-    type: "url",
-    placeholder: "https://...",
+    type: "text",
+    placeholder: "http://... o https://...",
     value: cert.credential_url || cert.credentialUrl || "",
   });
 
@@ -1050,7 +1066,15 @@ function certificateRow(cert = {}, generalAlert) {
       el("div", { class: "form-group" }, [el("label", { text: "Nivel / Categoría académica *" }), formationSelect]),
       el("div", { class: "form-group" }, [el("label", { text: "Título, Grado o Certificado *" }), titleInput]),
       el("div", { class: "form-group" }, [el("label", { text: "Institución emisora" }), issuerInput]),
-      el("div", { class: "form-group" }, [el("label", { text: "Fecha de emisión / obtención" }), issueDateInput]),
+      el("div", { class: "form-group" }, [
+        el("label", { text: "Fecha de emisión / obtención (Opcional)" }),
+        issueDateInput,
+        el("small", {
+          class: "hint",
+          style: "font-size: 0.76rem; color: #005596; display: block; margin-top: 3px;",
+          text: "ℹ️ Si no ingresas fecha, se mostrará con la etiqueta (En curso) en tu perfil.",
+        }),
+      ]),
       el("div", { class: "form-group" }, [el("label", { text: "URL de credencial (opcional)" }), credentialUrlInput]),
     ])
   );
@@ -1102,6 +1126,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   function notifySaveSuccess(message) {
     showAlert(generalAlert, message, "success");
     showToast(message, "success", 4500);
+  }
+
+  function notifySaveError(err, fallbackMessage = "No se pudieron guardar los cambios.") {
+    const message = (err && err.message) ? err.message : fallbackMessage;
+    showAlert(generalAlert, message, "danger");
+    showToast(message, "error", 6500);
   }
 
   fillProfileForm(graduate, user);
@@ -1169,7 +1199,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       renderVisibilityToggle(graduate);
       notifySaveSuccess("Foto de perfil quitada.");
     } catch (err) {
-      showAlert(generalAlert, err.message || "No se pudo quitar la foto.");
+      notifySaveError(err, "No se pudo quitar la foto.");
     } finally {
       photoRemoveBtn.disabled = false;
     }
@@ -1213,7 +1243,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const institutionalEmail = document.getElementById("institutionalEmail").value.trim() || null;
 
     if (!personalEmail) {
-      showAlert(generalAlert, "El correo personal / profesional es obligatorio.");
+      notifySaveError(new Error("Campo con error: Correo personal: El correo personal / profesional es obligatorio."));
       return;
     }
 
@@ -1236,7 +1266,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       markProfileAsDraft();
       notifySaveSuccess("Información general y canales de contacto guardados.");
     } catch (err) {
-      showAlert(generalAlert, err.message || "No se pudo guardar la información.");
+      notifySaveError(err, "No se pudo guardar la información.");
     }
   });
 
@@ -1247,7 +1277,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       markProfileAsDraft();
       notifySaveSuccess("Habilidades técnicas guardadas.");
     } catch (err) {
-      showAlert(generalAlert, err.message || "No se pudieron guardar las habilidades técnicas.");
+      notifySaveError(err, "No se pudieron guardar las habilidades técnicas.");
     }
   });
 
@@ -1257,7 +1287,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       markProfileAsDraft();
       notifySaveSuccess("Habilidades personales guardadas.");
     } catch (err) {
-      showAlert(generalAlert, err.message || "No se pudieron guardar las habilidades personales.");
+      notifySaveError(err, "No se pudieron guardar las habilidades personales.");
     }
   });
 
@@ -1288,7 +1318,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const uniqueLangs = new Set();
       for (const item of rowsData) {
         if (uniqueLangs.has(item.languageId)) {
-          showAlert(generalAlert, "No puedes agregar el mismo idioma más de una vez.");
+          notifySaveError(new Error("Campo con error: Idiomas: No puedes agregar el mismo idioma más de una vez."));
           return;
         }
         uniqueLangs.add(item.languageId);
@@ -1299,7 +1329,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         markProfileAsDraft();
         notifySaveSuccess("Idiomas guardados exitosamente.");
       } catch (err) {
-        showAlert(generalAlert, err.message || "No se pudieron guardar los idiomas.");
+        notifySaveError(err, "No se pudieron guardar los idiomas.");
       }
     });
   }
@@ -1343,17 +1373,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       (exp) => exp.position || exp.organization || exp.startDate || exp.endDate || exp.description || exp._incompleteDate
     );
 
-    for (const exp of nonEmptyRows) {
+    for (let i = 0; i < nonEmptyRows.length; i++) {
+      const exp = nonEmptyRows[i];
+      const indexNum = i + 1;
       if (!exp.position || !exp.organization) {
-        showAlert(generalAlert, "En cada experiencia debes indicar tanto el puesto o rol como la organización.");
+        notifySaveError(new Error(`Campo con error: Experiencia #${indexNum}: Debes indicar tanto el puesto o rol como la organización.`));
         return;
       }
       if (exp._incompleteDate) {
-        showAlert(generalAlert, "Si usas el formato Mes / Año en experiencia, debes seleccionar tanto el mes como el año.");
+        notifySaveError(new Error(`Campo con error: Experiencia #${indexNum}: Si usas el formato Mes / Año, debes seleccionar tanto el mes como el año.`));
         return;
       }
       if (exp.startDate && exp.endDate && exp.endDate < exp.startDate) {
-        showAlert(generalAlert, "La fecha de fin no puede ser anterior a la fecha de inicio en la experiencia.");
+        notifySaveError(new Error(`Campo con error: Experiencia #${indexNum} (Fecha de fin): La fecha de fin no puede ser anterior a la fecha de inicio.`));
         return;
       }
     }
@@ -1364,7 +1396,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       markProfileAsDraft();
       notifySaveSuccess("Experiencias guardadas correctamente.");
     } catch (err) {
-      showAlert(generalAlert, err.message || "No se pudieron guardar las experiencias.");
+      notifySaveError(err, "No se pudieron guardar las experiencias.");
     }
   });
 
@@ -1378,13 +1410,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("addProjectBottomBtn")?.addEventListener("click", appendProject);
 
   document.getElementById("saveProjectsBtn").addEventListener("click", async () => {
+    clearAlert(generalAlert);
     const projects = [...projectsList.children].map((row) => row._getData());
+    for (let i = 0; i < projects.length; i++) {
+      const p = projects[i];
+      if (!p.title) {
+        notifySaveError(new Error(`Campo con error: Proyectos #${i + 1} (Título): El título del proyecto es obligatorio.`));
+        return;
+      }
+    }
     try {
       await api.profile.setProjects(projects);
       markProfileAsDraft();
       notifySaveSuccess("Proyectos guardados.");
     } catch (err) {
-      showAlert(generalAlert, err.message || "No se pudieron guardar los proyectos.");
+      notifySaveError(err, "No se pudieron guardar los proyectos.");
     }
   });
 
@@ -1404,14 +1444,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("addCertificateTopBtn")?.addEventListener("click", appendCertificate);
 
   document.getElementById("saveCertificatesBtn").addEventListener("click", async () => {
+    clearAlert(generalAlert);
     const rowsData = [...certificatesList.children].map((row) => row._getData());
     const nonEmptyRows = rowsData.filter(
       (c) => c.title || c.issuer || c.issueDate || c.credentialUrl || c.fileUrl
     );
-    const missingTitle = nonEmptyRows.find((c) => !c.title);
-    if (missingTitle) {
-      showAlert(generalAlert, "Cada certificado de la lista debe tener un nombre o titulo.");
-      return;
+    for (let i = 0; i < nonEmptyRows.length; i++) {
+      const c = nonEmptyRows[i];
+      if (!c.title) {
+        notifySaveError(new Error(`Campo con error: Formación académica #${i + 1} (Título): Cada certificado o grado debe tener un nombre o título.`));
+        return;
+      }
     }
 
     try {
@@ -1419,7 +1462,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       markProfileAsDraft();
       notifySaveSuccess("Formación académica guardada.");
     } catch (err) {
-      showAlert(generalAlert, err.message || "No se pudo guardar la formación académica.");
+      notifySaveError(err, "No se pudo guardar la formación académica.");
     }
   });
 
@@ -1464,7 +1507,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const institutionalEmail = document.getElementById("institutionalEmail").value.trim() || null;
 
       if (!personalEmail) {
-        throw new Error("El correo personal / profesional es obligatorio en Información General.");
+        throw new Error("Campo con error: Correo personal: El correo personal / profesional es obligatorio en Información General.");
       }
 
       const socialRows = [...socialList.children].map((row) => row._getData && row._getData()).filter(Boolean);
@@ -1495,7 +1538,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const uniqueLangs = new Set();
         for (const item of langRows) {
           if (uniqueLangs.has(item.languageId)) {
-            throw new Error("No puedes agregar el mismo idioma más de una vez.");
+            throw new Error("Campo con error: Idiomas: No puedes agregar el mismo idioma más de una vez.");
           }
           uniqueLangs.add(item.languageId);
         }
@@ -1512,15 +1555,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       const nonEmptyExpRows = rawExpRows.filter(
         (exp) => exp.position || exp.organization || exp.startDate || exp.endDate || exp.description || exp._incompleteDate
       );
-      for (const exp of nonEmptyExpRows) {
+      for (let i = 0; i < nonEmptyExpRows.length; i++) {
+        const exp = nonEmptyExpRows[i];
+        const indexNum = i + 1;
         if (!exp.position || !exp.organization) {
-          throw new Error("En cada experiencia debes indicar tanto el puesto o rol como la organización.");
+          throw new Error(`Campo con error: Experiencia #${indexNum}: Debes indicar tanto el puesto o rol como la organización.`);
         }
         if (exp._incompleteDate) {
-          throw new Error("Si usas el formato Mes / Año en experiencia, debes seleccionar tanto el mes como el año.");
+          throw new Error(`Campo con error: Experiencia #${indexNum}: Si usas el formato Mes / Año en experiencia, debes seleccionar tanto el mes como el año.`);
         }
         if (exp.startDate && exp.endDate && exp.endDate < exp.startDate) {
-          throw new Error("La fecha de fin no puede ser anterior a la fecha de inicio en la experiencia.");
+          throw new Error(`Campo con error: Experiencia #${indexNum} (Fecha de fin): La fecha de fin no puede ser anterior a la fecha de inicio.`);
         }
       }
       const experiencesToSave = nonEmptyExpRows.map(({ _incompleteDate, ...rest }) => rest);
@@ -1528,6 +1573,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // 5. Proyectos
       const projectRows = [...projectsList.children].map((row) => row._getData && row._getData()).filter(Boolean);
+      for (let i = 0; i < projectRows.length; i++) {
+        if (!projectRows[i].title) {
+          throw new Error(`Campo con error: Proyectos #${i + 1} (Título): El título del proyecto es obligatorio.`);
+        }
+      }
       await api.profile.setProjects(projectRows);
 
       // 6. Certificados
@@ -1535,9 +1585,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       const nonEmptyCertRows = certRows.filter(
         (c) => c.title || c.issuer || c.issueDate || c.credentialUrl || c.fileUrl
       );
-      const missingTitle = nonEmptyCertRows.find((c) => !c.title);
-      if (missingTitle) {
-        throw new Error("Cada certificado de Formación Académica debe tener un título o nombre.");
+      for (let i = 0; i < nonEmptyCertRows.length; i++) {
+        if (!nonEmptyCertRows[i].title) {
+          throw new Error(`Campo con error: Formación académica #${i + 1} (Título): Cada certificado de Formación Académica debe tener un título o nombre.`);
+        }
       }
       await api.profile.setCertificates(nonEmptyCertRows);
 
@@ -1561,9 +1612,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
-      const errMsg = err.message || "Error al guardar todas las secciones.";
-      showAlert(generalAlert, errMsg);
-      showToast(errMsg, "error", 5000);
+      notifySaveError(err, "Error al guardar todas las secciones.");
     } finally {
       if (saveAllSectionsBtn) {
         saveAllSectionsBtn.disabled = false;

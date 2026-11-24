@@ -466,10 +466,21 @@ function buildProfileView(graduate, activeUser) {
       const list = el("div", { class: "formation-list" });
       for (const cert of itemsOfType) {
         const item = el("div", { class: "card formation-item-card" });
-        item.appendChild(el("h5", { class: "formation-item-title", text: cert.title }));
-        const meta = [cert.issuer, cert.issue_date ? String(cert.issue_date).slice(0, 10) : null]
-          .filter(Boolean)
-          .join(" · ");
+        const hasDate = Boolean(cert.issue_date || cert.issueDate);
+        const titleH5 = el("h5", { class: "formation-item-title" });
+        titleH5.appendChild(document.createTextNode(cert.title));
+        if (!hasDate) {
+          titleH5.appendChild(
+            el("span", {
+              class: "badge-in-progress",
+              text: "(En curso)",
+            })
+          );
+        }
+        item.appendChild(titleH5);
+
+        const dateText = hasDate ? String(cert.issue_date || cert.issueDate).slice(0, 10) : "(En curso)";
+        const meta = [cert.issuer, dateText].filter(Boolean).join(" · ");
         if (meta) item.appendChild(el("div", { class: "formation-meta muted", text: meta }));
 
         const certLinks = el("div", { class: "formation-links", style: "margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;" });

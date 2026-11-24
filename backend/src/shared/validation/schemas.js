@@ -2,15 +2,26 @@ import { z } from "zod";
 
 const httpUrlSchema = z
   .string()
-  .url("Debe ser una URL valida")
+  .trim()
+  .optional()
+  .nullable()
+  .transform((val) => {
+    if (!val || val === "") return null;
+    // Permitir URLs sin protocolo anteponiendo http:// (ej: github.com/... o midominio.com)
+    if (!/^https?:\/\//i.test(val) && /^[\w.-]+(\.[\w.-]+)+(:\d+)?(\/.*)?$/i.test(val)) {
+      return `http://${val}`;
+    }
+    return val;
+  })
   .refine((val) => {
+    if (val === null || val === undefined) return true;
     try {
       const parsed = new URL(val);
       return parsed.protocol === "http:" || parsed.protocol === "https:";
     } catch {
       return false;
     }
-  }, "La URL debe usar el protocolo http:// o https://");
+  }, "La URL debe ser una dirección web válida (ej: http://... o https://...)");
 
 const isoDateSchema = z
   .string()
@@ -162,6 +173,9 @@ const certificateFileUrlSchema = z.string().refine((val) => {
   }
 }, "URL de certificado digital invalida");
 
+const certificateDateSchema = z
+  .preprocess((val) => (val === "" || val === undefined ? null : val), isoDateSchema.nullable().optional());
+
 export const certificateSchema = z.object({
   title: z.string().min(1, "El nombre del certificado es obligatorio").max(150),
   formationType: z
@@ -169,7 +183,7 @@ export const certificateSchema = z.object({
     .optional()
     .default("courses"),
   issuer: z.string().max(150).nullable().optional(),
-  issueDate: isoDateSchema.nullable().optional(),
+  issueDate: certificateDateSchema,
   credentialUrl: httpUrlSchema.nullable().optional(),
   fileUrl: certificateFileUrlSchema.nullable().optional(),
   fileName: z.string().max(255).nullable().optional(),
@@ -225,15 +239,90 @@ export const directoryQuerySchema = z
     { message: "El año inicial (desde) no puede ser mayor al año final (hasta)" }
   );
 
+const FIELD_LABELS_ES = {
+  // Sección Proyectos
+  projects: "Proyectos",
+  title: "Título",
+  description: "Descripción",
+  url: "URL del proyecto",
+  repositoryUrl: "URL del repositorio",
+  // Sección Experiencias
+  experiences: "Experiencias",
+  position: "Puesto / Rol",
+  organization: "Empresa / Organización",
+  startDate: "Fecha de inicio",
+  endDate: "Fecha de fin",
+  category: "Categoría de experiencia",
+  // Sección Formación y certificaciones
+  certificates: "Formación académica",
+  formationType: "Nivel / Categoría académica",
+  issuer: "Institución emisora",
+  issueDate: "Fecha de emisión",
+  credentialUrl: "URL de credencial",
+  fileUrl: "Archivo digital adjunto",
+  // Datos personales y perfil
+  firstName: "Nombres",
+  lastName: "Apellidos",
+  graduationYear: "Año de egreso",
+  currentRole: "Cargo actual",
+  professionalSummary: "Resumen profesional",
+  phone: "Teléfono / WhatsApp",
+  personalEmail: "Correo personal",
+  institutionalEmail: "Correo institucional",
+  linkedinUrl: "Enlace de LinkedIn",
+  githubUrl: "Enlace de GitHub",
+  portfolioUrl: "Enlace de Portafolio",
+  // Idiomas
+  languages: "Idiomas",
+  languageId: "Idioma seleccionado",
+  level: "Nivel de dominio del idioma",
+};
+
+export function formatZodError(error) {
+  const issues = error?.issues || [];
+  if (!issues.length) return "Datos inválidos en el formulario.";
+
+  const first = issues[0];
+  let section = "";
+  let itemNum = null;
+  let field = "";
+
+  for (const p of first.path) {
+    if (typeof p === "string" && (p === "projects" || p === "experiences" || p === "certificates" || p === "languages")) {
+      section = FIELD_LABELS_ES[p] || p;
+    } else if (typeof p === "number") {
+      itemNum = p + 1;
+    } else if (typeof p === "string") {
+      field = FIELD_LABELS_ES[p] || p;
+    }
+  }
+
+  let prefix = "";
+  if (section && itemNum) {
+    prefix = `Campo con error: ${section} #${itemNum}` + (field ? ` (${field})` : "");
+  } else if (field) {
+    prefix = `Campo con error: ${field}`;
+  } else {
+    prefix = "Campo con error";
+  }
+
+  return `${prefix}: ${first.message}`;
+}
+
 /**
  * Middleware de Express que valida req.body contra un schema de zod
- * y devuelve 400 con el detalle si falla.
+ * y devuelve 400 con el detalle específico del campo que falló.
  */
 export function validateBody(schema) {
   return (req, res, next) => {
     const result = schema.safeParse(req.body);
     if (!result.success) {
-      return res.status(400).json({ error: "Datos invalidos", details: result.error.flatten() });
+      const formattedMessage = formatZodError(result.error);
+      return res.status(400).json({
+        error: formattedMessage,
+        details: result.error.flatten(),
+        issues: result.error.issues,
+      });
     }
     req.validatedBody = result.data;
     next();
