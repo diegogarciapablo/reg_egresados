@@ -410,7 +410,7 @@ function buildProfileView(graduate, activeUser) {
     const expContainer = el("div", { class: "trajectory-container" });
     const workBlock = buildExperienceGroup("Experiencia Laboral", "Empleos, consultorías y proyectos profesionales.", workItems);
     const academicBlock = buildExperienceGroup("Experiencia Académica", "Docencia, investigación, ponencias y proyectos académicos.", academicItems);
-    const preGraduateBlock = buildExperienceGroup("Experiencia Pre-egreso", "Actividades, ayudantías y logros durante su estancia universitaria.", preGraduateItems);
+    const preGraduateBlock = buildExperienceGroup("Experiencia Pre-graduación", "Actividades, ayudantías y logros durante su estancia universitaria.", preGraduateItems);
 
     if (workBlock) expContainer.appendChild(workBlock);
     if (academicBlock) expContainer.appendChild(academicBlock);
@@ -677,7 +677,7 @@ function buildAdminModerationSection(graduate) {
     type: "button",
     id: "adminSendObsBtn",
     class: "btn btn-primary admin-moderation-obs-btn",
-    html: `${typeof getSvgIcon === "function" ? getSvgIcon("mail") : ""} <span>Enviar observación al egresado</span>`,
+    html: `${typeof getSvgIcon === "function" ? getSvgIcon("mail") : ""} <span>Enviar observación al graduado</span>`,
   });
 
   sendObsBtn.addEventListener("click", async () => {
@@ -708,7 +708,7 @@ function buildAdminModerationSection(graduate) {
         pubSwitch.dispatchEvent(new Event("change"));
       }
       showAlert(alertBox, res.message || "Observación enviada con éxito.", "success");
-      if (typeof showToast === "function") showToast("Observación enviada al egresado.", "info");
+      if (typeof showToast === "function") showToast("Observación enviada al graduado.", "info");
     } catch (err) {
       const errMsg = err.message || "Error al enviar observación.";
       showAlert(alertBox, errMsg);
@@ -723,10 +723,10 @@ function buildAdminModerationSection(graduate) {
     el("div", { class: "admin-moderation-box-header" }, [
       el("span", { class: "admin-moderation-box-icon icon-burgundy", html: typeof getSvgIcon === "function" ? getSvgIcon("message") : "" }),
       el("div", {}, [
-        el("h4", { class: "admin-moderation-box-title", text: "Observaciones al Egresado" }),
+        el("h4", { class: "admin-moderation-box-title", text: "Observaciones al Graduado" }),
         el("p", {
           class: "admin-moderation-box-desc",
-          text: "Si la ficha requiere correcciones, envía una observación detallada. Se notificará al egresado en la plataforma y por correo electrónico, y la ficha pasará a estado privada.",
+          text: "Si la ficha requiere correcciones, envía una observación detallada. Se notificará al graduado en la plataforma y por correo electrónico, y la ficha pasará a estado privada.",
         }),
       ]),
     ]),
@@ -841,7 +841,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     container.innerHTML = `
       <div class="card empty-state-box">
         <div class="empty-state-icon-wrap">${typeof getSvgIcon === 'function' ? getSvgIcon('user') : ''}</div>
-        <h3 class="empty-state-title">No se especificó ningún egresado</h3>
+        <h3 class="empty-state-title">No se especificó ningún graduado</h3>
         <p class="empty-state-desc muted">Selecciona un profesional desde el directorio público para consultar su perfil académico y trayectoria.</p>
         <a href="/" class="btn btn-primary" style="margin-top: 14px; display: inline-flex; align-items: center; gap: 6px;">
           ${typeof getSvgIcon === 'function' ? getSvgIcon('search') : ''} Explorar Directorio

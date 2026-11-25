@@ -133,7 +133,7 @@
   function buildCvModel(graduate = {}) {
     const firstName = graduate.firstName || graduate.first_name || "";
     const lastName = graduate.lastName || graduate.last_name || "";
-    const fullName = `${escape(firstName)} ${escape(lastName)}`.trim() || "Egresado UAJMS";
+    const fullName = `${escape(firstName)} ${escape(lastName)}`.trim() || "Graduado UAJMS";
     const initials = `${(firstName || "E")[0] || "E"}${(lastName || "G")[0] || "G"}`.toUpperCase();
 
     const sidebarUnits = [];
@@ -178,7 +178,7 @@
     if (graduate.graduationYear || graduate.graduation_year) {
       contactRows.push(`
         <div class="cv-contact-row">
-          <span class="cv-contact-label">Año de Titulación / Egreso</span>
+          <span class="cv-contact-label">Año de Titulación / Graduación</span>
           <span class="cv-contact-val">${escape(graduate.graduationYear || graduate.graduation_year)}</span>
         </div>
       `);

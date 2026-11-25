@@ -280,7 +280,7 @@ function graduateCard(graduate) {
   }
   meta.appendChild(nameH3);
 
-  const roleText = graduate.currentRole || "Egresado de Informática";
+  const roleText = graduate.currentRole || "Graduado de Informática";
   meta.appendChild(el("div", { class: "role", text: roleText, title: roleText }));
 
   // Metadato de promoción académica UAJMS
@@ -293,7 +293,7 @@ function graduateCard(graduate) {
   card.appendChild(headerRow);
 
   // 2. Resumen profesional o bio
-  const summaryText = graduate.professionalSummary || "Perfil profesional de egresado registrado en el directorio oficial de la Universidad Autónoma Juan Misael Saracho.";
+  const summaryText = graduate.professionalSummary || "Perfil profesional de graduado registrado en el directorio oficial de la Universidad Autónoma Juan Misael Saracho.";
   card.appendChild(el("p", { class: "graduate-summary", text: summaryText, title: summaryText }));
 
   // 3. Píldoras de habilidades tecnológicas (Tags)
@@ -415,7 +415,7 @@ async function loadDirectory(page = 1) {
       const searchSvg = typeof getSvgIcon === "function" ? getSvgIcon("search") : "🔍";
       const emptyBox = el("div", { class: "card empty-state-box", style: "grid-column: 1 / -1; text-align: center; padding: 48px 20px;" }, [
         el("div", { class: "empty-state-icon-wrap", html: searchSvg, style: "font-size: 2.2rem; color: var(--muted); margin-bottom: 12px;" }),
-        el("h3", { style: "color: var(--primary); margin-bottom: 8px; font-size: 1.15rem;", text: "No se encontraron profesionales egresados" }),
+        el("h3", { style: "color: var(--primary); margin-bottom: 8px; font-size: 1.15rem;", text: "No se encontraron profesionales graduados" }),
         el("p", { class: "muted", style: "max-width: 460px; margin: 0 auto 18px;", text: "No hay registros que coincidan exactamente con los criterios de búsqueda o habilidades seleccionadas. Intenta ajustar el texto o restablecer los filtros." }),
         el("button", {
           type: "button",
@@ -440,7 +440,7 @@ async function loadDirectory(page = 1) {
     }
 
     const totalPages = Math.max(1, Math.ceil(result.total / result.limit));
-    info.textContent = `${result.total} egresado(s) encontrado(s) - página ${result.page} de ${totalPages}`;
+    info.textContent = `${result.total} graduado(s) encontrado(s) - página ${result.page} de ${totalPages}`;
     if (countBadge) {
       countBadge.textContent = `${result.total} profesional${result.total === 1 ? "" : "es"} registrado${result.total === 1 ? "" : "s"}`;
     }

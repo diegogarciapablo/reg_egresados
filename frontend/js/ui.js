@@ -183,8 +183,8 @@ async function renderTopbar(activeUser) {
     ]),
     el("div", { class: "brand-text-wrap" }, [
       el("span", { class: "brand-title" }, [
-        el("span", { class: "brand-title-full", text: "Registro de Egresados" }),
-        el("span", { class: "brand-title-compact", text: "Red de Egresados" }),
+        el("span", { class: "brand-title-full", text: "Registro de Graduados" }),
+        el("span", { class: "brand-title-compact", text: "Red de Graduados" }),
       ]),
       el("span", { class: "brand-subtitle" }, [
         el("span", { class: "brand-sub-full", text: "Ingeniería Informática · UAJMS" }),
@@ -654,7 +654,7 @@ function showTermsModal({ user = null, canClose = false, onAccepted = null } = {
           ]),
           el("li", {}, [
             el("strong", { text: "Promoción y Apoyo Profesional: " }),
-            "Entiendes y aceptas que la razón de publicar tu perfil es hacer publicidad a tu trayectoria profesional y darte un respaldo institucional en tus primeros años de egreso o en tu carrera avanzada."
+            "Entiendes y aceptas que la razón de publicar tu perfil es hacer publicidad a tu trayectoria profesional y darte un respaldo institucional en tus primeros años de graduación o en tu carrera avanzada."
           ]),
           el("li", {}, [
             el("strong", { text: "Veracidad de la Información: " }),

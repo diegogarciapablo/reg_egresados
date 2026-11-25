@@ -725,7 +725,7 @@ function experienceRow(exp = {}, defaultCategory = "work") {
   const categorySelect = el("select", {}, [
     el("option", { value: "work", text: "Experiencia laboral" }),
     el("option", { value: "academic", text: "Experiencia académica" }),
-    el("option", { value: "pre_graduate", text: "Experiencia pre-egreso (vida universitaria)" }),
+    el("option", { value: "pre_graduate", text: "Experiencia pre-graduación (vida universitaria)" }),
   ]);
   categorySelect.value = currentCategory;
 
@@ -1759,7 +1759,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (graduate && graduate.registrationCode) {
         window.location.href = `/perfil.html?codigo=${encodeURIComponent(graduate.registrationCode)}&preview=true`;
       } else {
-        showAlert(generalAlert, "Aún no tienes código de egresado para previsualizar.");
+        showAlert(generalAlert, "Aún no tienes código de graduado para previsualizar.");
       }
     });
   }
