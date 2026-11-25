@@ -603,7 +603,6 @@ p {
 
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -617,15 +616,13 @@ p {
   flex-direction: column;
   gap: 12px;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   cursor: default;
   transition: transform 0.28s cubic-bezier(0.23, 1, 0.32, 1),
     box-shadow 0.28s cubic-bezier(0.23, 1, 0.32, 1),
     border-color 0.28s cubic-bezier(0.23, 1, 0.32, 1);
   will-change: transform;
-  animation: cardFadeIn 300ms ease-out both;
-  /* Clip contents to border-radius without blocking transform on the card itself */
-  isolation: isolate;
+  animation: cardFadeIn 300ms ease-out backwards;
 }
 
 /* Línea superior heráldica UAJMS (mitad izquierda Ink Navy #14213D, mitad derecha Burgundy #7A1F2B) */
@@ -640,16 +637,13 @@ p {
   opacity: 0.85;
   transition: opacity 0.3s ease, height 0.3s ease;
   z-index: 2;
-  border-radius: 18px 18px 0 0;
-  pointer-events: none;
-  /* Clip the top accent line instead of the whole card */
-  overflow: hidden;
 }
 
-/* Hover lift interactivo únicamente en dispositivos con puntero fino (evita hover persistente en pantallas táctiles) */
-@media (hover: hover) and (pointer: fine) {
+/* Hover lift interactivo en escritorio y portátiles (evita hover persistente en móviles exclusivamente táctiles) */
+@media (hover: hover), (any-pointer: fine) {
   .graduate-card:hover {
     transform: translateY(-6px) scale(1.04);
+    z-index: 5;
     border-color: var(--secondary);
     box-shadow: 0 20px 48px -8px rgba(20, 33, 61, 0.18),
       0 6px 16px -4px rgba(122, 31, 43, 0.12),

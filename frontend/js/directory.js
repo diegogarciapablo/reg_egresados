@@ -439,6 +439,9 @@ async function loadDirectory(page = 1) {
       const cardEl = graduateCard(graduate);
       // Stagger animation: each card enters slightly after the previous
       cardEl.style.animationDelay = `${index * 40}ms`;
+      cardEl.addEventListener("animationend", () => {
+        cardEl.style.animation = "none";
+      }, { once: true });
       grid.appendChild(cardEl);
     }
 
