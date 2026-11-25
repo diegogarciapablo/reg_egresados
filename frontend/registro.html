@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crear cuenta - Registro de Egresados UAJMS</title>
+  <title>Crear cuenta - Registro de Graduados UAJMS</title>
   <link rel="stylesheet" href="/styles.css?v=20261124_colores" />
 </head>
 <body>
@@ -12,20 +12,24 @@
   <main class="container auth-page-container">
     <div class="auth-split-layout">
       <!-- Columna Izquierda: Identidad Institucional UAJMS -->
-      <aside class="auth-split-visual" aria-hidden="true">
+      <aside class="auth-split-visual" aria-label="Identidad Institucional UAJMS">
         <div class="auth-visual-inner">
-          <div class="auth-visual-badge">
-            <svg class="auth-visual-emblem" viewBox="0 0 48 48" width="40" height="40" fill="none">
-              <circle cx="24" cy="24" r="22" stroke="rgba(231,227,220,0.3)" stroke-width="2"/>
-              <circle cx="24" cy="24" r="18" fill="rgba(231,227,220,0.08)"/>
-              <path d="M24 10L36 17V26C36 32.5 24 38 24 38C24 38 12 32.5 12 26V17L24 10Z" stroke="#E7E3DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M20 23L23 26L28 20" stroke="#E7E3DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span class="auth-visual-univ">UAJMS • YACUIBA</span>
+          <div class="auth-visual-top">
+            <div class="auth-visual-symbols">
+              <div class="auth-symbol-card auth-symbol-shield">
+                <img src="/assets/escudo-uajms.jpg" alt="Escudo Oficial UAJMS" class="auth-symbol-img" />
+              </div>
+              <div class="auth-symbol-card auth-symbol-career">
+                <img src="/assets/logo-informatica.png" alt="Logo Ingeniería Informática UAJMS" class="auth-symbol-img" />
+              </div>
+            </div>
+            <div class="auth-visual-badge">
+              <span class="auth-visual-univ">UAJMS • YACUIBA</span>
+            </div>
           </div>
 
           <div class="auth-visual-content">
-            <h2 class="auth-visual-title">Únete a la Red de Egresados</h2>
+            <h2 class="auth-visual-title">Únete a la Red de Graduados</h2>
             <p class="auth-visual-subtitle">
               Forma parte del directorio profesional de Ingeniería Informática y accede a beneficios institucionales.
             </p>
@@ -60,7 +64,7 @@
       <!-- Columna Derecha: Formulario de Registro -->
       <section class="auth-split-form-col">
         <div class="auth-form-header">
-          <h1>Crear cuenta de egresado</h1>
+          <h1>Crear cuenta de graduado</h1>
           <p class="muted">Completa tus datos básicos para registrarte en la plataforma.</p>
         </div>
 
@@ -79,9 +83,9 @@
           </div>
 
           <div class="form-group">
-            <label for="graduationYear">Año de egreso</label>
+            <label for="graduationYear">Año de graduación</label>
             <select id="graduationYear" required>
-              <option value="">Selecciona tu año de egreso</option>
+              <option value="">Selecciona tu año de graduación</option>
             </select>
           </div>
 

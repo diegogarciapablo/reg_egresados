@@ -71,7 +71,7 @@ ${recruiterName ? `${recruiterName}\n${recruiterRole ? recruiterRole + "\n" : ""
 
 ${saludo}
 
-Me dirijo a usted para postular al puesto de ${puesto}, publicado en ${fuente}. Como egresado/a de ${carrera} en ${universidad}${specialtyPhrase} me interesa iniciar mi trayectoria profesional aportando mis conocimientos al equipo de ${empresa}.
+Me dirijo a usted para postular al puesto de ${puesto}, publicado en ${fuente}. Como graduado/a de ${carrera} en ${universidad}${specialtyPhrase} me interesa iniciar mi trayectoria profesional aportando mis conocimientos al equipo de ${empresa}.
 
 Durante mi formación desarrollé conocimientos en ${listaTecnicas}, que reforcé a través de ${experiencia}. Entre mis habilidades personales destacan ${listaBlandas}.
 
@@ -292,9 +292,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       await api.coverLetters.setSelections(currentLetterId, [...letterTechSelected], [...letterSkillSelected]);
       document.getElementById("saveLetterBtn").textContent = "Guardar cambios";
       showAlert(alertBox, "Carta guardada correctamente.", "success");
+      if (typeof showToast === "function") showToast("Carta guardada correctamente.", "success");
       await loadLetters();
     } catch (err) {
-      showAlert(alertBox, err.message || "No se pudo guardar la carta.");
+      const errMsg = err.message || "No se pudo guardar la carta.";
+      showAlert(alertBox, errMsg);
+      if (typeof showToast === "function") showToast(errMsg, "error");
     }
   });
 

@@ -725,7 +725,7 @@ function experienceRow(exp = {}, defaultCategory = "work") {
   const categorySelect = el("select", {}, [
     el("option", { value: "work", text: "Experiencia laboral" }),
     el("option", { value: "academic", text: "Experiencia académica" }),
-    el("option", { value: "pre_graduate", text: "Experiencia pre-egreso (vida universitaria)" }),
+    el("option", { value: "pre_graduate", text: "Experiencia pre-graduación (vida universitaria)" }),
   ]);
   categorySelect.value = currentCategory;
 
@@ -1718,12 +1718,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         exportCvBtn.textContent = "Cargando CV...";
         clearAlert(generalAlert);
         const freshGraduate = await api.profile.get();
-        if (window.buildFormalCvHtml) {
+        cvPreviewModal.hidden = false;
+        if (window.renderFormalCv) {
+          window.renderFormalCv(cvSheetContainer, freshGraduate);
+        } else if (window.buildFormalCvHtml) {
           cvSheetContainer.innerHTML = window.buildFormalCvHtml(freshGraduate);
         } else {
           cvSheetContainer.innerHTML = "<p>No se pudo inicializar el generador de CV.</p>";
         }
-        cvPreviewModal.hidden = false;
       } catch (err) {
         showAlert(generalAlert, "Error al generar vista de CV: " + (err.message || err));
       } finally {
@@ -1757,7 +1759,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (graduate && graduate.registrationCode) {
         window.location.href = `/perfil.html?codigo=${encodeURIComponent(graduate.registrationCode)}&preview=true`;
       } else {
-        showAlert(generalAlert, "Aún no tienes código de egresado para previsualizar.");
+        showAlert(generalAlert, "Aún no tienes código de graduado para previsualizar.");
       }
     });
   }
