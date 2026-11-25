@@ -435,8 +435,14 @@ async function loadDirectory(page = 1) {
       return;
     }
 
-    for (const graduate of result.items) {
-      grid.appendChild(graduateCard(graduate));
+    for (const [index, graduate] of result.items.entries()) {
+      const cardEl = graduateCard(graduate);
+      // Stagger animation: each card enters slightly after the previous
+      cardEl.style.animationDelay = `${index * 40}ms`;
+      cardEl.addEventListener("animationend", () => {
+        cardEl.style.animation = "none";
+      }, { once: true });
+      grid.appendChild(cardEl);
     }
 
     const totalPages = Math.max(1, Math.ceil(result.total / result.limit));
