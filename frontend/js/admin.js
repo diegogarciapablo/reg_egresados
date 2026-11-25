@@ -367,10 +367,14 @@ async function toggleEntityRow(row, button) {
   clearAlert(document.getElementById("adminAlert"));
   try {
     await api.admin.setEntityActive(activeDefinition.key, row.id, nextActive);
-    showAlert(document.getElementById("adminAlert"), nextActive ? "Registro habilitado." : "Registro deshabilitado.", "success");
+    const msg = nextActive ? "Registro habilitado." : "Registro deshabilitado.";
+    showAlert(document.getElementById("adminAlert"), msg, "success");
+    if (typeof showToast === "function") showToast(msg, "success");
     await loadEntityRows();
   } catch (error) {
-    showAlert(document.getElementById("adminAlert"), error.message || "No se pudo cambiar el estado.");
+    const errMsg = error.message || "No se pudo cambiar el estado.";
+    showAlert(document.getElementById("adminAlert"), errMsg);
+    if (typeof showToast === "function") showToast(errMsg, "error");
   } finally {
     button.disabled = false;
   }
@@ -382,16 +386,17 @@ async function toggleUserRole(row, button) {
   clearAlert(document.getElementById("adminAlert"));
   try {
     await api.admin.updateEntity("users", row.id, { role: nextRole });
-    showAlert(
-      document.getElementById("adminAlert"),
+    const msg =
       nextRole === "admin"
         ? `Se asignó el rol de Administrador a ${row.email}.`
-        : `${row.email} ahora tiene rol de Usuario estándar.`,
-      "success",
-    );
+        : `${row.email} ahora tiene rol de Usuario estándar.`;
+    showAlert(document.getElementById("adminAlert"), msg, "success");
+    if (typeof showToast === "function") showToast(msg, "success");
     await loadEntityRows();
   } catch (error) {
-    showAlert(document.getElementById("adminAlert"), error.message || "No se pudo cambiar el rol del usuario.");
+    const errMsg = error.message || "No se pudo cambiar el rol del usuario.";
+    showAlert(document.getElementById("adminAlert"), errMsg);
+    if (typeof showToast === "function") showToast(errMsg, "error");
   } finally {
     button.disabled = false;
   }
@@ -548,17 +553,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         await api.admin.createEntity(activeDefinition.key, payload);
         closeEditDialog();
         showAlert(document.getElementById("adminAlert"), "Registro agregado correctamente.", "success");
+        if (typeof showToast === "function") showToast("Registro agregado correctamente.", "success");
       } else {
         await api.admin.updateEntity(activeDefinition.key, editingRow.id, payload);
         closeEditDialog();
         showAlert(document.getElementById("adminAlert"), "Registro actualizado.", "success");
+        if (typeof showToast === "function") showToast("Registro actualizado.", "success");
       }
       await loadEntityRows();
     } catch (error) {
-      showAlert(
-        document.getElementById("adminAlert"),
-        error.message || (dialogMode === "create" ? "No se pudo agregar el registro." : "No se pudo actualizar el registro."),
-      );
+      const errMsg =
+        error.message || (dialogMode === "create" ? "No se pudo agregar el registro." : "No se pudo actualizar el registro.");
+      showAlert(document.getElementById("adminAlert"), errMsg);
+      if (typeof showToast === "function") showToast(errMsg, "error");
     } finally {
       saveButton.disabled = false;
     }

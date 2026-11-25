@@ -114,9 +114,11 @@ function el(tag, attrs = {}, children = []) {
 }
 
 function showAlert(container, message, type = "error") {
+  if (!container) return;
   container.innerHTML = "";
+  const isError = type === "error" || type === "danger";
   container.appendChild(
-    el("div", { class: `alert alert-${type === "error" ? "error" : "success"}`, text: message })
+    el("div", { class: `alert alert-${isError ? "error" : "success"}`, text: message })
   );
 }
 
@@ -172,7 +174,13 @@ async function renderTopbar(activeUser) {
   const topbarMain = el("div", { class: "topbar-main" });
 
   const brandLink = el("a", { class: "brand-container", href: "/index.html" }, [
-    el("div", { class: "brand-icon-wrap", html: getSvgIcon("academic") }),
+    el("div", { class: "brand-icon-wrap" }, [
+      el("img", {
+        class: "brand-career-logo",
+        src: "/assets/logo-informatica.png",
+        alt: "Logo Ingeniería Informática UAJMS"
+      })
+    ]),
     el("div", { class: "brand-text-wrap" }, [
       el("span", { class: "brand-title" }, [
         el("span", { class: "brand-title-full", text: "Registro de Egresados" }),

@@ -292,9 +292,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       await api.coverLetters.setSelections(currentLetterId, [...letterTechSelected], [...letterSkillSelected]);
       document.getElementById("saveLetterBtn").textContent = "Guardar cambios";
       showAlert(alertBox, "Carta guardada correctamente.", "success");
+      if (typeof showToast === "function") showToast("Carta guardada correctamente.", "success");
       await loadLetters();
     } catch (err) {
-      showAlert(alertBox, err.message || "No se pudo guardar la carta.");
+      const errMsg = err.message || "No se pudo guardar la carta.";
+      showAlert(alertBox, errMsg);
+      if (typeof showToast === "function") showToast(errMsg, "error");
     }
   });
 

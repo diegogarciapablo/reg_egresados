@@ -138,9 +138,13 @@ function buildProfileView(graduate, activeUser) {
   downloadCvBtn.addEventListener("click", () => {
     const cvModal = document.getElementById("cvPreviewModal");
     const cvSheetContainer = document.getElementById("cvSheetContainer");
-    if (cvModal && cvSheetContainer && window.buildFormalCvHtml) {
-      cvSheetContainer.innerHTML = window.buildFormalCvHtml(graduate);
+    if (cvModal && cvSheetContainer) {
       cvModal.hidden = false;
+      if (window.renderFormalCv) {
+        window.renderFormalCv(cvSheetContainer, graduate);
+      } else if (window.buildFormalCvHtml) {
+        cvSheetContainer.innerHTML = window.buildFormalCvHtml(graduate);
+      }
     }
   });
   heroActions.appendChild(downloadCvBtn);
@@ -584,107 +588,244 @@ function buildRecommendationForm(graduateId) {
   return form;
 }
 
+const MODERATION_STATUS_META = {
+  draft: { label: "Borrador", badgeClass: "mod-badge-draft" },
+  pending_review: { label: "Pendiente de revisión", badgeClass: "mod-badge-pending" },
+  observed: { label: "Con observaciones", badgeClass: "mod-badge-observed" },
+  approved: { label: "Aprobada", badgeClass: "mod-badge-approved" },
+};
+
+const VISIBILITY_STATUS_META = {
+  public: { label: "Pública en directorio", badgeClass: "vis-badge-public", icon: "globe" },
+  link_only: { label: "Solo con enlace", badgeClass: "vis-badge-private", icon: "lock" },
+  private: { label: "Privada", badgeClass: "vis-badge-private", icon: "lock" },
+};
+
+function getModerationStatusMeta(status) {
+  return MODERATION_STATUS_META[status] || { label: status || "Borrador", badgeClass: "mod-badge-draft" };
+}
+
+function getVisibilityStatusMeta(visibility) {
+  return VISIBILITY_STATUS_META[visibility] || VISIBILITY_STATUS_META.private;
+}
+
 function buildAdminModerationSection(graduate) {
-  const wrap = el("div", { class: "card admin-moderation-panel", style: "border: 2px solid var(--primary); margin-top: 32px; background: var(--panel-soft);" });
+  const wrap = el("section", {
+    class: "card admin-moderation-panel",
+    "aria-labelledby": "adminModerationTitle",
+  });
 
-  const titleRow = el("div", { class: "flex-between", style: "border-bottom: 1.5px solid var(--border); padding-bottom: 8px; margin-bottom: 14px;" }, [
-    el("h3", { style: "margin: 0; color: var(--primary);", text: "Panel de Moderación de Ficha (Solo Administrador)" }),
-    el("span", {
-      id: "adminStatusBadge",
-      class: `badge ${graduate.visibility === "public" ? "badge-public" : "badge-private"}`,
-      text: `Estado: ${graduate.moderationStatus || "draft"} (${graduate.visibility === "public" ? "Pública" : "Privada"})`
-    })
-  ]);
-  wrap.appendChild(titleRow);
+  const modMeta = getModerationStatusMeta(graduate.moderationStatus || "draft");
+  const visMeta = getVisibilityStatusMeta(graduate.visibility || "private");
 
-  const alertBox = el("div");
-  wrap.appendChild(alertBox);
+  const modBadge = el("span", {
+    id: "adminStatusBadge",
+    class: `moderation-pill ${modMeta.badgeClass}`,
+    text: `Moderación: ${modMeta.label}`,
+  });
 
-  // Parte 1: Observaciones
-  const obsBlock = el("div", { class: "form-group", style: "margin-bottom: 20px;" }, [
-    el("label", { style: "font-weight: 700;", text: "Observaciones de la ficha (se enviarán por notificación y correo al egresado):" }),
-    el("textarea", {
-      id: "adminObsInput",
-      placeholder: "Ej: Por favor completa una descripción más detallada de tus funciones en la empresa X o ajusta la fecha de finalización...",
-      style: "width: 100%; min-height: 80px;",
-    }),
-    el("button", {
-      type: "button",
-      class: "btn btn-secondary",
-      style: "margin-top: 8px; background: #f59e0b; color: #ffffff; border: none;",
-      text: "Enviar observación al egresado",
-      onclick: async () => {
-        const input = document.getElementById("adminObsInput");
-        if (!input.value.trim()) {
-          showAlert(alertBox, "Escribe una observación antes de enviar.");
-          return;
-        }
-        clearAlert(alertBox);
-        try {
-          const res = await api.admin.moderateGraduate(graduate.id, {
-            action: "observe",
-            observations: input.value.trim()
-          });
-          graduate.moderationStatus = "observed";
-          graduate.visibility = "private";
-          const statusBadge = document.getElementById("adminStatusBadge");
-          if (statusBadge) {
-            statusBadge.className = "badge badge-observed";
-            statusBadge.textContent = "Estado: observed (Privada)";
-          }
-          showAlert(alertBox, res.message || "Observación enviada con éxito.", "success");
-          if (typeof showToast === "function") showToast("Observación enviada al egresado.", "info");
-        } catch (err) {
-          showAlert(alertBox, err.message || "Error al enviar observación.");
-        }
-      }
-    })
-  ]);
-  wrap.appendChild(obsBlock);
+  const visBadge = el("span", {
+    id: "adminVisibilityBadge",
+    class: `moderation-pill ${visMeta.badgeClass}`,
+    html: `${typeof getSvgIcon === "function" ? getSvgIcon(visMeta.icon) : ""} <span>Visibilidad: ${escapeHtml(visMeta.label)}</span>`,
+  });
 
-  // Parte 2: Switch de Aprobación y Publicación
-  const approveBlock = el("div", { style: "border-top: 1px dashed var(--border); padding-top: 14px;" }, [
-    el("h4", { style: "margin-top: 0; margin-bottom: 8px; color: var(--primary);", text: "Aprobación y Visibilidad Pública" }),
-    el("p", { class: "hint", text: "Al activar este switch y presionar Aprobar, el perfil se publicará en el directorio público y se notificará al egresado." }),
-    el("div", { style: "display: flex; align-items: center; gap: 12px; margin-top: 10px;" }, [
-      el("label", { style: "display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;" }, [
-        el("input", {
-          type: "checkbox",
-          id: "adminMakePublicSwitch",
-          checked: graduate.visibility === "public"
-        }),
-        document.createTextNode("Hacer público el perfil en el directorio")
+  function syncModerationBadges() {
+    const nextMod = getModerationStatusMeta(graduate.moderationStatus || "draft");
+    const nextVis = getVisibilityStatusMeta(graduate.visibility || "private");
+    modBadge.className = `moderation-pill ${nextMod.badgeClass}`;
+    modBadge.textContent = `Moderación: ${nextMod.label}`;
+    visBadge.className = `moderation-pill ${nextVis.badgeClass}`;
+    visBadge.innerHTML = `${typeof getSvgIcon === "function" ? getSvgIcon(nextVis.icon) : ""} <span>Visibilidad: ${escapeHtml(nextVis.label)}</span>`;
+  }
+
+  // Cabecera institucional en Ink Navy
+  const header = el("header", { class: "admin-moderation-header" }, [
+    el("div", { class: "admin-moderation-header-main" }, [
+      el("span", {
+        class: "admin-moderation-header-icon",
+        html: typeof getSvgIcon === "function" ? getSvgIcon("award") : "",
+      }),
+      el("div", { class: "admin-moderation-header-titles" }, [
+        el("span", { class: "admin-moderation-eyebrow", text: "Control de Calidad Institucional · Uso Exclusivo Administrador" }),
+        el("h3", { id: "adminModerationTitle", class: "admin-moderation-title", text: "Panel de Moderación de Ficha Profesional" }),
       ]),
-      el("button", {
-        type: "button",
-        class: "btn btn-primary",
-        style: "background: #10b981; border: none;",
-        text: "Guardar y Aprobar Ficha",
-        onclick: async () => {
-          const isPublic = document.getElementById("adminMakePublicSwitch").checked;
-          clearAlert(alertBox);
-          try {
-            const res = await api.admin.moderateGraduate(graduate.id, {
-              action: "approve",
-              makePublic: isPublic
-            });
-            graduate.moderationStatus = "approved";
-            graduate.visibility = isPublic ? "public" : "private";
-            const statusBadge = document.getElementById("adminStatusBadge");
-            if (statusBadge) {
-              statusBadge.className = `badge ${isPublic ? "badge-public" : "badge-private"}`;
-              statusBadge.textContent = `Estado: approved (${isPublic ? "Pública" : "Privada"})`;
-            }
-            showAlert(alertBox, res.message || "Ficha aprobada exitosamente.", "success");
-            if (typeof showToast === "function") showToast("Ficha aprobada con éxito.", "success");
-          } catch (err) {
-            showAlert(alertBox, err.message || "Error al aprobar la ficha.");
-          }
-        }
-      })
-    ])
+    ]),
+    el("div", { class: "admin-moderation-badges" }, [modBadge, visBadge]),
   ]);
-  wrap.appendChild(approveBlock);
+  wrap.appendChild(header);
+
+  const body = el("div", { class: "admin-moderation-body" });
+
+  const alertBox = el("div", { id: "adminModerationAlert", class: "admin-moderation-alert-slot" });
+  body.appendChild(alertBox);
+
+  const grid = el("div", { class: "admin-moderation-grid" });
+
+  // Bloque 1: Observaciones al egresado
+  const obsTextarea = el("textarea", {
+    id: "adminObsInput",
+    class: "admin-moderation-textarea",
+    rows: "4",
+    placeholder: "Ej: Por favor detalla tus responsabilidades en la experiencia laboral registrada o verifica el año de emisión de tu certificado...",
+  });
+  if (graduate.moderationObservations) {
+    obsTextarea.value = graduate.moderationObservations;
+  }
+
+  const sendObsBtn = el("button", {
+    type: "button",
+    id: "adminSendObsBtn",
+    class: "btn btn-primary admin-moderation-obs-btn",
+    html: `${typeof getSvgIcon === "function" ? getSvgIcon("mail") : ""} <span>Enviar observación al egresado</span>`,
+  });
+
+  sendObsBtn.addEventListener("click", async () => {
+    const rawValue = obsTextarea.value.trim();
+    if (!rawValue) {
+      const msg = "Escribe una observación antes de enviar.";
+      showAlert(alertBox, msg);
+      if (typeof showToast === "function") showToast(msg, "warning");
+      obsTextarea.focus();
+      return;
+    }
+    clearAlert(alertBox);
+    sendObsBtn.disabled = true;
+    const originalHtml = sendObsBtn.innerHTML;
+    sendObsBtn.textContent = "Enviando observación...";
+    try {
+      const res = await api.admin.moderateGraduate(graduate.id, {
+        action: "observe",
+        observations: rawValue,
+      });
+      graduate.moderationStatus = "observed";
+      graduate.visibility = "private";
+      graduate.moderationObservations = rawValue;
+      syncModerationBadges();
+      const pubSwitch = document.getElementById("adminMakePublicSwitch");
+      if (pubSwitch) {
+        pubSwitch.checked = false;
+        pubSwitch.dispatchEvent(new Event("change"));
+      }
+      showAlert(alertBox, res.message || "Observación enviada con éxito.", "success");
+      if (typeof showToast === "function") showToast("Observación enviada al egresado.", "info");
+    } catch (err) {
+      const errMsg = err.message || "Error al enviar observación.";
+      showAlert(alertBox, errMsg);
+      if (typeof showToast === "function") showToast(errMsg, "error");
+    } finally {
+      sendObsBtn.disabled = false;
+      sendObsBtn.innerHTML = originalHtml;
+    }
+  });
+
+  const obsCard = el("div", { class: "admin-moderation-box admin-moderation-box-obs" }, [
+    el("div", { class: "admin-moderation-box-header" }, [
+      el("span", { class: "admin-moderation-box-icon icon-burgundy", html: typeof getSvgIcon === "function" ? getSvgIcon("message") : "" }),
+      el("div", {}, [
+        el("h4", { class: "admin-moderation-box-title", text: "Observaciones al Egresado" }),
+        el("p", {
+          class: "admin-moderation-box-desc",
+          text: "Si la ficha requiere correcciones, envía una observación detallada. Se notificará al egresado en la plataforma y por correo electrónico, y la ficha pasará a estado privada.",
+        }),
+      ]),
+    ]),
+    el("div", { class: "form-group admin-moderation-field" }, [
+      el("label", { for: "adminObsInput", class: "admin-moderation-label", text: "Detalle de las correcciones solicitadas" }),
+      obsTextarea,
+    ]),
+    el("div", { class: "admin-moderation-box-actions" }, [sendObsBtn]),
+  ]);
+
+  // Bloque 2: Aprobación y visibilidad pública con Switch accesible
+  const switchInput = el("input", {
+    type: "checkbox",
+    id: "adminMakePublicSwitch",
+    class: "moderation-switch-input",
+    role: "switch",
+    checked: graduate.visibility === "public",
+    "aria-checked": String(graduate.visibility === "public"),
+  });
+
+  const switchStateText = el("span", {
+    id: "adminSwitchStateText",
+    class: `moderation-switch-state ${graduate.visibility === "public" ? "is-public" : "is-private"}`,
+    text: graduate.visibility === "public" ? "Publicar en el directorio público" : "Mantener como ficha privada",
+  });
+
+  switchInput.addEventListener("change", () => {
+    const isChecked = switchInput.checked;
+    switchInput.setAttribute("aria-checked", String(isChecked));
+    switchStateText.textContent = isChecked ? "Publicar en el directorio público" : "Mantener como ficha privada";
+    switchStateText.className = `moderation-switch-state ${isChecked ? "is-public" : "is-private"}`;
+  });
+
+  const switchControl = el("label", { class: "moderation-switch-card", for: "adminMakePublicSwitch" }, [
+    el("span", { class: "moderation-switch-control" }, [
+      switchInput,
+      el("span", { class: "moderation-switch-track", "aria-hidden": "true" }, [
+        el("span", { class: "moderation-switch-thumb" }),
+      ]),
+    ]),
+    el("span", { class: "moderation-switch-copy" }, [
+      el("span", { class: "moderation-switch-title", text: "Hacer público el perfil en el directorio" }),
+      switchStateText,
+    ]),
+  ]);
+
+  const approveBtn = el("button", {
+    type: "button",
+    id: "adminApproveProfileBtn",
+    class: "btn admin-moderation-approve-btn",
+    html: `${typeof getSvgIcon === "function" ? getSvgIcon("check") : ""} <span>Guardar y Aprobar Ficha</span>`,
+  });
+
+  approveBtn.addEventListener("click", async () => {
+    const isPublic = switchInput.checked;
+    clearAlert(alertBox);
+    approveBtn.disabled = true;
+    const originalHtml = approveBtn.innerHTML;
+    approveBtn.textContent = "Procesando aprobación...";
+    try {
+      const res = await api.admin.moderateGraduate(graduate.id, {
+        action: "approve",
+        makePublic: isPublic,
+      });
+      graduate.moderationStatus = "approved";
+      graduate.visibility = isPublic ? "public" : "private";
+      graduate.moderationObservations = null;
+      syncModerationBadges();
+      showAlert(alertBox, res.message || "Ficha aprobada exitosamente.", "success");
+      if (typeof showToast === "function") showToast("Ficha aprobada con éxito.", "success");
+    } catch (err) {
+      const errMsg = err.message || "Error al aprobar la ficha.";
+      showAlert(alertBox, errMsg);
+      if (typeof showToast === "function") showToast(errMsg, "error");
+    } finally {
+      approveBtn.disabled = false;
+      approveBtn.innerHTML = originalHtml;
+    }
+  });
+
+  const approveCard = el("div", { class: "admin-moderation-box admin-moderation-box-approve" }, [
+    el("div", { class: "admin-moderation-box-header" }, [
+      el("span", { class: "admin-moderation-box-icon icon-approve", html: typeof getSvgIcon === "function" ? getSvgIcon("check") : "" }),
+      el("div", {}, [
+        el("h4", { class: "admin-moderation-box-title", text: "Aprobación y Visibilidad Pública" }),
+        el("p", {
+          class: "admin-moderation-box-desc",
+          text: "Define si la ficha aprobada estará visible en el directorio público institucional o permanecerá accesible únicamente de forma privada.",
+        }),
+      ]),
+    ]),
+    switchControl,
+    el("div", { class: "admin-moderation-box-actions" }, [approveBtn]),
+  ]);
+
+  grid.appendChild(obsCard);
+  grid.appendChild(approveCard);
+  body.appendChild(grid);
+  wrap.appendChild(body);
 
   return wrap;
 }

@@ -1718,12 +1718,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         exportCvBtn.textContent = "Cargando CV...";
         clearAlert(generalAlert);
         const freshGraduate = await api.profile.get();
-        if (window.buildFormalCvHtml) {
+        cvPreviewModal.hidden = false;
+        if (window.renderFormalCv) {
+          window.renderFormalCv(cvSheetContainer, freshGraduate);
+        } else if (window.buildFormalCvHtml) {
           cvSheetContainer.innerHTML = window.buildFormalCvHtml(freshGraduate);
         } else {
           cvSheetContainer.innerHTML = "<p>No se pudo inicializar el generador de CV.</p>";
         }
-        cvPreviewModal.hidden = false;
       } catch (err) {
         showAlert(generalAlert, "Error al generar vista de CV: " + (err.message || err));
       } finally {
